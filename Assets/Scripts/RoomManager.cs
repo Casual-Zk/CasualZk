@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TarodevController;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -22,8 +23,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("Connected to server");
 
         PhotonNetwork.JoinLobby();  
-
-        // BORA
     }
 
     public override void OnJoinedLobby()
@@ -42,7 +41,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("We're connected and in a room!");
 
         GameObject _player = PhotonNetwork.Instantiate(player.name, spawnPoint.position, Quaternion.identity);
-        _player.GetComponent<PlayerSetup>().IsLocalPlayer();
+        _player.GetComponent<PlayerController>().isOwner = true;
     }
 }
-//selim

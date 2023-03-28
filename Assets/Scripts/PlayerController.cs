@@ -22,20 +22,22 @@ namespace TarodevController {
         private Vector3 _lastPosition;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
 
+        public bool isOwner;
+
         // This is horrible, but for some reason colliders are not fully established when update starts...
         private bool _active;
         void Awake() => Invoke(nameof(Activate), 0.5f);
         void Activate() =>  _active = true;
         
         private void Update() {
-            if(!_active) return;
+            if(!_active || !isOwner) return;
 
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
 
-            if (Velocity.x > 0 && transform.localScale.x < 0) FlipCharacter();
-            if (Velocity.x < 0 && transform.localScale.x > 0) FlipCharacter();
+            if (Velocity.x > 0 && transform.localRotation.y != 0) FlipCharacter();
+            if (Velocity.x < 0 && transform.localRotation.y == 0) FlipCharacter();
 
             GatherInput();
             RunCollisionChecks();
@@ -50,7 +52,10 @@ namespace TarodevController {
 
         private void FlipCharacter()
         {
-            transform.localScale = new Vector2(-1 * transform.localScale.x, transform.localScale.y);
+            float newRot = 0;
+            if (transform.localRotation.y == 0) newRot = 180;
+            transform.localRotation = new Quaternion(transform.localRotation.x, newRot, 
+                transform.localRotation.z, transform.localRotation.w);
         }
 
 
