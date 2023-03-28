@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3017248590167507454}
   - component: {fileID: 7579886797985926633}
   - component: {fileID: 6402071444290342228}
+  - component: {fileID: 5425031961457323803}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -95,7 +96,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3017248590167507448}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c02bda2dc1eced9449df3d69ddceb4f1, type: 3}
   m_Name: 
@@ -110,12 +111,12 @@ MonoBehaviour:
   _detectionRayLength: 0.1
   _rayBuffer: 0.1
   _acceleration: 100
-  _moveClamp: 13
+  _moveClamp: 10
   _deAcceleration: 100
   _apexBonus: 2
   _fallClamp: -40
-  _minFallSpeed: 80
-  _maxFallSpeed: 120
+  _minFallSpeed: 60
+  _maxFallSpeed: 80
   _jumpHeight: 25
   _jumpApexThreshold: 10
   _coyoteTimeThreshold: 0.1
@@ -159,8 +160,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SynchronizePosition: 1
   m_SynchronizeRotation: 0
-  m_SynchronizeScale: 0
+  m_SynchronizeScale: 1
   m_UseLocal: 1
+--- !u!114 &5425031961457323803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3017248590167507448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b42b259132ee5d24f8c1a480c27a5516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 3017248590167507454}
 --- !u!1 &3017248590338230930
 GameObject:
   m_ObjectHideFlags: 0

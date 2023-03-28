@@ -29,9 +29,13 @@ namespace TarodevController {
         
         private void Update() {
             if(!_active) return;
+
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
+
+            if (Velocity.x > 0 && transform.localScale.x < 0) FlipCharacter();
+            if (Velocity.x < 0 && transform.localScale.x > 0) FlipCharacter();
 
             GatherInput();
             RunCollisionChecks();
@@ -42,6 +46,11 @@ namespace TarodevController {
             CalculateJump(); // Possibly overrides vertical
 
             MoveCharacter(); // Actually perform the axis movement
+        }
+
+        private void FlipCharacter()
+        {
+            transform.localScale = new Vector2(-1 * transform.localScale.x, transform.localScale.y);
         }
 
 
