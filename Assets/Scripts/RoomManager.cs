@@ -22,6 +22,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("Connected to server");
 
         PhotonNetwork.JoinLobby();  
+
+        // BORA
     }
 
     public override void OnJoinedLobby()
