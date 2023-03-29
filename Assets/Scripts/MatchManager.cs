@@ -70,13 +70,13 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (photonEvent.Code >= 200) return;
 
-        EventCodes e = (EventCodes) photonEvent.Code;
-        object[] o = (object[])photonEvent.CustomData;
+        EventCodes eventCode = (EventCodes) photonEvent.Code;
+        object[] eventData = (object[])photonEvent.CustomData;
 
-        switch (e)
+        switch (eventCode)
         {
             case EventCodes.RefreshTimer:
-                RefreshTimer_Receive(o);
+                RefreshTimer_Receive(eventData);
                 break;
         }
     }
