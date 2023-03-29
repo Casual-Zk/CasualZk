@@ -14,5 +14,9 @@ public class DeathWall : MonoBehaviourPunCallbacks
         {
             collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 999);
         }
+        else
+        {
+            Destroy(collision.gameObject);
+        }
     }
 }

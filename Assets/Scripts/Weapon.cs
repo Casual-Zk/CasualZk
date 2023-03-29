@@ -13,15 +13,18 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] Bullet bullet;
     [SerializeField] PlayerController controllerToSet;
 
+    MatchManager matchManager;
     private float nextFire;
 
     private void Start()
     {
         controller = controllerToSet;
+        matchManager = FindObjectOfType<MatchManager>();
     }
 
     void Update()
     {
+        if (matchManager.isGameOver) return; // Don't fire if the time is up
         if (!controller.isOwner) return;   // Do not execute any code if it's not owner!
 
         // Decrease the timer

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Photon.Pun;
+using ExitGames.Client.Photon;
 
 namespace TarodevController {
     /// <summary>
@@ -23,15 +24,47 @@ namespace TarodevController {
         private Vector3 _lastPosition;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
 
+        /// <summary>
+        /// Added
+        /// </summary>
         public bool isOwner { get; set; }
         [SerializeField] GameObject body;
+        MatchManager matchManager;
 
         // This is horrible, but for some reason colliders are not fully established when update starts...
         private bool _active;
         void Awake() => Invoke(nameof(Activate), 0.5f);
         void Activate() =>  _active = true;
-        
+
+        /// <summary>
+        /// Added
+        /// </summary>
+        void Start()
+        {
+            // Register a callback method for the TimerUpdate event
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+        void OnDestroy()
+        {
+            // Unregister the callback method when the player object is destroyed
+            PhotonNetwork.RemoveCallbackTarget(this);
+        }
+
+        public void OnEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code == 1)
+            {
+                // Handle the TimerUpdate event by updating the timer value on the client-side
+                object[] data = (object[])photonEvent.CustomData;
+                float timer = (float)data[0];
+                // Update the timer value in your game
+            }
+        }
+
         private void Update() {
+            if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
+            if (matchManager.isGameOver) return; // Don't move if the time is up
+
             if (!Mathf.Approximately(0, Velocity.x))
                 body.transform.rotation = Velocity.x < 0 ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
 

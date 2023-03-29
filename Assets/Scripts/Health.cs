@@ -11,9 +11,18 @@ public class Health : MonoBehaviourPunCallbacks
     [SerializeField] Slider slider;
     [SerializeField] PlayerController controller;
 
+    MatchManager matchManager;
+
+    private void Start()
+    {
+        matchManager = FindObjectOfType<MatchManager>();
+    }
+
     [PunRPC]
     public void TakeDamage(int _damage)
     {
+        if (matchManager.isGameOver) return; // Don't get hurt if the time is up
+
         health -= _damage;
 
         if (health <= 0)
