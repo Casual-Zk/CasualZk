@@ -6,9 +6,17 @@ using TarodevController;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
+    public static RoomManager Instance;
+
     [SerializeField] GameObject player;
-    [Space][SerializeField] Transform spawnPoint;
+    [Space][SerializeField] Transform[] spawnPoints;
     [SerializeField] Canvas connectingCanvas;
+    [SerializeField] float playerRespawnTime;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -43,7 +51,24 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
         connectingCanvas.enabled = false;
 
-        GameObject _player = PhotonNetwork.Instantiate(player.name, spawnPoint.position, Quaternion.identity);
+        SpawnPlayer();
+    }
+
+    public void RespawnPlayer()
+    {
+        StartCoroutine(Respawn());
+    }
+    
+    IEnumerator Respawn()
+    {
+        yield return new WaitForSeconds(playerRespawnTime);
+        SpawnPlayer();
+    }
+
+    private void SpawnPlayer()
+    {
+        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<PlayerController>().isOwner = true;
     }
 }

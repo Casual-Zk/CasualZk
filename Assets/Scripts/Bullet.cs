@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using TarodevController;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviourPunCallbacks
 {
     public bool isOwner { get; set; }
 

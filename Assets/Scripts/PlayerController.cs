@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Photon.Pun;
 
 namespace TarodevController {
     /// <summary>
@@ -10,7 +11,7 @@ namespace TarodevController {
     /// if there's enough interest. You can play and compete for best times here: https://tarodev.itch.io/
     /// If you hve any questions or would like to brag about your score, come to discord: https://discord.gg/GqeHHnhHpz
     /// </summary>
-    public class PlayerController : MonoBehaviour, IPlayerController {
+    public class PlayerController : MonoBehaviourPunCallbacks, IPlayerController {
         // Public for external hooks
         public Vector3 Velocity { get; private set; }
         public FrameInput Input { get; private set; }

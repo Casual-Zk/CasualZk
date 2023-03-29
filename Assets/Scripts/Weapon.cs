@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using TarodevController;
 
-public class Weapon : MonoBehaviour
+public class Weapon : MonoBehaviourPunCallbacks
 {
     public PlayerController controller { get; set; }
 
