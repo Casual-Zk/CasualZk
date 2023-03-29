@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 
 public class Health : MonoBehaviour
 {
-    public int health;
+    [SerializeField] int health;
+    [SerializeField] Slider slider;
 
     [PunRPC]
     public void TakeDamage(int _damage)
@@ -16,5 +18,7 @@ public class Health : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        slider.value = health;
     }
 }

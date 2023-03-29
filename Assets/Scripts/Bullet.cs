@@ -6,9 +6,10 @@ using TarodevController;
 
 public class Bullet : MonoBehaviour
 {
-    public int damage = 10;
-    public float speed = 1f;
-    public bool isOwner;
+    public bool isOwner { get; set; }
+
+    [SerializeField] int damage = 10;
+    [SerializeField] float speed = 1f;    
 
     private void FixedUpdate()
     {
@@ -25,7 +26,6 @@ public class Bullet : MonoBehaviour
             // bu i?lem tüm oyunculara gönderiliyor. Ama sadece hedef oyuncunun can? gidiyor tabi
             collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage);
         }
-
         
         Destroy(gameObject);
     }

@@ -6,12 +6,19 @@ using TarodevController;
 
 public class Weapon : MonoBehaviour
 {
-    public float fireRate;
-    public Transform nozzle;
-    public Bullet bullet;
-    public PlayerController controller;
+    public PlayerController controller { get; set; }
+
+    [SerializeField] float fireRate;
+    [SerializeField] Transform nozzle;
+    [SerializeField] Bullet bullet;
+    [SerializeField] PlayerController controllerToSet;
 
     private float nextFire;
+
+    private void Start()
+    {
+        controller = controllerToSet;
+    }
 
     void Update()
     {

@@ -22,7 +22,8 @@ namespace TarodevController {
         private Vector3 _lastPosition;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
 
-        public bool isOwner;
+        public bool isOwner { get; set; }
+        [SerializeField] GameObject body;
 
         // This is horrible, but for some reason colliders are not fully established when update starts...
         private bool _active;
@@ -30,14 +31,14 @@ namespace TarodevController {
         void Activate() =>  _active = true;
         
         private void Update() {
-            if(!_active || !isOwner) return;
+            if (!Mathf.Approximately(0, Velocity.x))
+                body.transform.rotation = Velocity.x < 0 ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
+
+            if (!_active || !isOwner) return;
 
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
-
-            if (Velocity.x > 0 && transform.localRotation.y != 0) FlipCharacter();
-            if (Velocity.x < 0 && transform.localRotation.y == 0) FlipCharacter();
 
             GatherInput();
             RunCollisionChecks();
@@ -49,15 +50,6 @@ namespace TarodevController {
 
             MoveCharacter(); // Actually perform the axis movement
         }
-
-        private void FlipCharacter()
-        {
-            float newRot = 0;
-            if (transform.localRotation.y == 0) newRot = 180;
-            transform.localRotation = new Quaternion(transform.localRotation.x, newRot, 
-                transform.localRotation.z, transform.localRotation.w);
-        }
-
 
         #region Gather Input
 

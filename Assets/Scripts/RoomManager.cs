@@ -6,8 +6,9 @@ using TarodevController;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
-    public GameObject player;
-    [Space] public Transform spawnPoint;
+    [SerializeField] GameObject player;
+    [Space][SerializeField] Transform spawnPoint;
+    [SerializeField] Canvas connectingCanvas;
 
     void Start()
     {
@@ -39,6 +40,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         base.OnJoinedRoom();
 
         Debug.Log("We're connected and in a room!");
+
+        connectingCanvas.enabled = false;
 
         GameObject _player = PhotonNetwork.Instantiate(player.name, spawnPoint.position, Quaternion.identity);
         _player.GetComponent<PlayerController>().isOwner = true;
