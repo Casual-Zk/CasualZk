@@ -9,7 +9,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public static RoomManager Instance;
 
     [SerializeField] GameObject player;
-    [SerializeField] GameObject timer;
     [Space][SerializeField] Transform[] spawnPoints;
     [SerializeField] Canvas connectingCanvas;
     [SerializeField] float playerRespawnTime;
@@ -51,7 +50,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("We're connected and in a room!");
 
         connectingCanvas.enabled = false;
-        timer.SetActive(true);
 
         SpawnPlayer();
     }
