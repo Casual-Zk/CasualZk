@@ -150,6 +150,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private void RefreshTimer_Receive(object[] data)
     {
         time = (float)data[0];
+        if (time < 2) isGameOver = true;
         RefreshTimerUI();
     }
 }

@@ -13,6 +13,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] Canvas connectingCanvas;
     [SerializeField] float playerRespawnTime;
 
+    int playerCounter;
+
     private void Awake()
     {
         Instance = this;
@@ -70,5 +72,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<PlayerController>().isOwner = true;
+        _player.name = "Player - " + playerCounter.ToString();
+        playerCounter++;
     }
 }
