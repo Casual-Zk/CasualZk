@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class MenuManager : MonoBehaviour
 {
-    [SerializeField] private GameObject RoomManager;
+    [SerializeField] private GameObject RoomManager,MatchManager;
 
     public void FindMatchButton(){
         RoomManager.SetActive(true);
+        MatchManager.SetActive(true);
         gameObject.SetActive(false); 
     }
 }

@@ -1978,6 +1978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RoomManager: {fileID: 962147550}
+  MatchManager: {fileID: 1025223258}
 --- !u!1 &1461494880
 GameObject:
   m_ObjectHideFlags: 0
