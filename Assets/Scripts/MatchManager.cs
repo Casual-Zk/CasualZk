@@ -109,7 +109,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private IEnumerator Timer()
     {
-        Debug.Log("Timer'da time: " + time);
         yield return new WaitForSeconds(1f);
         time--;
 
@@ -124,7 +123,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
         else
         {
-            Debug.Log("Sending time to others");
             RefreshTimer_Send();
             timerCoroutine = StartCoroutine(Timer());
         }

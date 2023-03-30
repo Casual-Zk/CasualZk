@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TarodevController;
+using Photon.Realtime;
+using TMPro;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -10,10 +12,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     [SerializeField] GameObject player;
     [Space][SerializeField] Transform[] spawnPoints;
-    [SerializeField] Canvas connectingCanvas;
+    [SerializeField] GameObject connectingUI;
+    [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
 
     int playerCounter;
+    int duelCounter;
+    bool duelRoomFound;
 
     private void Awake()
     {
@@ -23,36 +28,55 @@ public class RoomManager : MonoBehaviourPunCallbacks
     void Start()
     {
         Debug.Log("Connecting...");
-
         PhotonNetwork.ConnectUsingSettings();
+    }
+
+    public void FindMatchButton()
+    {
+        connectingUI.SetActive(true);
+
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 4;
+
+        if (!duelRoomFound) PhotonNetwork.JoinOrCreateRoom("Duel_0", roomOptions, TypedLobby.Default);
+        else PhotonNetwork.JoinOrCreateRoom("Duel_" + duelCounter, roomOptions, TypedLobby.Default);
     }
 
     public override void OnConnectedToMaster()
     {
         base.OnConnectedToMaster();
-
         Debug.Log("Connected to server");
-
         PhotonNetwork.JoinLobby();  
     }
 
     public override void OnJoinedLobby()
     {
         base.OnJoinedLobby();
-
-        Debug.Log("We're in the lobby.");
-
-        PhotonNetwork.JoinOrCreateRoom("test", null, null);
+        Debug.Log("We're in the lobby.");        
     }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        duelCounter = 0;
+
+        foreach (RoomInfo room in roomList)
+        {
+            Debug.LogError("Room Found: " + room.Name);
+
+            if (room.Name.Contains("Duel")) duelRoomFound = true;
+            if (room.Name.Contains("Duel") && room.PlayerCount >= 2) duelCounter++;
+        }
+    }
+
+
 
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
+        roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
         Debug.Log("We're connected and in a room!");
-
-        connectingCanvas.enabled = false;
-
+        connectingUI.SetActive(false);
         SpawnPlayer();
     }
 
