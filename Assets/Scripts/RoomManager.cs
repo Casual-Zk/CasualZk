@@ -31,7 +31,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
-    public void FindMatchButton()
+    private void FindMatchButton()
     {
         connectingUI.SetActive(true);
 
@@ -52,7 +52,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         base.OnJoinedLobby();
-        Debug.Log("We're in the lobby.");        
+        Debug.Log("We're in the lobby.");
+        FindMatchButton();        
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
