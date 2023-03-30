@@ -31,17 +31,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
-    private void FindMatchButton()
-    {
-        connectingUI.SetActive(true);
-
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 4;
-
-        if (!duelRoomFound) PhotonNetwork.JoinOrCreateRoom("Duel_0", roomOptions, TypedLobby.Default);
-        else PhotonNetwork.JoinOrCreateRoom("Duel_" + duelCounter, roomOptions, TypedLobby.Default);
-    }
-
     public override void OnConnectedToMaster()
     {
         base.OnConnectedToMaster();
@@ -52,8 +41,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         base.OnJoinedLobby();
-        Debug.Log("We're in the lobby.");
-        FindMatchButton();        
+        Debug.Log("We're in the lobby.");        
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
@@ -67,6 +55,12 @@ public class RoomManager : MonoBehaviourPunCallbacks
             if (room.Name.Contains("Duel")) duelRoomFound = true;
             if (room.Name.Contains("Duel") && room.PlayerCount >= 2) duelCounter++;
         }
+
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 4;
+
+        if (!duelRoomFound) PhotonNetwork.JoinOrCreateRoom("Duel_0", roomOptions, TypedLobby.Default);
+        else PhotonNetwork.JoinOrCreateRoom("Duel_" + duelCounter, roomOptions, TypedLobby.Default);
     }
 
 
@@ -98,6 +92,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<PlayerController>().isOwner = true;
         _player.name = "Player - " + playerCounter.ToString();
+        _player.GetComponent<CasualPlayer>().SetName();
         playerCounter++;
     }
 }
