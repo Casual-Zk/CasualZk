@@ -18,6 +18,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private float time;
     private Coroutine timerCoroutine;
 
+    List<CasualPlayer> players = new List<CasualPlayer>();
+
     public enum EventCodes : byte
     {
         RefreshTimer
@@ -63,7 +65,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             Debug.Log("Local is the master");
             InitializeTimer();
         }
-        InitializeTimer();
     }
 
     public void OnEvent(EventData photonEvent)
@@ -97,7 +98,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("Is Master Client");
+            Debug.Log("This is the master client");
             timerCoroutine = StartCoroutine(Timer());
         }
     }
@@ -151,4 +152,5 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (time < 2) isGameOver = true;
         RefreshTimerUI();
     }
+
 }

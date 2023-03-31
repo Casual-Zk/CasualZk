@@ -16,9 +16,10 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
 
-    int playerCounter;
     int duelCounter;
     bool duelRoomFound;
+
+    MatchManager matchManager;
 
     private void Awake()
     {
@@ -29,6 +30,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Connecting...");
         PhotonNetwork.ConnectUsingSettings();
+    }
+
+    private void Update()
+    {
+        if (matchManager == null) FindObjectOfType<MatchManager>();
     }
 
     public override void OnConnectedToMaster()
@@ -91,8 +97,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<PlayerController>().isOwner = true;
-        _player.name = "Player - " + playerCounter.ToString();
-        _player.GetComponent<CasualPlayer>().SetName();
-        playerCounter++;
+        _player.GetComponent<PhotonView>().Controller.NickName = PlayerPrefs.GetString("Nickname");
     }
 }
