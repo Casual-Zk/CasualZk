@@ -44,5 +44,6 @@ public class Weapon : MonoBehaviourPunCallbacks
         // Spawn the bullet
         GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, transform.rotation);
         newBullet.GetComponent<Bullet>().isOwner = true;
+        newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
     }
 }

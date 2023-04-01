@@ -79,6 +79,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("We're connected and in a room!");
         connectingUI.SetActive(false);
         SpawnPlayer();
+        FindAnyObjectByType<MatchManager>().GetComponent<PhotonView>().RPC(
+            "AddPlayer", RpcTarget.All, PlayerPrefs.GetString("Nickname"));
     }
 
     public void RespawnPlayer()

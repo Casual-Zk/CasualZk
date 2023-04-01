@@ -15,10 +15,11 @@ public class MenuManager : MonoBehaviour
     }
 
     public void FindMatchButton(){
-        if(check_nickname()){
-        RoomManager.SetActive(true);
-        MatchManager.SetActive(true);
-        gameObject.SetActive(false); 
+        if(check_nickname())
+        {
+            MatchManager.SetActive(true);
+            RoomManager.SetActive(true);
+            gameObject.SetActive(false); 
         }
         
     }

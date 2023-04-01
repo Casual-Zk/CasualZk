@@ -14,6 +14,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     [SerializeField] float matchTime;
     [SerializeField] TextMeshProUGUI timeText;
+    [SerializeField] TextMeshProUGUI playerA;
+    [SerializeField] TextMeshProUGUI playerB;
 
     private float time;
     private Coroutine timerCoroutine;
@@ -89,6 +91,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         RefreshTimerUI();
     }
 
+    // ------------- TIMER ------------- //
+
     private void InitializeTimer()
     {
         time = matchTime;
@@ -152,5 +156,77 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (time < 2) isGameOver = true;
         RefreshTimerUI();
     }
+
+
+    // ------------- SCORE ------------- //
+    [PunRPC]
+    public void AddPlayer(string playerNickname)
+    {
+        CasualPlayer newPlayer = new CasualPlayer();
+        newPlayer.nickName = playerNickname;
+
+        Debug.LogError("New player: " + playerNickname);
+
+        players.Add(newPlayer);
+
+        foreach (CasualPlayer player in players) 
+        {
+            photonView.RPC("UpdatePlayers", RpcTarget.Others, player.nickName);
+        }
+
+
+        photonView.RPC("RefreshPlayerScoreUI", RpcTarget.Others);
+    }
+
+    [PunRPC]
+    public void UpdatePlayers(string playerNickname)
+    {
+        bool inTheList = false;
+
+        foreach (CasualPlayer player in players)
+        {
+            if (player.nickName == playerNickname) inTheList = true;
+        }
+
+        if (!inTheList)
+        {
+            Debug.LogError("I haven't had " + playerNickname + " but added now!");
+            AddPlayer(playerNickname);
+        }
+    }
+
+    [PunRPC]
+    public void AddPlayerScore(string playerName, int scoreToAdd)
+    {
+        Debug.LogError("Adding Score: " + playerName + " : " + scoreToAdd);
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].nickName == playerName)
+            {
+                players[i].score += scoreToAdd;
+                break;
+            }
+        }
+
+        photonView.RPC("RefreshPlayerScoreUI", RpcTarget.Others);
+    }
+
+    [PunRPC]
+    public void RefreshPlayerScoreUI()
+    {
+        Debug.LogError("Refresing score UI");
+
+        if (players.Count == 1) 
+        {
+            playerA.text = players[0].nickName + " : " + players[0].score; 
+        }
+        if (players.Count == 2) 
+        {
+            playerA.text = players[0].nickName + " : " + players[0].score; 
+            playerB.text = players[1].nickName + " : " + players[1].score;
+        }
+    }
+
 
 }

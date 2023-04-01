@@ -43,6 +43,10 @@ MonoBehaviour:
   - SetName
   - AddPlayer
   - UpdateNameText
+  - SetOwner
+  - AddPlayerScore
+  - RefreshPlayerScoreUI
+  - UpdatePlayers
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

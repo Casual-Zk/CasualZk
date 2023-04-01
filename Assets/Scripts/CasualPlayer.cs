@@ -8,8 +8,8 @@ public class CasualPlayer : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI nameText;
 
-    public string nickName { get; private set; }
-    public string playerScore { get; set; }
+    public string nickName { get; set; }
+    public int score { get; set; }
 
     private void Start()
     {
