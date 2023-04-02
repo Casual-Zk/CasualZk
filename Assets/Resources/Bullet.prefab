@@ -254,7 +254,7 @@ MonoBehaviour:
   isAngularVelocityCompressed: 0
   automaticallyResetTime: 1
   isSmoothingAuthorityChanges: 0
-  whenToUpdateTransform: 0
+  whenToUpdateTransform: 1
   setVelocityInsteadOfPositionOnNonOwners: 0
   useLocalTransformOnly: 0
   maxPositionDifferenceForVelocitySyncing: 10

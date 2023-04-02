@@ -5,6 +5,7 @@ using Photon.Pun;
 using TarodevController;
 using Photon.Realtime;
 using TMPro;
+using Cinemachine;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -15,6 +16,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject connectingUI;
     [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
+    [SerializeField] CinemachineVirtualCamera player_v_cam;
 
     int duelCounter;
     bool duelRoomFound;
@@ -99,7 +101,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<SimpleContoller>().isOwner = true;
-        _player.GetComponent<PlayerCamera>().enabled = true;
+        //_player.GetComponent<PlayerCamera>().enabled = true;
+        player_v_cam.LookAt = _player.transform;
+        player_v_cam.Follow = _player.transform;
         _player.GetComponent<PhotonView>().Controller.NickName = PlayerPrefs.GetString("Nickname");
     }
 }

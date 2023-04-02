@@ -155,7 +155,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3017248590167507455}
-  - component: {fileID: 7467381499646497633}
   - component: {fileID: 7223784155936209042}
   - component: {fileID: 247168243351703701}
   - component: {fileID: 7579886797985926633}
@@ -192,20 +191,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7467381499646497633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3017248590167507448}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 377ebd5f4a97a41e9bf6d9210cd69f29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  smoothSpeed: 6.6
-  offset: {x: 0, y: 0, z: 0}
 --- !u!114 &7223784155936209042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,7 +337,7 @@ MonoBehaviour:
   isAngularVelocityCompressed: 0
   automaticallyResetTime: 1
   isSmoothingAuthorityChanges: 0
-  whenToUpdateTransform: 0
+  whenToUpdateTransform: 1
   setVelocityInsteadOfPositionOnNonOwners: 0
   useLocalTransformOnly: 0
   maxPositionDifferenceForVelocitySyncing: 10
