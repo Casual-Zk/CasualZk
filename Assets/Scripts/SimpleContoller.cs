@@ -29,6 +29,7 @@ public class SimpleContoller : MonoBehaviour
 	[SerializeField] Transform lookRight;
 	[SerializeField] Transform lookLeft;
 	[SerializeField] Transform holdPoint;
+	[SerializeField] Transform sprite;
 	float horizontalMove = 0f;
 	bool jump = false;
 	public bool isOwner { get; set; }
@@ -76,10 +77,13 @@ public class SimpleContoller : MonoBehaviour
 		if (Input.GetButtonDown("Jump")) jump = true;
 
 		LookAtMouse();
+
 	}
 
     private void FixedUpdate()
 	{
+		if (!isOwner) return;
+
 		// @Bora Applying movement
 		Move(horizontalMove * Time.deltaTime, false, jump);
 		jump = false;
@@ -171,13 +175,15 @@ public class SimpleContoller : MonoBehaviour
 		// Reverse the weapon if we look at reverse
 		if (angle > 90 || angle < -90)
         {
-			body.transform.rotation = Quaternion.Euler(0, 180, 0);
-			holdPoint.transform.localScale = new Vector3(1, -1, 1);
+			body.transform.localScale = new Vector3(-1, 1, 1);
+			//body.transform.rotation = Quaternion.Euler(0, 180, 0);
+			holdPoint.transform.localScale = new Vector3(-1, -1, 1);
 			player_v_cam.Follow = lookLeft;
 		}			
 		else
         {
-			body.transform.rotation = Quaternion.identity;
+			body.transform.localScale = new Vector3(1, 1, 1);
+			//body.transform.rotation = Quaternion.identity;
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
 			player_v_cam.Follow = lookRight;
 		}

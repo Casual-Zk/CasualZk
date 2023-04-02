@@ -10,7 +10,7 @@ public class Bullet : MonoBehaviourPunCallbacks
     public string ownerName { get; set; }
 
     [SerializeField] int damage = 10;
-    [SerializeField] float speed = 1f;
+    [SerializeField] float speed = .1f;
 
     bool hit;
 
@@ -19,18 +19,19 @@ public class Bullet : MonoBehaviourPunCallbacks
         transform.position += transform.right * Time.deltaTime * speed;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (hit) return;
         hit = true;
 
-        // If we are the owner and the hit object has a health component, hit that ass
-        if (!isOwner && collision.gameObject.GetComponent<Health>())
-        {
-            // Can componenti varsa, PhotonView'?n? ça??r, ondaki PunRPC olarak i?aretledi?imiz
-            // TakeDamage fonksiyonunu ça??r. PhotonView ile PunRPC fonksiyonunu ça??rd???m?z için,
-            // bu i?lem tüm oyunculara gönderiliyor. Ama sadece hedef oyuncunun can? gidiyor tabi
-            collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage, ownerName);
+        GameObject obj = collision.gameObject;
+
+        // If we are the owner and the hit object has a health component but not a owner(myself), hit that ass
+        if (isOwner && obj.GetComponent<Health>())
+        {   
+            // Don't hit yourself
+            if (!obj.GetComponent<SimpleContoller>().isOwner)
+                collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage, ownerName);
         }
         
         Destroy(gameObject);
