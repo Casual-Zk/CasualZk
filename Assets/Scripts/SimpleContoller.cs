@@ -22,11 +22,13 @@ public class SimpleContoller : MonoBehaviour
 	private Vector3 m_Velocity = Vector3.zero;
 
 	// @Bora variables
+	[Header("Casual Edition")]
+	[SerializeField] float runSpeed = 40f;
+	[SerializeField] GameObject body;
+	[SerializeField] Transform holdPoint;
 	float horizontalMove = 0f;
 	bool jump = false;
-	[SerializeField] float runSpeed = 40f;
 	public bool isOwner { get; set; }
-	[SerializeField] GameObject body;
 	MatchManager matchManager;
 
 	[Header("Events")]
@@ -56,16 +58,16 @@ public class SimpleContoller : MonoBehaviour
 		if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
 		if (matchManager.isGameOver) return; // Don't move if the time is up
 
-		if (!Mathf.Approximately(0, m_Rigidbody2D.velocity.x))
-			body.transform.rotation = m_Rigidbody2D.velocity.x < 0 ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
-
+		
 		if (!isOwner) return;
 
 		// @Bora Getting input
 		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 
 		if (Input.GetButtonDown("Jump")) jump = true;
-    }
+
+		LookAtMouse();
+	}
 
     private void FixedUpdate()
 	{
@@ -149,5 +151,36 @@ public class SimpleContoller : MonoBehaviour
 			m_Grounded = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 		}
+	}
+
+	private void LookAtMouse()
+	{
+		Vector3 aimDirection = (GetMousePos() - transform.position).normalized;
+		float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+		holdPoint.eulerAngles = new Vector3(0, 0, angle);
+
+		// Reverse the weapon if we look at reverse
+
+		if (angle > 90 || angle < -90)
+        {
+			body.transform.rotation = Quaternion.Euler(0, 180, 0);
+			holdPoint.transform.localScale = new Vector3(1, -1, 1);
+		}			
+		else
+        {
+			body.transform.rotation = Quaternion.identity;
+			holdPoint.transform.localScale = new Vector3(1, 1, 1);
+		}
+
+
+		/*
+		if (angle > 90 || angle < -90) holdPoint.transform.localScale = new Vector3(1, -1, 1);
+		else holdPoint.transform.localScale = new Vector3(1, 1, 1);
+		*/
+	}
+
+	public static Vector3 GetMousePos()
+	{
+		return Camera.main.ScreenToWorldPoint(Input.mousePosition);
 	}
 }
