@@ -59,11 +59,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
             Debug.LogError("Room Found: " + room.Name);
 
             if (room.Name.Contains("Duel")) duelRoomFound = true;
-            if (room.Name.Contains("Duel") && room.PlayerCount >= 2) duelCounter++;
+            if (room.Name.Contains("Duel") && room.PlayerCount >= 3) duelCounter++;
         }
 
         RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 4;
+        roomOptions.MaxPlayers = 3;
 
         if (!duelRoomFound) PhotonNetwork.JoinOrCreateRoom("Duel_0", roomOptions, TypedLobby.Default);
         else PhotonNetwork.JoinOrCreateRoom("Duel_" + duelCounter, roomOptions, TypedLobby.Default);
