@@ -668,7 +668,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373cb2e0321c292429f5daff3c3417f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireRate: 3
+  fireRate: 5
   nozzle: {fileID: 1120943446952040344}
   bullet: {fileID: 7137776409426426427, guid: ec01abaffb2729342a9ba32925263b9a, type: 3}
   controllerToSet: {fileID: 247168243351703701}
