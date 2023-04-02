@@ -12,6 +12,8 @@ public class Bullet : MonoBehaviourPunCallbacks
     [SerializeField] int damage = 10;
     [SerializeField] float speed = 1f;
 
+    bool hit;
+
     private void FixedUpdate()
     {
         transform.position += transform.right * Time.deltaTime * speed;
@@ -19,6 +21,9 @@ public class Bullet : MonoBehaviourPunCallbacks
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (hit) return;
+        hit = true;
+
         // If we are the owner and the hit object has a health component, hit that ass
         if (!isOwner && collision.gameObject.GetComponent<Health>())
         {
