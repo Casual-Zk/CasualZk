@@ -98,7 +98,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
-        _player.GetComponent<PlayerController>().isOwner = true;
+        _player.GetComponent<SimpleContoller>().isOwner = true;
         _player.GetComponent<PlayerCamera>().enabled = true;
         _player.GetComponent<PhotonView>().Controller.NickName = PlayerPrefs.GetString("Nickname");
     }

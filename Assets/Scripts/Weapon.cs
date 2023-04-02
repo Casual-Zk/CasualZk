@@ -6,12 +6,12 @@ using TarodevController;
 
 public class Weapon : MonoBehaviourPunCallbacks
 {
-    public PlayerController controller { get; set; }
+    public SimpleContoller controller { get; set; }
 
     [SerializeField] float fireRate;
     [SerializeField] Transform nozzle;
     [SerializeField] Bullet bullet;
-    [SerializeField] PlayerController controllerToSet;
+    [SerializeField] SimpleContoller controllerToSet;
 
     MatchManager matchManager;
     private float nextFire;

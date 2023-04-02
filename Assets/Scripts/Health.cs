@@ -9,7 +9,7 @@ public class Health : MonoBehaviourPunCallbacks
 {
     [SerializeField] int health;
     [SerializeField] Slider slider;
-    [SerializeField] PlayerController controller;
+    [SerializeField] SimpleContoller controller;
 
     MatchManager matchManager;
 

@@ -124,7 +124,6 @@ GameObject:
   - component: {fileID: 3017248590167507455}
   - component: {fileID: 3017248590167507452}
   - component: {fileID: 7223784155936209042}
-  - component: {fileID: 3017248590167507454}
   - component: {fileID: 7579886797985926633}
   - component: {fileID: 6402071444290342228}
   - component: {fileID: -9081140728587231104}
@@ -132,6 +131,7 @@ GameObject:
   - component: {fileID: 4606155443092864269}
   - component: {fileID: 6880907490344244684}
   - component: {fileID: 7467381499646497633}
+  - component: {fileID: 247168243351703701}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -153,6 +153,8 @@ Transform:
   m_Children:
   - {fileID: 6821914816120394753}
   - {fileID: 8954199713381928606}
+  - {fileID: 3643863086098737240}
+  - {fileID: 7291369144322877581}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -221,41 +223,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nameText: {fileID: 2899567255407460593}
---- !u!114 &3017248590167507454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3017248590167507448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c02bda2dc1eced9449df3d69ddceb4f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 7021490610139178981}
-  _characterBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0.5, y: 0.8, z: 0}
-  _groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  _detectorCount: 3
-  _detectionRayLength: 0.1
-  _rayBuffer: 0.1
-  _acceleration: 100
-  _moveClamp: 10
-  _deAcceleration: 100
-  _apexBonus: 2
-  _fallClamp: -40
-  _minFallSpeed: 60
-  _maxFallSpeed: 80
-  _jumpHeight: 25
-  _jumpApexThreshold: 10
-  _coyoteTimeThreshold: 0.1
-  _jumpBuffer: 0.1
-  _jumpEndEarlyGravityModifier: 3
-  _freeColliderIterations: 10
 --- !u!114 &7579886797985926633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,7 +293,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 100
   slider: {fileID: 3233185476248903848}
-  controller: {fileID: 3017248590167507454}
+  controller: {fileID: 247168243351703701}
 --- !u!70 &4606155443092864269
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -358,11 +325,11 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 7
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &7467381499646497633
 MonoBehaviour:
@@ -377,7 +344,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothSpeed: 6.6
-  offset: {x: 0, y: 10, z: 0}
+  offset: {x: 0, y: 0, z: 0}
+--- !u!114 &247168243351703701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3017248590167507448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f831ec3487ba2d146aae33599bcd72b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_JumpForce: 1400
+  m_CrouchSpeed: 0.36
+  m_MovementSmoothing: 0.05
+  m_AirControl: 1
+  m_WhatIsGround:
+    serializedVersion: 2
+    m_Bits: 64
+  m_GroundCheck: {fileID: 7291369144322877581}
+  m_CeilingCheck: {fileID: 3643863086098737240}
+  m_CrouchDisableCollider: {fileID: 0}
+  runSpeed: 60
+  body: {fileID: 7021490610139178981}
+  OnLandEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCrouchEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3017248590338230930
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,7 +695,7 @@ MonoBehaviour:
   fireRate: 3
   nozzle: {fileID: 1120943446952040344}
   bullet: {fileID: 7137776409426426427, guid: ec01abaffb2729342a9ba32925263b9a, type: 3}
-  controllerToSet: {fileID: 3017248590167507454}
+  controllerToSet: {fileID: 247168243351703701}
 --- !u!1 &3800177414010488283
 GameObject:
   m_ObjectHideFlags: 0
@@ -775,6 +772,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4122249013577905885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3643863086098737240}
+  m_Layer: 0
+  m_Name: Ceiling Check
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3643863086098737240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4122249013577905885}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.97, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3017248590167507455}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4555078227363121734
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,6 +1007,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6140297650695110005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7291369144322877581}
+  m_Layer: 0
+  m_Name: Ground Check
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7291369144322877581
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6140297650695110005}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.98, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3017248590167507455}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7021490610139178981
 GameObject:
   m_ObjectHideFlags: 0

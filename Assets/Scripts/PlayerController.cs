@@ -36,9 +36,6 @@ namespace TarodevController {
         void Awake() => Invoke(nameof(Activate), 0.5f);
         void Activate() =>  _active = true;
 
-        /// <summary>
-        /// Added
-        /// </summary>
         void Start()
         {
             // Register a callback method for the TimerUpdate event
