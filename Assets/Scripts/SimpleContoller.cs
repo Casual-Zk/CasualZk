@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Cinemachine;
 
 public class SimpleContoller : MonoBehaviour
 {
@@ -25,11 +26,14 @@ public class SimpleContoller : MonoBehaviour
 	[Header("Casual Edition")]
 	[SerializeField] float runSpeed = 40f;
 	[SerializeField] GameObject body;
+	[SerializeField] Transform lookRight;
+	[SerializeField] Transform lookLeft;
 	[SerializeField] Transform holdPoint;
 	float horizontalMove = 0f;
 	bool jump = false;
 	public bool isOwner { get; set; }
 	MatchManager matchManager;
+	CinemachineVirtualCamera player_v_cam;
 
 	[Header("Events")]
 	[Space]
@@ -51,6 +55,11 @@ public class SimpleContoller : MonoBehaviour
 
 		if (OnCrouchEvent == null)
 			OnCrouchEvent = new BoolEvent();
+	}
+
+    private void Start()
+    {
+		player_v_cam = FindObjectOfType<CinemachineVirtualCamera>();
 	}
 
     private void Update()
@@ -160,23 +169,18 @@ public class SimpleContoller : MonoBehaviour
 		holdPoint.eulerAngles = new Vector3(0, 0, angle);
 
 		// Reverse the weapon if we look at reverse
-
 		if (angle > 90 || angle < -90)
         {
 			body.transform.rotation = Quaternion.Euler(0, 180, 0);
 			holdPoint.transform.localScale = new Vector3(1, -1, 1);
+			player_v_cam.Follow = lookLeft;
 		}			
 		else
         {
 			body.transform.rotation = Quaternion.identity;
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
+			player_v_cam.Follow = lookRight;
 		}
-
-
-		/*
-		if (angle > 90 || angle < -90) holdPoint.transform.localScale = new Vector3(1, -1, 1);
-		else holdPoint.transform.localScale = new Vector3(1, 1, 1);
-		*/
 	}
 
 	public static Vector3 GetMousePos()
