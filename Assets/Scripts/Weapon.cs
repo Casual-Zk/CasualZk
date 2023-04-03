@@ -14,12 +14,14 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] SimpleContoller controllerToSet;
 
     MatchManager matchManager;
+    AudioManager audioManager;
     private float nextFire;
 
     private void Start()
     {
         controller = controllerToSet;
         matchManager = FindObjectOfType<MatchManager>();
+        audioManager = FindObjectOfType<AudioManager>();
     }
 
     void Update()
@@ -45,5 +47,13 @@ public class Weapon : MonoBehaviourPunCallbacks
         GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, transform.rotation);
         newBullet.GetComponent<Bullet>().isOwner = true;
         newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
+
+        GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void PlayFireSFX()
+    {
+        audioManager.Play("Short_Fire");
     }
 }

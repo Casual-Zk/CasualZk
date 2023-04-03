@@ -12,30 +12,34 @@ public class Health : MonoBehaviourPunCallbacks
     [SerializeField] SimpleContoller controller;
 
     MatchManager matchManager;
+    AudioManager audioManager;
 
     private void Start()
     {
         matchManager = FindObjectOfType<MatchManager>();
+        audioManager = FindObjectOfType<AudioManager>();
     }
 
     [PunRPC]
     public void TakeDamage(int damage, string shooterName)
     {
-        Debug.Log("Shooter: " + shooterName);
+        //Debug.Log("Shooter: " + shooterName);
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
 
         health -= damage;
 
         if (health <= 0)
         {
-            Debug.Log("Killer: " + shooterName);
+            audioManager.Play("Chicken_Death");
+
+            //Debug.Log("Killer: " + shooterName);
             int score = 1;
 
             if (shooterName.Contains("DeathWall")) 
             { 
                 shooterName = shooterName.Split('/')[0];
                 score = -1;
-                Debug.LogError("Death wall hit by " + shooterName);
+                //Debug.LogError("Death wall hit by " + shooterName);
             }
 
             matchManager.GetComponent<PhotonView>().RPC("AddPlayerScore", RpcTarget.Others, shooterName, score);
