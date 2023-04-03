@@ -165,7 +165,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         CasualPlayer newPlayer = new CasualPlayer();
         newPlayer.nickName = playerNickname;
 
-        Debug.LogError("New player: " + playerNickname);
+        //Debug.LogError("New player: " + playerNickname);
 
         players.Add(newPlayer);
 
@@ -190,7 +190,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (!inTheList)
         {
-            Debug.LogError("I haven't had " + playerNickname + " but added now!");
+            //Debug.LogError("I haven't had " + playerNickname + " but added now!");
             AddPlayer(playerNickname);
         }
     }
@@ -198,7 +198,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [PunRPC]
     public void AddPlayerScore(string playerName, int scoreToAdd)
     {
-        Debug.LogError("Adding Score: " + playerName + " : " + scoreToAdd);
+        //Debug.LogError("Adding Score: " + playerName + " : " + scoreToAdd);
 
         for (int i = 0; i < players.Count; i++)
         {
@@ -215,7 +215,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [PunRPC]
     public void RefreshPlayerScoreUI()
     {
-        Debug.LogError("Refresing score UI");
+        //Debug.LogError("Refresing score UI");
 
         if (players.Count == 1) 
         {

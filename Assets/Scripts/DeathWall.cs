@@ -7,9 +7,16 @@ public class DeathWall : MonoBehaviourPunCallbacks
 {
     [SerializeField] int damage = 999;
 
+    List<int> hitIDs = new List<int>();
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         GameObject obj = collision.gameObject;
+
+        // Prevent double death by double collider
+        if (hitIDs.Contains(obj.GetInstanceID())) return;
+        hitIDs.Add(obj.GetInstanceID());
+
         // If we are the owner and the hit object has a health component, hit that ass
         if (obj.GetComponent<Health>())
         {
