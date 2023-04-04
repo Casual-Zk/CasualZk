@@ -52,6 +52,11 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         Ending = 3
     }
 
+    private void Start()
+    {
+        isGameOver = true;
+    }
+
     public void StartMatch()
     {
         PhotonNetwork.AddCallbackTarget(this);
@@ -169,7 +174,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         // Clean the players data
         scoreList.Clear();
-        isGameOver = false;
 
         for (var i = scorePanel.transform.childCount - 1; i >= 0; i--)
         {
@@ -260,11 +264,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private void RefreshTimer_Receive(object[] data)
     {
         time = (float)data[0];
-        if (time <= 0) 
-        { 
-            isGameOver = true; 
-            EndGame(); 
-        }
+
+        if (time <= 0) EndGame();
+        
         RefreshTimerUI();
         
     }

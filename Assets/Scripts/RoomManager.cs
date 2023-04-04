@@ -13,7 +13,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     [SerializeField] GameObject player;
     [Space][SerializeField] Transform[] spawnPoints;
-    [SerializeField] GameObject connectingUI;
+    [SerializeField] public GameObject connectingUI;
     [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
     [SerializeField] CinemachineVirtualCamera player_v_cam;
@@ -32,13 +32,17 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Connecting...");
         PhotonNetwork.ConnectUsingSettings();
+
+        if (!matchManager.GetComponent<PhotonView>().IsMine) return;
+
         connectingUI.SetActive(true);
         roomNameText.enabled = false;
     }
 
     private void Update()
     {
-        if (matchManager == null) FindObjectOfType<MatchManager>();
+        if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
+        if (!matchManager.isGameOver) connectingUI.SetActive(false);    // Prevent connectiong UI to open if the game is on!
     }
 
     public override void OnConnectedToMaster()
