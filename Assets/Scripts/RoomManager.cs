@@ -28,10 +28,12 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Instance = this;
     }
 
-    void Start()
+    public void FindMatch()
     {
         Debug.Log("Connecting...");
         PhotonNetwork.ConnectUsingSettings();
+        connectingUI.SetActive(true);
+        roomNameText.enabled = false;
     }
 
     private void Update()
@@ -76,11 +78,14 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
+        roomNameText.enabled = true;
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
         Debug.Log("We're connected and in a room!");
         connectingUI.SetActive(false);
         SpawnPlayer();
+
+        FindAnyObjectByType<MatchManager>().StartMatch();
         FindAnyObjectByType<MatchManager>().GetComponent<PhotonView>().RPC(
             "AddPlayer", RpcTarget.All, PlayerPrefs.GetString("Nickname"));
     }

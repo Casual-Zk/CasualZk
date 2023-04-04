@@ -28,10 +28,12 @@ public class Bullet : MonoBehaviourPunCallbacks
 
         // If we are the owner and the hit object has a health component but not a owner(myself), hit that ass
         if (isOwner && obj.GetComponent<Health>())
-        {   
+        {
+            string targetName = obj.GetComponent<PhotonView>().Controller.NickName;
             // Don't hit yourself
             if (!obj.GetComponent<SimpleContoller>().isOwner)
-                collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage, ownerName);
+                collision.gameObject.GetComponent<PhotonView>().RPC(
+                    "TakeDamage", RpcTarget.All, damage, ownerName, targetName);
         }
         
         Destroy(gameObject);

@@ -47,7 +47,7 @@ MonoBehaviour:
   sounds:
   - name: Game_Music
     clip: {fileID: 8300000, guid: caf6068d53633c6458df627a92fa2571, type: 3}
-    volume: 0.2
+    volume: 0.02
     pitch: 1
     loop: 1
     source: {fileID: 0}
@@ -60,6 +60,18 @@ MonoBehaviour:
   - name: Chicken_Death
     clip: {fileID: 8300000, guid: 35946d33d3a516543bd9342805b864e6, type: 3}
     volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Win_SFX
+    clip: {fileID: 8300000, guid: 12d676db4bc5d7c4585403ababe1e727, type: 3}
+    volume: 0.1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Fail_SFX
+    clip: {fileID: 8300000, guid: f90026d3b3ec3934591156cef0c94cf4, type: 3}
+    volume: 0.1
     pitch: 1
     loop: 0
     source: {fileID: 0}

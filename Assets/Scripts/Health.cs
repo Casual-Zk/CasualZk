@@ -21,7 +21,7 @@ public class Health : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void TakeDamage(int damage, string shooterName)
+    public void TakeDamage(int damage, string shooterName, string targetName)
     {
         //Debug.Log("Shooter: " + shooterName);
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
@@ -33,16 +33,8 @@ public class Health : MonoBehaviourPunCallbacks
             audioManager.Play("Chicken_Death");
 
             //Debug.Log("Killer: " + shooterName);
-            int score = 1;
 
-            if (shooterName.Contains("DeathWall")) 
-            { 
-                shooterName = shooterName.Split('/')[0];
-                score = -1;
-                //Debug.LogError("Death wall hit by " + shooterName);
-            }
-
-            matchManager.GetComponent<PhotonView>().RPC("AddPlayerScore", RpcTarget.Others, shooterName, score);
+            matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.Others, shooterName, targetName);
 
             if (controller.isOwner)
             {

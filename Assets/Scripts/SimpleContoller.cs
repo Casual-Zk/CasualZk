@@ -66,8 +66,11 @@ public class SimpleContoller : MonoBehaviour
     private void Update()
 	{
 		if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
-		if (matchManager.isGameOver) return; // Don't move if the time is up
-
+		if (matchManager.isGameOver)
+        {
+			horizontalMove = 0;
+			return; // Don't move if the time is up
+		}
 		
 		if (!isOwner) return;
 
@@ -87,8 +90,6 @@ public class SimpleContoller : MonoBehaviour
 		// @Bora Applying movement
 		Move(horizontalMove * Time.deltaTime, false, jump);
 		jump = false;
-
-
 
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;

@@ -20,8 +20,8 @@ public class DeathWall : MonoBehaviourPunCallbacks
         // If we are the owner and the hit object has a health component, hit that ass
         if (obj.GetComponent<Health>())
         {
-            string killer = obj.GetComponent<PhotonView>().Controller.NickName + "/DeathWall";
-            obj.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 999, killer);
+            string target = obj.GetComponent<PhotonView>().Controller.NickName;
+            obj.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 999, "DeathWall", target);
         }
         else
         {

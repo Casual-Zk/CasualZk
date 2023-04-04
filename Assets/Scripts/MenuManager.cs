@@ -6,20 +6,30 @@ using TMPro;
 
 public class MenuManager : MonoBehaviour
 {
-    [SerializeField] private GameObject RoomManager,MatchManager;
+    MatchManager matchManager;
+    RoomManager roomManager;
+
+    [SerializeField] Canvas MenuCanvas;
     [SerializeField] private TMP_InputField Nickname_Input;
 
     private void Start()
     {
+        StartMenu();
+    }
+
+    public void StartMenu()
+    {
+        MenuCanvas.enabled = true;
+        matchManager = FindObjectOfType<MatchManager>();
+        roomManager = FindObjectOfType<RoomManager>();
         if (PlayerPrefs.HasKey("Nickname")) Nickname_Input.text = PlayerPrefs.GetString("Nickname");
     }
 
     public void FindMatchButton(){
-        if(check_nickname())
+        if (check_nickname())
         {
-            MatchManager.SetActive(true);
-            RoomManager.SetActive(true);
-            gameObject.SetActive(false); 
+            roomManager.FindMatch();
+            MenuCanvas.enabled = false;
         }
         
     }
