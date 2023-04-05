@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 2025431156839513053}
   - component: {fileID: 1557749067964510971}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: 12-gauge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf282116dedc2446945f9155a08c80a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 20
+  damage: 10
   speed: 30
 --- !u!61 &8758140814050615358
 BoxCollider2D:

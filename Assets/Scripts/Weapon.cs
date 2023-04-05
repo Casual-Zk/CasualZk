@@ -12,6 +12,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] Transform nozzle;
     [SerializeField] Bullet bullet;
     [SerializeField] SimpleContoller controllerToSet;
+    [SerializeField] bool isKnife;
 
     MatchManager matchManager;
     AudioManager audioManager;
