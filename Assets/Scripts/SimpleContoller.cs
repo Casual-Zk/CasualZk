@@ -36,6 +36,15 @@ public class SimpleContoller : MonoBehaviour
 	MatchManager matchManager;
 	CinemachineVirtualCamera player_v_cam;
 
+	[Header("Weapons")]
+	[SerializeField] GameObject[] weapons;
+	// 0 - Knife
+	// 1 - Glock
+	// 2 - Shotgun
+	// 3 - M4
+	// 4 - AWP
+	int activeWeaponIndex = 0;	// Always start with knife
+
 	[Header("Events")]
 	[Space]
 
@@ -80,7 +89,7 @@ public class SimpleContoller : MonoBehaviour
 		if (Input.GetButtonDown("Jump")) jump = true;
 
 		LookAtMouse();
-
+		switchWeapon();
 	}
 
     private void FixedUpdate()
@@ -193,5 +202,33 @@ public class SimpleContoller : MonoBehaviour
 	public static Vector3 GetMousePos()
 	{
 		return Camera.main.ScreenToWorldPoint(Input.mousePosition);
+	}
+
+	private void switchWeapon()
+    {
+		if (Input.GetKeyDown(KeyCode.E))
+        {
+			// Inactivate the current one
+			weapons[activeWeaponIndex].SetActive(false);
+			activeWeaponIndex++;
+
+			// Reset value if it exceeds the array
+			if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0;
+
+			// Activate the new weapon
+			weapons[activeWeaponIndex].SetActive(true);
+		}
+		if (Input.GetKeyDown(KeyCode.Q))
+		{
+			// Inactivate the current one
+			weapons[activeWeaponIndex].SetActive(false);
+			activeWeaponIndex--;
+
+			// Get the last weapon if value gets below 0
+			if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
+
+			// Activate the new weapon
+			weapons[activeWeaponIndex].SetActive(true);
+		}
 	}
 }

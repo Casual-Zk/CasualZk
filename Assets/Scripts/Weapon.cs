@@ -10,9 +10,12 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     [SerializeField] float fireRate;
     [SerializeField] Transform nozzle;
+    [SerializeField] Transform[] shotgunDirections;
     [SerializeField] Bullet bullet;
     [SerializeField] SimpleContoller controllerToSet;
     [SerializeField] bool isKnife;
+    [SerializeField] bool isShotgun;
+    [SerializeField] bool isSniper;
 
     MatchManager matchManager;
     AudioManager audioManager;
@@ -44,17 +47,40 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     void Fire()
     {
-        // Spawn the bullet
-        GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, transform.rotation);
-        newBullet.GetComponent<Bullet>().isOwner = true;
-        newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
+        if (isKnife)
+        {
+            // TODO
+        }
+        else if (isShotgun)
+        {
+            // Spawn all bullets
+            foreach (Transform nozzle in shotgunDirections)
+            {
+                GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, nozzle.rotation);
+                newBullet.GetComponent<Bullet>().isOwner = true;
+                newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
+            }
 
-        GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+            // Play SFX
+            GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+        }
+        else
+        {
+            // Spawn the bullet
+            GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, nozzle.rotation);
+            newBullet.GetComponent<Bullet>().isOwner = true;
+            newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
+
+            GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+        }
     }
 
     [PunRPC]
     public void PlayFireSFX()
     {
-        audioManager.Play("Short_Fire");
+        if (isKnife) return;
+        else if (isShotgun) audioManager.Play("Shotgun_SFX");
+        else if (isSniper) audioManager.Play("Sniper_SFX");
+        else audioManager.Play("Short_Fire");
     }
 }
