@@ -39,7 +39,7 @@ public class Health : MonoBehaviourPunCallbacks
 
             //Debug.Log("Killer: " + shooterName);
 
-            matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.Others, shooterName, targetName);
+            matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.All, shooterName, targetName);
 
             if (controller.isOwner)
             {

@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] Transform[] shotgunDirections;
     [SerializeField] Bullet bullet;
     [SerializeField] SimpleContoller controllerToSet;
+    [SerializeField] int knifeDamage;
     [SerializeField] bool isKnife;
     [SerializeField] bool isShotgun;
     [SerializeField] bool isSniper;
@@ -47,7 +48,10 @@ public class Weapon : MonoBehaviourPunCallbacks
     {
         if (isKnife)
         {
-            // TODO
+            controller.photonView.RPC("TriggerKnife", RpcTarget.All, knifeDamage, PhotonNetwork.NickName);
+
+            // Play SFX
+            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Knife_Attack_SFX");
         }
         else if (isShotgun)
         {

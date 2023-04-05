@@ -30,7 +30,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] Transform lookRight;
 	[SerializeField] Transform lookLeft;
 	[SerializeField] Transform holdPoint;
-	[SerializeField] Transform sprite;
 	float horizontalMove = 0f;
 	bool jump = false;
 	public bool isOwner { get; set; }
@@ -45,6 +44,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	// 3 - M4
 	// 4 - AWP
 	int activeWeaponIndex = 0;  // Always start with knife
+	[SerializeField] LayerMask playerLayer;
+	[SerializeField] Transform knifeHitCenter;
+	[SerializeField] [Range(0.1f, 5f)] float knifeHitRange;
+	Animator playerAnimator;
+	Collider2D[] hitEnemies;
 
 
 	AudioManager audioManager;
@@ -76,6 +80,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
     {
 		player_v_cam = FindObjectOfType<CinemachineVirtualCamera>();
 		audioManager = FindObjectOfType<AudioManager>();
+		playerAnimator = GetComponent<Animator>();
 	}
 
     private void Update()
@@ -194,20 +199,24 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	{
 		Vector3 aimDirection = (GetMousePos() - transform.position).normalized;
 		float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-		holdPoint.eulerAngles = new Vector3(0, 0, angle);
+
+		// Don't rotate if we hold knife
+		if (activeWeaponIndex == 0) holdPoint.eulerAngles = new Vector3(0, 0, 0);
+		else holdPoint.eulerAngles = new Vector3(0, 0, angle);
+
 
 		// Reverse the weapon if we look at reverse
 		if (angle > 90 || angle < -90)
         {
 			body.transform.localScale = new Vector3(-1, 1, 1);
-			//body.transform.rotation = Quaternion.Euler(0, 180, 0);
-			holdPoint.transform.localScale = new Vector3(-1, -1, 1);
+
+			// Rotate only if we don't hold knife
+			if (activeWeaponIndex != 0) holdPoint.transform.localScale = new Vector3(-1, -1, 1);
 			player_v_cam.Follow = lookLeft;
 		}			
 		else
         {
 			body.transform.localScale = new Vector3(1, 1, 1);
-			//body.transform.rotation = Quaternion.identity;
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
 			player_v_cam.Follow = lookRight;
 		}
@@ -225,7 +234,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	}
 
     [PunRPC]
-	private void SwitchWeapon(bool switchRight)
+	public void SwitchWeapon(bool switchRight)
     {
 		if (switchRight)
 		{
@@ -258,7 +267,41 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	}
 
 	[PunRPC]
+	public void TriggerKnife(int damage, string ownerName) 
+	{
+		playerAnimator.SetTrigger("Knife_Attack");
+
+		// Gets all the player colliders including player's two own collider itself
+		hitEnemies = Physics2D.OverlapCircleAll(knifeHitCenter.position, knifeHitRange, playerLayer);
+
+		// Create a id list to prevent double execution due to double collider
+		List<int> ids = new List<int>();
+
+		// Give damage
+		foreach (Collider2D enemy in hitEnemies) {
+			int enemyID = enemy.GetComponent<PhotonView>().GetInstanceID();
+
+			if (ids.Contains(enemyID)) continue;
+			ids.Add(enemyID);
+
+			if (!isOwner) return;
+
+			enemy.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 
+				damage, ownerName, enemy.GetComponent<PhotonView>().Controller.NickName);
+
+			photonView.RPC("PlayFireSFX", RpcTarget.All, "Knife_Damage_SFX");
+		}
+	}
+	private void OnDrawGizmos()
+	{
+		Vector2 drawGismos = new Vector2(knifeHitCenter.position.x, knifeHitCenter.position.y);
+		Gizmos.DrawWireSphere(drawGismos, knifeHitRange);
+
+	}
+
+	[PunRPC]
 	public void PlayFireSFX(string soundName) { audioManager.Play(soundName); }
+	
 	[PunRPC]
 	public void StopFireSFX(string soundName) { audioManager.Stop(soundName); }
 }

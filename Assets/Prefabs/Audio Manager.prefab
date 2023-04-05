@@ -57,6 +57,30 @@ MonoBehaviour:
     pitch: 1
     loop: 0
     source: {fileID: 0}
+  - name: Shotgun_SFX
+    clip: {fileID: 8300000, guid: acefaee89e3911848a94fef86593eed2, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Sniper_SFX
+    clip: {fileID: 8300000, guid: 702c55a7ce74ac84bbb2537cedd67423, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Knife_Attack_SFX
+    clip: {fileID: 8300000, guid: 8fe21f97ce3d2b746906ce5f53827155, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Knife_Damage_SFX
+    clip: {fileID: 8300000, guid: 8635e6d66bd139745b69dcb0fd9dd5af, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
   - name: Chicken_Death
     clip: {fileID: 8300000, guid: 35946d33d3a516543bd9342805b864e6, type: 3}
     volume: 0.5
