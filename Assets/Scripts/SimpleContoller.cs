@@ -95,7 +95,15 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (Input.GetButtonDown("Jump")) jump = true;
 
 		LookAtMouse();
-		switchWeapon();
+
+		if (Input.GetKeyDown(KeyCode.E))
+		{
+			photonView.RPC("SwitchWeapon", RpcTarget.All, true);
+		}
+		else if (Input.GetKeyDown(KeyCode.Q))
+		{
+			photonView.RPC("SwitchWeapon", RpcTarget.All, false);
+		}
 	}
 
     private void FixedUpdate()
@@ -210,9 +218,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		return Camera.main.ScreenToWorldPoint(Input.mousePosition);
 	}
 
-	private void switchWeapon()
+	private void StopCurrentWeaponSound()
+	{
+		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
+		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
+	}
+
+    [PunRPC]
+	private void SwitchWeapon(bool switchRight)
     {
-		if (Input.GetKeyDown(KeyCode.E))
+		if (switchRight)
 		{
 			//StopCurrentWeaponSound();
 
@@ -226,7 +241,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
 		}
-		if (Input.GetKeyDown(KeyCode.Q))
+		else
 		{
 			//StopCurrentWeaponSound();
 
@@ -240,12 +255,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
 		}
-	}
-
-	private void StopCurrentWeaponSound()
-	{
-		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
-		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
 	}
 
 	[PunRPC]
