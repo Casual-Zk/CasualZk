@@ -126,7 +126,6 @@ GameObject:
   - component: {fileID: 7082202956707346036}
   - component: {fileID: 2675385144615435431}
   - component: {fileID: 1484895918256266377}
-  - component: {fileID: 5373283769981971759}
   m_Layer: 0
   m_Name: Knife
   m_TagString: Untagged
@@ -222,28 +221,6 @@ MonoBehaviour:
   isKnife: 1
   isShotgun: 0
   isSniper: 0
---- !u!114 &5373283769981971759
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1579260680652698373}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &1665465492590155353
 GameObject:
   m_ObjectHideFlags: 0
@@ -362,7 +339,6 @@ GameObject:
   - component: {fileID: 2250722190548738489}
   - component: {fileID: 4552364775432445405}
   - component: {fileID: 3583682959149859277}
-  - component: {fileID: 5852795509529917774}
   m_Layer: 0
   m_Name: Glock
   m_TagString: Untagged
@@ -458,28 +434,6 @@ MonoBehaviour:
   isKnife: 0
   isShotgun: 0
   isSniper: 0
---- !u!114 &5852795509529917774
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2344700985681350146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &2430256468368255962
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,7 +950,6 @@ GameObject:
   - component: {fileID: 4415006923761368702}
   - component: {fileID: 3219085139425157331}
   - component: {fileID: 7356010158022234075}
-  - component: {fileID: 8090372490306745543}
   m_Layer: 0
   m_Name: M4
   m_TagString: Untagged
@@ -1092,28 +1045,6 @@ MonoBehaviour:
   isKnife: 0
   isShotgun: 0
   isSniper: 0
---- !u!114 &8090372490306745543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3682431379361151086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &3800177414010488283
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,7 +1247,6 @@ GameObject:
   - component: {fileID: 5700150819109294526}
   - component: {fileID: 586660965229024053}
   - component: {fileID: 3718719367284168931}
-  - component: {fileID: 8337045604787834486}
   m_Layer: 0
   m_Name: Shotgun
   m_TagString: Untagged
@@ -1421,28 +1351,6 @@ MonoBehaviour:
   isKnife: 0
   isShotgun: 1
   isSniper: 0
---- !u!114 &8337045604787834486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4508866971984598860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &4555078227363121734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1545,7 +1453,6 @@ GameObject:
   - component: {fileID: 8709995213656437316}
   - component: {fileID: 5377213098992475798}
   - component: {fileID: 2300767590780709956}
-  - component: {fileID: 4037765494184107371}
   m_Layer: 0
   m_Name: AWP
   m_TagString: Untagged
@@ -1641,28 +1548,6 @@ MonoBehaviour:
   isKnife: 0
   isShotgun: 0
   isSniper: 1
---- !u!114 &4037765494184107371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5128367404924842262}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &5132254648630193834
 GameObject:
   m_ObjectHideFlags: 0

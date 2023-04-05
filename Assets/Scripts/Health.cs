@@ -11,6 +11,8 @@ public class Health : MonoBehaviourPunCallbacks
     [SerializeField] Slider slider;
     [SerializeField] SimpleContoller controller;
 
+    bool deadAlready;
+
     MatchManager matchManager;
     AudioManager audioManager;
 
@@ -23,6 +25,8 @@ public class Health : MonoBehaviourPunCallbacks
     [PunRPC]
     public void TakeDamage(int damage, string shooterName, string targetName)
     {
+        if (deadAlready) return;    // avoid multi death
+
         //Debug.Log("Shooter: " + shooterName);
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
 
@@ -30,6 +34,7 @@ public class Health : MonoBehaviourPunCallbacks
 
         if (health <= 0)
         {
+            deadAlready = true;
             audioManager.Play("Chicken_Death");
 
             //Debug.Log("Killer: " + shooterName);

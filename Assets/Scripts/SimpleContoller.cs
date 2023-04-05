@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Cinemachine;
+using Photon.Pun;
 
-public class SimpleContoller : MonoBehaviour
+public class SimpleContoller : MonoBehaviourPunCallbacks
 {
 	[SerializeField] private float m_JumpForce = 400f;                          // Amount of force added when the player jumps.
 	[Range(0, 1)][SerializeField] private float m_CrouchSpeed = .36f;           // Amount of maxSpeed applied to crouching movement. 1 = 100%
@@ -43,7 +44,11 @@ public class SimpleContoller : MonoBehaviour
 	// 2 - Shotgun
 	// 3 - M4
 	// 4 - AWP
-	int activeWeaponIndex = 0;	// Always start with knife
+	int activeWeaponIndex = 0;  // Always start with knife
+
+
+	AudioManager audioManager;
+
 
 	[Header("Events")]
 	[Space]
@@ -70,6 +75,7 @@ public class SimpleContoller : MonoBehaviour
     private void Start()
     {
 		player_v_cam = FindObjectOfType<CinemachineVirtualCamera>();
+		audioManager = FindObjectOfType<AudioManager>();
 	}
 
     private void Update()
@@ -207,7 +213,9 @@ public class SimpleContoller : MonoBehaviour
 	private void switchWeapon()
     {
 		if (Input.GetKeyDown(KeyCode.E))
-        {
+		{
+			//StopCurrentWeaponSound();
+
 			// Inactivate the current one
 			weapons[activeWeaponIndex].SetActive(false);
 			activeWeaponIndex++;
@@ -220,6 +228,8 @@ public class SimpleContoller : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.Q))
 		{
+			//StopCurrentWeaponSound();
+
 			// Inactivate the current one
 			weapons[activeWeaponIndex].SetActive(false);
 			activeWeaponIndex--;
@@ -231,4 +241,15 @@ public class SimpleContoller : MonoBehaviour
 			weapons[activeWeaponIndex].SetActive(true);
 		}
 	}
+
+	private void StopCurrentWeaponSound()
+	{
+		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
+		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
+	}
+
+	[PunRPC]
+	public void PlayFireSFX(string soundName) { audioManager.Play(soundName); }
+	[PunRPC]
+	public void StopFireSFX(string soundName) { audioManager.Stop(soundName); }
 }

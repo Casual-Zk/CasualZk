@@ -18,14 +18,12 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] bool isSniper;
 
     MatchManager matchManager;
-    AudioManager audioManager;
     private float nextFire;
 
     private void Start()
     {
         controller = controllerToSet;
         matchManager = FindObjectOfType<MatchManager>();
-        audioManager = FindObjectOfType<AudioManager>();
     }
 
     void Update()
@@ -62,7 +60,7 @@ public class Weapon : MonoBehaviourPunCallbacks
             }
 
             // Play SFX
-            GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Shotgun_SFX");
         }
         else
         {
@@ -71,16 +69,8 @@ public class Weapon : MonoBehaviourPunCallbacks
             newBullet.GetComponent<Bullet>().isOwner = true;
             newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
 
-            GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All);
+            if (isSniper) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX");
+            else controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Short_Fire");
         }
-    }
-
-    [PunRPC]
-    public void PlayFireSFX()
-    {
-        if (isKnife) return;
-        else if (isShotgun) audioManager.Play("Shotgun_SFX");
-        else if (isSniper) audioManager.Play("Sniper_SFX");
-        else audioManager.Play("Short_Fire");
     }
 }
