@@ -39,10 +39,10 @@ public class Health : MonoBehaviourPunCallbacks
 
             //Debug.Log("Killer: " + shooterName);
 
-            matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.All, shooterName, targetName);
 
             if (controller.isOwner)
             {
+                matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.All, shooterName, targetName);
                 RoomManager.Instance.RespawnPlayer();
             }
             Destroy(gameObject);
