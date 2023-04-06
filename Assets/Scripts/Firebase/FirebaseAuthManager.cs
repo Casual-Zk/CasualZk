@@ -7,15 +7,21 @@ using TMPro;
 
 public class FirebaseAuthManager : MonoBehaviour
 {
+    [Header("Objects")]
     [SerializeField] Canvas connectingUI;
     [SerializeField] Canvas MenuCanvas;
     [SerializeField] Canvas authCanvas;
     [SerializeField] GameObject loginUI;
     [SerializeField] GameObject registerUI;
+    [SerializeField] GameObject messageObject;
+    [SerializeField] TextMeshProUGUI messageText;
+
+    [Header("Inputs")]
     [SerializeField] TMP_InputField loginEmailInput;
     [SerializeField] TMP_InputField loginPasswordInput;
     [SerializeField] TMP_InputField registerEmailInput;
     [SerializeField] TMP_InputField registerPasswordInput;
+    [SerializeField] TMP_InputField registerPasswordRepeatInput;
 
     private FirebaseAuth auth;
     private FirebaseUser user;
@@ -85,59 +91,118 @@ public class FirebaseAuthManager : MonoBehaviour
     // Execution Buttons
     public void Btn_Register()
     {
-        // Check if the inputs are valid
-
-        RegisterUser();
+        if (registerPasswordInput.text != registerPasswordRepeatInput.text)
+            StartCoroutine(DisplayAuthMessage("Passwords are not same!", 3f));
+        else
+            StartCoroutine(RegisterUser());
+    }
+    public void Btn_Login()
+    {
+        StartCoroutine(LoginUser());
     }
 
-    void RegisterUser()
+    IEnumerator RegisterUser()
     {
-        auth.CreateUserWithEmailAndPasswordAsync(registerEmailInput.text, registerPasswordInput.text).
-            ContinueWith(task => {
-                if (task.IsCanceled)
-                {
-                    Debug.LogError("CreateUserWithEmailAndPasswordAsync was canceled.");
-                    return;
-                }
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("CreateUserWithEmailAndPasswordAsync encountered an error: " + task.Exception);
-                    return;
-                }
+        var task = auth.CreateUserWithEmailAndPasswordAsync(registerEmailInput.text, registerPasswordInput.text);
 
-                // Firebase user has been created.
-                FirebaseUser newUser = task.Result;
-                Debug.LogFormat("Firebase user created successfully: {0} ({1})",
-                    newUser.DisplayName, newUser.UserId);
+        yield return new WaitUntil(predicate: () => task.IsCompleted);
 
-                registerUI.SetActive(false);
-                loginUI.SetActive(true);
-            });
+        if (task.Exception != null)
+        {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("CreateUserWithEmailAndPasswordAsync was canceled.");
+                yield break;
+            }
+
+            //If there are errors handle them
+            Debug.LogWarning(message: $"Failed to register task with {task.Exception}");
+            FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
+            AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
+
+            string message = "Register Failed!";
+            switch (errorCode)
+            {
+                case AuthError.MissingEmail:
+                    message = "Missing Email";
+                    break;
+                case AuthError.MissingPassword:
+                    message = "Missing Password";
+                    break;
+                case AuthError.WeakPassword:
+                    message = "Weak Password";
+                    break;
+                case AuthError.EmailAlreadyInUse:
+                    message = "Email Already In Use";
+                    break;
+            }
+
+            StartCoroutine(DisplayAuthMessage(message, 3f));
+        }
+        else
+        {
+            // Firebase user has been created.
+            FirebaseUser newUser = task.Result;
+            Debug.LogFormat("Firebase user created successfully: {0} ({1})",
+                newUser.DisplayName, newUser.UserId);
+
+            registerUI.SetActive(false);
+            loginUI.SetActive(true);
+        }
+
+
+                
     }
 
-    public void LoginUser()
+    IEnumerator LoginUser()
     {
-        auth.SignInWithEmailAndPasswordAsync(loginEmailInput.text, loginPasswordInput.text).
-            ContinueWith(task => {
-                if (task.IsCanceled)
-                {
-                    Debug.LogError("SignInWithEmailAndPasswordAsync was canceled.");
-                    return;
-                }
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("SignInWithEmailAndPasswordAsync encountered an error: " + task.Exception);
-                    return;
-                }
+        var task = auth.SignInWithEmailAndPasswordAsync(loginEmailInput.text, loginPasswordInput.text);
 
-                FirebaseUser newUser = task.Result;
-                Debug.LogFormat("User signed in successfully: {0} ({1})",
-                    newUser.DisplayName, newUser.UserId);
-                                
-                loginUI.SetActive(false);
-                authCanvas.enabled = false;
-                MenuCanvas.enabled = true;
-            });
+        yield return new WaitUntil(predicate: () => task.IsCompleted);
+
+        if (task.IsCanceled)
+        {
+            Debug.LogError("SignInWithEmailAndPasswordAsync was canceled.");
+            yield break;
+        }
+
+        if (task.IsFaulted)
+        {
+            Debug.LogError("SignInWithEmailAndPasswordAsync encountered an error: " + task.Exception);
+
+            FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
+            AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
+
+            string message = "Login Failed!";
+            switch (errorCode)
+            {
+                case AuthError.MissingEmail:
+                    message = "Missing Email";
+                    break;
+                case AuthError.MissingPassword:
+                    message = "Missing Password";
+                    break;
+                case AuthError.WrongPassword:
+                    message = "Wrong Password";
+                    break;
+                case AuthError.InvalidEmail:
+                    message = "Invalid Email";
+                    break;
+                case AuthError.UserNotFound:
+                    message = "Account does not exist";
+                    break;
+            }
+
+            StartCoroutine(DisplayAuthMessage(message, 3f));
+            yield break;
+        }
+
+        FirebaseUser newUser = task.Result;
+        Debug.LogFormat("User signed in successfully: {0} ({1})", newUser.DisplayName, newUser.UserId);
+
+        loginUI.SetActive(false);
+        authCanvas.enabled = false;
+        MenuCanvas.enabled = true;
     }
 
     public void LogoutUser()
@@ -149,4 +214,17 @@ public class FirebaseAuthManager : MonoBehaviour
             Application.Quit();
         }
     }
+
+    IEnumerator DisplayAuthMessage(string msg, float time)
+    {
+        messageObject.SetActive(true);
+        messageText.text = msg;
+
+        yield return new WaitForSeconds(time);
+
+        messageText.text = "";
+        messageObject.SetActive(false);
+    }
+
+
 }

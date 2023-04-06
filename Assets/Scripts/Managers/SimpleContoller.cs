@@ -209,9 +209,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (angle > 90 || angle < -90)
         {
 			body.transform.localScale = new Vector3(-1, 1, 1);
-
-			// Rotate only if we don't hold knife
-			if (activeWeaponIndex != 0) holdPoint.transform.localScale = new Vector3(-1, -1, 1);
+			holdPoint.transform.localScale = new Vector3(-1, -1, 1);
 			player_v_cam.Follow = lookLeft;
 		}			
 		else
@@ -220,6 +218,10 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
 			player_v_cam.Follow = lookRight;
 		}
+
+		// If we hold knife, correct the holding point
+		if (activeWeaponIndex == 0)
+			holdPoint.transform.localScale = new Vector3(1, 1, 1);
 	}
 
 	public static Vector3 GetMousePos()
