@@ -744,7 +744,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 20
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f4e9f003cb9e92e4990f447a9f17c7db, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -808,7 +808,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &5593602612898324525
@@ -1226,7 +1226,7 @@ MonoBehaviour:
   miniScorePanel: {fileID: 5593602613846337613}
   inGameUI: {fileID: 5593602613328404032}
   endGameUI: {fileID: 5593602612962367309}
-  menuManagerPrefab: {fileID: 3601124967292256990, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+  map_0: {fileID: 0}
 --- !u!114 &5593602613581109519
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "502041118196",
+    "project_id": "zk-chickens",
+    "storage_bucket": "zk-chickens.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502041118196:android:aff5bacfb7a2e38abca5a1",
+        "android_client_info": {
+          "package_name": "com.CasualZk.ZkChickens"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502041118196-oalsvo1bkjotmod2hel1luo0vlih3524.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl1Qx2v7PQUrwBmvQ2IDy-zkz1iUsAPwY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502041118196-oalsvo1bkjotmod2hel1luo0vlih3524.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "502041118196-cug03e4egkknmc9bcvhu3bcr6bsd7l1q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.CasualZk.ZkChickens"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
