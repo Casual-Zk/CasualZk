@@ -19,7 +19,6 @@ public class MenuManager : MonoBehaviour
 
     public void StartMenu()
     {
-        MenuCanvas.enabled = true;
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
         if (PlayerPrefs.HasKey("Nickname")) Nickname_Input.text = PlayerPrefs.GetString("Nickname");
