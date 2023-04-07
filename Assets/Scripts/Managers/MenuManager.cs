@@ -33,9 +33,12 @@ public class MenuManager : MonoBehaviour
         
     }
     private bool check_nickname(){
-        if(Nickname_Input.text != ""){
-            Debug.Log("Nickname :"+Nickname_Input.text);
-            PlayerPrefs.SetString("Nickname", Nickname_Input.text);
+        string nickname = Nickname_Input.text;
+
+        if(nickname != ""){
+            Debug.Log("Nickname :" + nickname);
+            PlayerPrefs.SetString("Nickname", nickname);
+            FindObjectOfType<FirebaseDataManager>().UpdateNickname(nickname);
             return true;
         }
         else{

@@ -902,6 +902,7 @@ GameObject:
   - component: {fileID: 451565027}
   - component: {fileID: 451565026}
   - component: {fileID: 451565028}
+  - component: {fileID: 451565029}
   m_Layer: 0
   m_Name: Firebase Manager
   m_TagString: Untagged
@@ -962,6 +963,18 @@ MonoBehaviour:
   registerEmailInput: {fileID: 745609189}
   registerPasswordInput: {fileID: 1355819615}
   registerPasswordRepeatInput: {fileID: 783112521}
+--- !u!114 &451565029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451565025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18d638be6e5653439a4e7dbfbf03da3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &511826247
 GameObject:
   m_ObjectHideFlags: 0
