@@ -3637,10 +3637,6 @@ PrefabInstance:
       propertyPath: map_0
       value: 
       objectReference: {fileID: 1026605606}
-    - target: {fileID: 5593602613581109513, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
-      propertyPath: matchTime
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 5593602613581109518, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -3749,6 +3745,26 @@ PrefabInstance:
     - target: {fileID: 5707440821738572058, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
       propertyPath: m_Name
       value: Audio Manager
+      objectReference: {fileID: 0}
+    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
+      propertyPath: sounds.Array.size
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
+      propertyPath: sounds.Array.data[9].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 9065186e8c8a3c8428aec6ff715cfd4a, type: 3}
+    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
+      propertyPath: sounds.Array.data[9].name
+      value: GameOver_SFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
+      propertyPath: sounds.Array.data[9].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
+      propertyPath: sounds.Array.data[9].volume
+      value: 0.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}

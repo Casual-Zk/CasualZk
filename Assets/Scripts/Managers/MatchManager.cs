@@ -29,8 +29,10 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject scorePanel;
     [SerializeField] ScoreTable miniScorePrefab;
     [SerializeField] GameObject miniScorePanel;
+    [SerializeField] GameObject eggImage;
 
     [Header("Other")]
+    [SerializeField] GameObject gameOverUI;
     [SerializeField] GameObject inGameUI;
     [SerializeField] GameObject endGameUI;
     [SerializeField] GameObject map_0;
@@ -115,6 +117,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         RefreshTimerUI();
 
         isGameOver = true;
+        gameOverUI.SetActive(true); 
+        audioManager.Play("GameOver_SFX");
 
         StartCoroutine(DisplayMainScore());
     }
@@ -128,6 +132,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             Destroy(miniScorePanel.transform.GetChild(i).gameObject);
         }
 
+        gameOverUI.SetActive(false);
         inGameUI.SetActive(false);
         map_0.SetActive(false);
         endGameUI.SetActive(true);
@@ -152,7 +157,11 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
         // Succes/Fail SFX
-        if (winner.playerName == PhotonNetwork.NickName) audioManager.Play("Win_SFX");
+        if (winner.playerName == PhotonNetwork.NickName)
+        {
+            audioManager.Play("Win_SFX");
+            eggImage.SetActive(true);
+        }
         else audioManager.Play("Fail_SFX");
 
         yield return new WaitForSeconds(1f); // wait for other clients a bit?
@@ -180,6 +189,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             Destroy(scorePanel.transform.GetChild(i).gameObject);
         }
 
+        eggImage.SetActive(false);
         endGameUI.SetActive(false);
         FindObjectOfType<MenuManager>().StartMenu();
 
