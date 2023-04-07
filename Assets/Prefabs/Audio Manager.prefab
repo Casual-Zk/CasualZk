@@ -71,31 +71,37 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: Knife_Attack_SFX
     clip: {fileID: 8300000, guid: 8fe21f97ce3d2b746906ce5f53827155, type: 3}
-    volume: 0.5
+    volume: 0.7
     pitch: 1
     loop: 0
     source: {fileID: 0}
   - name: Knife_Damage_SFX
     clip: {fileID: 8300000, guid: 8635e6d66bd139745b69dcb0fd9dd5af, type: 3}
-    volume: 0.5
+    volume: 0.7
     pitch: 1
     loop: 0
     source: {fileID: 0}
   - name: Chicken_Death
     clip: {fileID: 8300000, guid: 35946d33d3a516543bd9342805b864e6, type: 3}
-    volume: 0.5
+    volume: 0.7
     pitch: 1
     loop: 0
     source: {fileID: 0}
   - name: Win_SFX
     clip: {fileID: 8300000, guid: 12d676db4bc5d7c4585403ababe1e727, type: 3}
-    volume: 0.1
+    volume: 0.5
     pitch: 1
     loop: 0
     source: {fileID: 0}
   - name: Fail_SFX
     clip: {fileID: 8300000, guid: f90026d3b3ec3934591156cef0c94cf4, type: 3}
-    volume: 0.1
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: GameOver_SFX
+    clip: {fileID: 8300000, guid: 9065186e8c8a3c8428aec6ff715cfd4a, type: 3}
+    volume: 0.5
     pitch: 1
     loop: 0
     source: {fileID: 0}
