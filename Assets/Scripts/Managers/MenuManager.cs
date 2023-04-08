@@ -9,40 +9,60 @@ public class MenuManager : MonoBehaviour
     MatchManager matchManager;
     RoomManager roomManager;
 
+    [Header("Objects")]
+    [SerializeField] DisplayMessage messageUI;
     [SerializeField] Canvas MenuCanvas;
-    [SerializeField] GameObject setNicknameUI;
+    [SerializeField] Canvas profileCanvas;
+
+    [Header("Nickname")]
     [SerializeField] TMP_InputField Nickname_Input;
-    [SerializeField] TextMeshProUGUI nicknameText;
+    [SerializeField] GameObject[] setNicknameUIs;
+    [SerializeField] TextMeshProUGUI[] nicknameTexts;
+
+    [Header("Info UI")]
+    [SerializeField] TextMeshProUGUI walletAdddressText;
+    [SerializeField] TextMeshProUGUI tokenBalanceText;
+    [SerializeField] TextMeshProUGUI eggBalanceText;
+
+    [Header("Inventory UI")]
+    [SerializeField] TextMeshProUGUI dassd;
+
+    [Header("Lottery UI")]
+    [SerializeField] TMP_InputField weekCounterInput;
+    int weekCounter = 0;
 
     private void Start()
     {
         StartMenu();
+        weekCounterInput.text = weekCounter.ToString();
     }
 
     public void StartMenu()
     {
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
-        if (PlayerPrefs.HasKey("Nickname")) Nickname_Input.text = PlayerPrefs.GetString("Nickname");
     }
 
     public void Btn_SetNickname()
     {
-        FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
+        if (Nickname_Input.text == null || Nickname_Input.text == "")
+            messageUI.Display("Nickname can not be empty!", 2f);
+        else
+            FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
     }
 
     public void DisplayNickname(string nickname)
     {
         if (nickname != null)
         {
-            setNicknameUI.SetActive(false);
-            nicknameText.text = nickname;
+            foreach (GameObject ui in setNicknameUIs) ui.SetActive(false);
+            foreach (TextMeshProUGUI text in nicknameTexts) text.text = nickname;
             PlayerPrefs.SetString("Nickname", nickname);
         }
         else
         {
-            setNicknameUI.SetActive(true);
-            nicknameText.text = "";
+            foreach (GameObject ui in setNicknameUIs) ui.SetActive(true);
+            foreach (TextMeshProUGUI text in nicknameTexts) text.text = "";
             PlayerPrefs.DeleteKey("Nickname");
         }
     }
@@ -52,8 +72,31 @@ public class MenuManager : MonoBehaviour
         {
             roomManager.FindMatch();
             MenuCanvas.enabled = false;
-        }
-        
+        }        
     }
-        
+
+    // ------ PROFILE FUNCTIONS ------ //
+
+    // ------ INVENTORY FUNCTIONS ------ //
+
+    // ------ LOTTERY FUNCTIONS ------ //
+    public void WeekCounterButtons(bool right)
+    {
+        if (right)
+        {
+            if (weekCounter >= 10) return; 
+
+            weekCounter++;
+            weekCounterInput.text = weekCounter.ToString();
+        }
+        else
+        {
+            weekCounter--;
+
+            if (weekCounter <= 0) weekCounter = 0;
+
+            weekCounterInput.text = weekCounter.ToString();
+        }
+    }
+
 }

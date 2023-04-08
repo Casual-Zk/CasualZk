@@ -3726,18 +3726,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5406108263450045112, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5653163791562124541, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+    - target: {fileID: 3601124967292256990, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: messageUI
       value: 
-      objectReference: {fileID: 451565028}
-    - target: {fileID: 9164645584476608844, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1663189199}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
 --- !u!1001 &5593602613630825298
