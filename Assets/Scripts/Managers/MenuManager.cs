@@ -38,7 +38,7 @@ public class MenuManager : MonoBehaviour
         if(nickname != ""){
             Debug.Log("Nickname :" + nickname);
             PlayerPrefs.SetString("Nickname", nickname);
-            FindObjectOfType<FirebaseDataManager>().UpdateNickname(nickname);
+            //FindObjectOfType<FirebaseDataManager>().UpdateNickname(nickname);
             return true;
         }
         else{

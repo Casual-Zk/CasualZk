@@ -10,21 +10,24 @@ using System;
 
 public class FirebaseDataManager : MonoBehaviour
 {
+    private ListenerRegistration registration;
+
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
 
-    private ListenerRegistration registration;
-
-    private string dataPath = "";
-
-    void Start()
+    private void Awake()
     {
         firestore = FirebaseFirestore.DefaultInstance;
         auth = FirebaseAuth.DefaultInstance;
-
-        registration = firestore.Document(dataPath).Listen(snaphot =>
+    }
+    
+    void Start()
+    {
+        Debug.Log("Data manager started");
+        registration = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
         {
             var playerInfo = snaphot.ConvertTo<PlayerInfo>();
+            Debug.Log("Player Nickname: " + playerInfo.nickname);
 
             // Use your player info here as you wish
         });
@@ -34,7 +37,7 @@ public class FirebaseDataManager : MonoBehaviour
     {
         if (registration != null) registration.Stop();
     }
-
+    
     public async Task IncrementEggForWeek(int week)
     {
         DocumentReference docRef = firestore.Document("users/" + auth.CurrentUser.UserId);
@@ -52,36 +55,15 @@ public class FirebaseDataManager : MonoBehaviour
                 await docRef.UpdateAsync("eggs", eggs);
             }
         }
-        /*
-        Dictionary<string, object> eggs = new Dictionary<string, object>();
-
-        DocumentReference userRef = firestore.Document("users/" + auth.CurrentUser.UserId);
-        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Failed to get eggs: " + task.Exception);
-                return;
-            }
-
-            Dictionary<int, int> eggs = task.Result.GetValue<Dictionary<int, int>>("eggs");
-            Debug.Log("Eggs: " + eggs.Count);
-        });
-        
-        int currentEggNumber = eggs.Keys("3");
-
-        PlayerInfo playerInfo = new PlayerInfo { eggs = eggs };
-        firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
-        */
     }
     
-    public async Task UpdateNickname(string nickname)
+    public void UpdateNickname(string nickname)
     {
-        // await IncrementEggForWeek(3);
         PlayerInfo playerInfo = new PlayerInfo { nickname = PlayerPrefs.GetString("Nickname") };
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("nickname"));
     }
+  
+    
 }
