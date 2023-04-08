@@ -23,6 +23,9 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] TMP_InputField registerPasswordInput;
     [SerializeField] TMP_InputField registerPasswordRepeatInput;
 
+    [Header("Other")]
+    [SerializeField] DisplayMessage messageUI;
+
     private FirebaseAuth auth;
     private FirebaseUser user;
 
@@ -58,6 +61,7 @@ public class FirebaseAuthManager : MonoBehaviour
                 loginUI.SetActive(false);
                 authCanvas.enabled = false;
                 MenuCanvas.enabled = true;
+                FindObjectOfType<FirebaseDataManager>().OnLogin();
             }
         }
         else if (auth.CurrentUser == null)
@@ -92,7 +96,7 @@ public class FirebaseAuthManager : MonoBehaviour
     public void Btn_Register()
     {
         if (registerPasswordInput.text != registerPasswordRepeatInput.text)
-            StartCoroutine(DisplayAuthMessage("Passwords are not same!", 3f));
+            messageUI.Display("Passwords are not same!", 3f);
         else
             StartCoroutine(RegisterUser());
     }
@@ -137,7 +141,7 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
             }
 
-            StartCoroutine(DisplayAuthMessage(message, 3f));
+            messageUI.Display(message, 3f);
         }
         else
         {
@@ -149,8 +153,6 @@ public class FirebaseAuthManager : MonoBehaviour
             registerUI.SetActive(false);
             loginUI.SetActive(true);
         }
-
-
                 
     }
 
@@ -193,7 +195,7 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
             }
 
-            StartCoroutine(DisplayAuthMessage(message, 3f));
+            messageUI.Display(message, 3f);
             yield break;
         }
 
@@ -213,17 +215,6 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("User logged out !");
             Application.Quit();
         }
-    }
-
-    IEnumerator DisplayAuthMessage(string msg, float time)
-    {
-        messageObject.SetActive(true);
-        messageText.text = msg;
-
-        yield return new WaitForSeconds(time);
-
-        messageText.text = "";
-        messageObject.SetActive(false);
     }
 
 

@@ -21,15 +21,15 @@ public class FirebaseDataManager : MonoBehaviour
         auth = FirebaseAuth.DefaultInstance;
     }
     
-    void Start()
+    public void OnLogin()
     {
-        Debug.Log("Data manager started");
         registration = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
         {
-            var playerInfo = snaphot.ConvertTo<PlayerInfo>();
-            Debug.Log("Player Nickname: " + playerInfo.nickname);
+            PlayerInfo info = snaphot.ConvertTo<PlayerInfo>();
+            Debug.Log("Player Nickname: " + info.nickname);
 
             // Use your player info here as you wish
+            FindObjectOfType<MenuManager>().DisplayNickname(info.nickname);
         });
     }
 
@@ -57,9 +57,9 @@ public class FirebaseDataManager : MonoBehaviour
         }
     }
     
-    public void UpdateNickname(string nickname)
+    public void SetNickname(string nickname)
     {
-        PlayerInfo playerInfo = new PlayerInfo { nickname = PlayerPrefs.GetString("Nickname") };
+        PlayerInfo playerInfo = new PlayerInfo { nickname = nickname };
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("nickname"));

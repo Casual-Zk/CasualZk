@@ -10,7 +10,9 @@ public class MenuManager : MonoBehaviour
     RoomManager roomManager;
 
     [SerializeField] Canvas MenuCanvas;
-    [SerializeField] private TMP_InputField Nickname_Input;
+    [SerializeField] GameObject setNicknameUI;
+    [SerializeField] TMP_InputField Nickname_Input;
+    [SerializeField] TextMeshProUGUI nicknameText;
 
     private void Start()
     {
@@ -24,27 +26,34 @@ public class MenuManager : MonoBehaviour
         if (PlayerPrefs.HasKey("Nickname")) Nickname_Input.text = PlayerPrefs.GetString("Nickname");
     }
 
+    public void Btn_SetNickname()
+    {
+        FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
+    }
+
+    public void DisplayNickname(string nickname)
+    {
+        if (nickname != null)
+        {
+            setNicknameUI.SetActive(false);
+            nicknameText.text = nickname;
+            PlayerPrefs.SetString("Nickname", nickname);
+        }
+        else
+        {
+            setNicknameUI.SetActive(true);
+            nicknameText.text = "";
+            PlayerPrefs.DeleteKey("Nickname");
+        }
+    }
+
     public void FindMatchButton(){
-        if (check_nickname())
+        if (PlayerPrefs.HasKey("Nickname"))
         {
             roomManager.FindMatch();
             MenuCanvas.enabled = false;
         }
         
-    }
-    private bool check_nickname(){
-        string nickname = Nickname_Input.text;
-
-        if(nickname != ""){
-            Debug.Log("Nickname :" + nickname);
-            PlayerPrefs.SetString("Nickname", nickname);
-            //FindObjectOfType<FirebaseDataManager>().UpdateNickname(nickname);
-            return true;
-        }
-        else{
-            Debug.Log("Nickname is null");
-            return false;
-        }
     }
         
 }
