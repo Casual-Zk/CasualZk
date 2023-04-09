@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Firebase;
 using Firebase.Auth;
+using Firebase.Firestore;
 using TMPro;
 
 public class FirebaseAuthManager : MonoBehaviour
@@ -27,6 +28,7 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] DisplayMessage messageUI;
 
     private FirebaseAuth auth;
+    private FirebaseFirestore firestore;
     private FirebaseUser user;
 
     public void StartAuthManager()
@@ -38,6 +40,7 @@ public class FirebaseAuthManager : MonoBehaviour
     void InitializeFirebase()
     {
         auth = FirebaseAuth.DefaultInstance;
+        firestore = FirebaseFirestore.DefaultInstance;
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
     }
@@ -61,6 +64,12 @@ public class FirebaseAuthManager : MonoBehaviour
                 loginUI.SetActive(false);
                 authCanvas.enabled = false;
                 MenuCanvas.enabled = true;
+
+                PlayerInfo playerInfo = new PlayerInfo { ammo_9mm = 0 };
+
+                firestore.Document("users/" + auth.CurrentUser.UserId).
+                    SetAsync(playerInfo, SetOptions.MergeFields("ammo_9mm"));
+
                 FindObjectOfType<FirebaseDataManager>().OnLogin();
             }
         }
