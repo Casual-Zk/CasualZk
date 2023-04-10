@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 public class FirebaseDataManager : MonoBehaviour
 {
     public PlayerInfo playerInfo { get; set; }
-    private ListenerRegistration registration;
+    public BasicGameInfo gameInfo { get; set; }
+    private ListenerRegistration playerReg;
+    private ListenerRegistration gameReg;
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
@@ -27,7 +29,7 @@ public class FirebaseDataManager : MonoBehaviour
     
     public void OnLogin()
     {
-        registration = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
+        playerReg = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
         {
             playerInfo = snaphot.ConvertTo<PlayerInfo>();
             Debug.Log("Player Nickname: " + playerInfo.nickname);
@@ -47,12 +49,19 @@ public class FirebaseDataManager : MonoBehaviour
             ammoBalance[3] = playerInfo.ammo_5_65mm;
             ammoBalance[4] = playerInfo.ammo_7_62mm;
         });
+
+        gameReg = firestore.Document("gameInfo/basicInfo").Listen(snaphot =>
+        {
+            gameInfo = snaphot.ConvertTo<BasicGameInfo>();
+            Debug.Log("Current Week : " + gameInfo.currentWeek);
+        });
     }
 
     private void OnDestroy()
     {
         UpdateAmmoBalance();
-        if (registration != null) registration.Stop();
+        if (playerReg != null) playerReg.Stop();
+        if (gameReg != null) gameReg.Stop();
     }
     
     public async Task IncrementEggForWeek(int week)

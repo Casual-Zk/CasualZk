@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,6 +31,11 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private FirebaseUser user;
+
+    enum SnapFailStatus
+    {
+        NotExist
+    }
 
     private void Awake()
     {
@@ -66,16 +72,7 @@ public class FirebaseAuthManager : MonoBehaviour
             {
                 Debug.Log("Signed in " + user.UserId);
 
-                loginUI.SetActive(false);
-                authCanvas.enabled = false;
-                MenuCanvas.enabled = true;
-
-                PlayerInfo playerInfo = new PlayerInfo { hasKnife = true };
-
-                firestore.Document("users/" + auth.CurrentUser.UserId).
-                    SetAsync(playerInfo, SetOptions.MergeFields("hasKnife"));
-
-                FindObjectOfType<FirebaseDataManager>().OnLogin();
+                StartLoginTasks();
             }
         }
         else if (auth.CurrentUser == null)
@@ -85,6 +82,109 @@ public class FirebaseAuthManager : MonoBehaviour
             authCanvas.enabled = true;
             loginUI.SetActive(true);
             registerUI.SetActive(false);
+        }
+    }
+
+    private async void StartLoginTasks()
+    {
+        BasicGameInfo gameInfo = null;
+        PlayerInfo playerInfo = null;
+
+        int test = 5;
+        Debug.Log("Test 1: " + test);
+
+        // Get game info
+        var snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
+        if (snapshot.Exists)
+        {
+            gameInfo = snapshot.ConvertTo<BasicGameInfo>();
+        }
+        else SnapFail(snapshot, SnapFailStatus.NotExist);
+
+        Debug.Log("Current Week: " + gameInfo.currentWeek);
+
+
+
+        snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
+        if (snapshot.Exists)
+        {
+            playerInfo = snapshot.ConvertTo<PlayerInfo>();
+        }
+        else 
+        { 
+            Debug.Log("We don't have such user! But now, adding!");
+
+            // Create player
+            playerInfo = new PlayerInfo();
+
+            // Create egg record for this week
+            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            eggs[gameInfo.currentWeek] = 0;
+            playerInfo.eggs = eggs;
+
+            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
+
+            // Restart Procces
+            Debug.Log("Restarting the login tasks!");
+            StartLoginTasks();
+        }
+
+
+
+        if (playerInfo.eggs == null)
+        {
+            Debug.Log("No egg at all!");
+
+            // Then add this week
+            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            eggs[gameInfo.currentWeek] = 0;
+            playerInfo.eggs = eggs;
+
+            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
+
+            // Restart Procces
+            Debug.Log("Restarting the login tasks!");
+            StartLoginTasks();
+        }
+        else Debug.Log("We have eggs");
+
+        if (playerInfo.eggs.ContainsKey(gameInfo.currentWeek))
+        {
+            Debug.Log("Current week exist!");
+            // Start game
+            Debug.Log("AWESOME, Starting the game!!!");
+            StartGame();
+        }
+        else
+        {
+            Debug.Log("This week is not here!");
+
+            // Then add this week
+            playerInfo.eggs[gameInfo.currentWeek] = 0;
+
+            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
+
+            // Restart Procces
+            Debug.Log("Restarting the login tasks!");
+            StartLoginTasks();
+        } 
+    }
+
+    private void StartGame()
+    {
+        loginUI.SetActive(false);
+        authCanvas.enabled = false;
+        MenuCanvas.enabled = true;
+
+        FindObjectOfType<FirebaseDataManager>().OnLogin();
+    }
+
+    private void SnapFail(DocumentSnapshot snap, SnapFailStatus status)
+    {
+        switch (status) {
+            case SnapFailStatus.NotExist:
+                Debug.LogError(String.Format("Document {0} does not exist!", snap.Id));
+                break;
         }
     }
 
