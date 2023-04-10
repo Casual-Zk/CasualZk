@@ -34,7 +34,7 @@ public class FirebaseDataManager : MonoBehaviour
 
             // Use your player info here as you wish
             // Update nicknames
-            FindObjectOfType<MenuManager>().DisplayNickname(playerInfo.nickname);
+            FindObjectOfType<MenuManager>().DisplayInfo();
 
             // UPDATE weapon balance from blockchain
             hasWeapon[0] = true;

@@ -264,6 +264,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (playerInfo.hasAWP) dm.hasWeapon[4] = true;
 	}
 
+	public bool canFire()
+    {
+		return dm.ammoBalance[activeWeaponIndex] > 0;
+    }
+
 	public void Fired() 
 	{
 		if (activeWeaponIndex == 0) return;

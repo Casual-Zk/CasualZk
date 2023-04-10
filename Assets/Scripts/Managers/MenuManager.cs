@@ -8,7 +8,7 @@ public class MenuManager : MonoBehaviour
 {
     MatchManager matchManager;
     RoomManager roomManager;
-    FirebaseDataManager dataManager;
+    FirebaseDataManager dm;
 
     [Header("Objects")]
     [SerializeField] DisplayMessage messageUI;
@@ -44,7 +44,7 @@ public class MenuManager : MonoBehaviour
     {
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
-        dataManager = FindObjectOfType<FirebaseDataManager>();
+        dm = FindObjectOfType<FirebaseDataManager>();
     }
 
     public void Btn_SetNickname()
@@ -55,8 +55,11 @@ public class MenuManager : MonoBehaviour
             FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
     }
 
-    public void DisplayNickname(string nickname)
+    public void DisplayInfo()
     {
+        string nickname = dm.playerInfo.nickname;
+        string walletAddress = dm.playerInfo.walletAddress;
+
         if (nickname != null)
         {
             foreach (GameObject ui in setNicknameUIs) ui.SetActive(false);
@@ -69,12 +72,14 @@ public class MenuManager : MonoBehaviour
             foreach (TextMeshProUGUI text in nicknameTexts) text.text = "";
             PlayerPrefs.DeleteKey("Nickname");
         }
+
+        walletAdddressText.text = walletAddress;
     }
 
     public void FindMatchButton(){
         bool hasWeapons = false;
 
-        foreach(bool weapons in dataManager.hasWeapon)
+        foreach(bool weapons in dm.hasWeapon)
         {
             if (weapons) { hasWeapons = true; break; }
         }
@@ -94,15 +99,15 @@ public class MenuManager : MonoBehaviour
     // ------ INVENTORY FUNCTIONS ------ //
     public void DisplayInventory()
     {
-        for (int i = 0; i < dataManager.hasWeapon.Length; i++)
+        for (int i = 0; i < dm.hasWeapon.Length; i++)
         {
-            if (dataManager.hasWeapon[i]) weapons[i].SetActive(true);
+            if (dm.hasWeapon[i]) weapons[i].SetActive(true);
 
             if (i == 0) continue; // skip knife
-            if (dataManager.ammoBalance[i] > 0)
+            if (dm.ammoBalance[i] > 0)
             {
                 ammo[i].SetActive(true); 
-                ammoBalanceText[i].text = dataManager.ammoBalance[i].ToString();
+                ammoBalanceText[i].text = dm.ammoBalance[i].ToString();
             }
             else  // if ammo is finished, then disable
                 ammo[i].SetActive(false);
