@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using Cinemachine;
 using Photon.Pun;
+using TMPro;
 
 public class SimpleContoller : MonoBehaviourPunCallbacks
 {
@@ -25,6 +27,8 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 	// @Bora variables
 	[Header("Casual Edition")]
+	[SerializeField] TextMeshProUGUI nameText;
+	[SerializeField] PlayerInfo playerInfo;
 	[SerializeField] float runSpeed = 40f;
 	[SerializeField] GameObject body;
 	[SerializeField] Transform lookRight;
@@ -47,12 +51,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] LayerMask playerLayer;
 	[SerializeField] Transform knifeHitCenter;
 	[SerializeField] [Range(0.1f, 5f)] float knifeHitRange;
-	Animator playerAnimator;
+	[SerializeField] Sprite[] weaponImages;
+	[SerializeField] GameObject overlayUI;
+	[SerializeField] Image weaponImageUI;
+	[SerializeField] TextMeshProUGUI ammoCounterText;
 	Collider2D[] hitEnemies;
+	Animator playerAnimator;
 
 
 	AudioManager audioManager;
-
+	FirebaseDataManager dm;
 
 	[Header("Events")]
 	[Space]
@@ -80,7 +88,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
     {
 		player_v_cam = FindObjectOfType<CinemachineVirtualCamera>();
 		audioManager = FindObjectOfType<AudioManager>();
+		dm = FindObjectOfType<FirebaseDataManager>();
 		playerAnimator = GetComponent<Animator>();
+
+		// Display Username
+		if (!GetComponent<PhotonView>().IsMine)
+			nameText.text = GetComponent<PhotonView>().Controller.NickName;
+		else
+			nameText.text = PlayerPrefs.GetString("Nickname");
+
+		SetOwnedWeaponsAndAmmo();
 	}
 
     private void Update()
@@ -89,6 +106,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (matchManager.isGameOver)
         {
 			horizontalMove = 0;
+			overlayUI.SetActive(false);
 			return; // Don't move if the time is up
 		}
 		
@@ -235,7 +253,25 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
 	}
 
-    [PunRPC]
+	private void SetOwnedWeaponsAndAmmo()
+    {
+		playerInfo = FindObjectOfType<FirebaseDataManager>().playerInfo;
+
+		if (playerInfo.hasKnife) dm.hasWeapon[0] = true;
+		if (playerInfo.hasGlock) dm.hasWeapon[1] = true;
+		if (playerInfo.hasShotgun) dm.hasWeapon[2] = true;
+		if (playerInfo.hasM4) dm.hasWeapon[3] = true;
+		if (playerInfo.hasAWP) dm.hasWeapon[4] = true;
+	}
+
+	public void Fired() 
+	{
+		if (activeWeaponIndex == 0) return;
+		dm.ammoBalance[activeWeaponIndex]--;
+		ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
+	}
+
+	[PunRPC]
 	public void SwitchWeapon(bool switchRight)
     {
 		if (switchRight)
@@ -244,13 +280,21 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Inactivate the current one
 			weapons[activeWeaponIndex].SetActive(false);
-			activeWeaponIndex++;
 
-			// Reset value if it exceeds the array
-			if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0;
+			// Increase the index until find a owned weapon
+			do 
+			{ 
+				activeWeaponIndex++;
+
+				// If we go beyond the range, reset the index
+				if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0; 
+			}
+			while (!dm.hasWeapon[activeWeaponIndex]);
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
+			weaponImageUI.sprite = weaponImages[activeWeaponIndex];
+			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 		else
 		{
@@ -258,14 +302,24 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Inactivate the current one
 			weapons[activeWeaponIndex].SetActive(false);
-			activeWeaponIndex--;
 
-			// Get the last weapon if value gets below 0
-			if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
+			// Decrease the index until find a owned weapon
+			do
+			{
+				activeWeaponIndex--;
+
+				// If we go beyond the range, reset the index
+				if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
+			}
+			while (!dm.hasWeapon[activeWeaponIndex]);
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
+			weaponImageUI.sprite = weaponImages[activeWeaponIndex];
+			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
+
+		if (activeWeaponIndex == 0) ammoCounterText.text = "";  // clean knife counter
 	}
 
 	[PunRPC]

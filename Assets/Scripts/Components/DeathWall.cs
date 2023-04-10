@@ -25,7 +25,7 @@ public class DeathWall : MonoBehaviourPunCallbacks
         }
         else
         {
-            Destroy(obj);
+            Destroy(obj); 
         }
     }
 }

@@ -8,6 +8,7 @@ public class MenuManager : MonoBehaviour
 {
     MatchManager matchManager;
     RoomManager roomManager;
+    FirebaseDataManager dataManager;
 
     [Header("Objects")]
     [SerializeField] DisplayMessage messageUI;
@@ -25,7 +26,9 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI eggBalanceText;
 
     [Header("Inventory UI")]
-    [SerializeField] TextMeshProUGUI dassd;
+    [SerializeField] GameObject[] weapons;
+    [SerializeField] GameObject[] ammo;
+    [SerializeField] TextMeshProUGUI[] ammoBalanceText;
 
     [Header("Lottery UI")]
     [SerializeField] TMP_InputField weekCounterInput;
@@ -41,6 +44,7 @@ public class MenuManager : MonoBehaviour
     {
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
+        dataManager = FindObjectOfType<FirebaseDataManager>();
     }
 
     public void Btn_SetNickname()
@@ -68,16 +72,42 @@ public class MenuManager : MonoBehaviour
     }
 
     public void FindMatchButton(){
+        bool hasWeapons = false;
+
+        foreach(bool weapons in dataManager.hasWeapon)
+        {
+            if (weapons) { hasWeapons = true; break; }
+        }
+
+        if (!hasWeapons) { messageUI.Display("You don't have any weapons to play with!!", 5f); return; }
+
         if (PlayerPrefs.HasKey("Nickname"))
         {
             roomManager.FindMatch();
             MenuCanvas.enabled = false;
-        }        
+        }
+        else { messageUI.Display("Error: Set a username first!", 3f); }
     }
 
     // ------ PROFILE FUNCTIONS ------ //
 
     // ------ INVENTORY FUNCTIONS ------ //
+    public void DisplayInventory()
+    {
+        for (int i = 0; i < dataManager.hasWeapon.Length; i++)
+        {
+            if (dataManager.hasWeapon[i]) weapons[i].SetActive(true);
+
+            if (i == 0) continue; // skip knife
+            if (dataManager.ammoBalance[i] > 0)
+            {
+                ammo[i].SetActive(true); 
+                ammoBalanceText[i].text = dataManager.ammoBalance[i].ToString();
+            }
+            else  // if ammo is finished, then disable
+                ammo[i].SetActive(false);
+        }
+    }
 
     // ------ LOTTERY FUNCTIONS ------ //
     public void WeekCounterButtons(bool right)

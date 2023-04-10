@@ -76,5 +76,9 @@ public class Weapon : MonoBehaviourPunCallbacks
             if (isSniper) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX");
             else controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Short_Fire");
         }
+
+
+        // Update bullet count on controller    
+        controller.Fired();
     }
 }

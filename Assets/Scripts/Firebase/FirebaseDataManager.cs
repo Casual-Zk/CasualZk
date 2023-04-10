@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,14 +7,17 @@ using Firebase.Auth;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Threading.Tasks;
-using System;
 
 public class FirebaseDataManager : MonoBehaviour
 {
+    public PlayerInfo playerInfo { get; set; }
     private ListenerRegistration registration;
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
+
+    public bool[] hasWeapon = new bool[5];
+    public int[] ammoBalance = new int[5];
 
     private void Awake()
     {
@@ -25,16 +29,29 @@ public class FirebaseDataManager : MonoBehaviour
     {
         registration = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
         {
-            PlayerInfo info = snaphot.ConvertTo<PlayerInfo>();
-            Debug.Log("Player Nickname: " + info.nickname);
+            playerInfo = snaphot.ConvertTo<PlayerInfo>();
+            Debug.Log("Player Nickname: " + playerInfo.nickname);
 
             // Use your player info here as you wish
-            FindObjectOfType<MenuManager>().DisplayNickname(info.nickname);
+            // Update nicknames
+            FindObjectOfType<MenuManager>().DisplayNickname(playerInfo.nickname);
+
+            // UPDATE weapon balance from blockchain
+            hasWeapon[0] = true;
+            hasWeapon[1] = true;
+            hasWeapon[4] = true;
+
+            // Save ammo balance locally
+            ammoBalance[1] = playerInfo.ammo_9mm;
+            ammoBalance[2] = playerInfo.ammo_12_gauge;
+            ammoBalance[3] = playerInfo.ammo_5_65mm;
+            ammoBalance[4] = playerInfo.ammo_7_62mm;
         });
     }
 
     private void OnDestroy()
     {
+        UpdateAmmoBalance();
         if (registration != null) registration.Stop();
     }
     
@@ -64,6 +81,15 @@ public class FirebaseDataManager : MonoBehaviour
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("nickname"));
     }
-  
-    
+
+    public void UpdateAmmoBalance()
+    {
+        playerInfo.ammo_9mm = ammoBalance[1];
+        playerInfo.ammo_12_gauge = ammoBalance[2];
+        playerInfo.ammo_5_65mm = ammoBalance[3];
+        playerInfo.ammo_7_62mm = ammoBalance[4];
+
+        firestore.Document("users/" + auth.CurrentUser.UserId).
+            SetAsync(playerInfo, SetOptions.MergeFields("ammo_5_65mm", "ammo_7_62mm", "ammo_9mm", "ammo_12_gauge"));
+    }
 }

@@ -31,6 +31,13 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseFirestore firestore;
     private FirebaseUser user;
 
+    private void Awake()
+    {
+        // TEST
+        auth = FirebaseAuth.DefaultInstance;
+        firestore = FirebaseFirestore.DefaultInstance;
+    }
+
     public void StartAuthManager()
     {
         Debug.Log("Auth Manager has started");
@@ -39,8 +46,6 @@ public class FirebaseAuthManager : MonoBehaviour
 
     void InitializeFirebase()
     {
-        auth = FirebaseAuth.DefaultInstance;
-        firestore = FirebaseFirestore.DefaultInstance;
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
     }
@@ -65,10 +70,10 @@ public class FirebaseAuthManager : MonoBehaviour
                 authCanvas.enabled = false;
                 MenuCanvas.enabled = true;
 
-                PlayerInfo playerInfo = new PlayerInfo { ammo_9mm = 0 };
+                PlayerInfo playerInfo = new PlayerInfo { hasKnife = true };
 
                 firestore.Document("users/" + auth.CurrentUser.UserId).
-                    SetAsync(playerInfo, SetOptions.MergeFields("ammo_9mm"));
+                    SetAsync(playerInfo, SetOptions.MergeFields("hasKnife"));
 
                 FindObjectOfType<FirebaseDataManager>().OnLogin();
             }

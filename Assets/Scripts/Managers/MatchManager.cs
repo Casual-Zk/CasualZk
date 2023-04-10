@@ -120,6 +120,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         gameOverUI.SetActive(true); 
         audioManager.Play("GameOver_SFX");
 
+        // Save the balance to the database
+        FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
+
         StartCoroutine(DisplayMainScore());
     }
 
@@ -195,6 +198,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         audioManager.Play("Game_Music");
     }
+
 
     // ------------- TIMER ------------- //
 

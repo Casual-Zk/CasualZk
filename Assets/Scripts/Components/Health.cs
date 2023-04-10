@@ -42,6 +42,8 @@ public class Health : MonoBehaviourPunCallbacks
 
             if (controller.isOwner)
             {
+                FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance(); // Save ammo balance to DB before die
+
                 matchManager.GetComponent<PhotonView>().RPC("ScoreEvent", RpcTarget.All, shooterName, targetName);
                 RoomManager.Instance.RespawnPlayer();
             }

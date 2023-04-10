@@ -976,6 +976,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18d638be6e5653439a4e7dbfbf03da3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hasWeapon: 0000000000
+  ammoBalance: 0000000000000000000000000000000000000000
 --- !u!1 &511826247
 GameObject:
   m_ObjectHideFlags: 0
@@ -3739,6 +3741,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5593602613328404032, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5593602613581109512, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
       propertyPath: m_Name
       value: Match Manager
