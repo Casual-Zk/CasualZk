@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using Firebase;
 using Firebase.Auth;
@@ -42,9 +43,8 @@ public class FirebaseDataManager : MonoBehaviour
             FindObjectOfType<MenuManager>().DisplayInfo();
 
             // UPDATE weapon balance from blockchain
-            hasWeapon[0] = true;
-            hasWeapon[1] = true;
-            hasWeapon[4] = true;
+            if (playerInfo.walletAddress != null)
+                StartCoroutine(FindObjectOfType<ChainManager>().GetWeaponBalances(playerInfo.walletAddress));
 
             // Save ammo balance locally
             ammoBalance[1] = playerInfo.ammo_9mm;
@@ -54,7 +54,7 @@ public class FirebaseDataManager : MonoBehaviour
         });
 
         gameReg = firestore.Document("gameInfo/basicInfo").Listen(snaphot =>
-        {
+        {   
             gameInfo = snaphot.ConvertTo<BasicGameInfo>();
             Debug.Log("Current Week : " + gameInfo.currentWeek);
         });
@@ -65,6 +65,14 @@ public class FirebaseDataManager : MonoBehaviour
         UpdateAmmoBalance();
         if (playerReg != null) playerReg.Stop();
         if (gameReg != null) gameReg.Stop();
+    }
+    
+    public void OnWeaponBalanceReturn(List<BigInteger> balances)
+    {
+        for (int i = 0; i < balances.Count; i++)
+        {
+            if (balances[i] > 0) hasWeapon[i] = true; 
+        }
     }
 
     public void GiveEgg() { Debug.Log("Button pressed"); _ = IncrementEggForWeek(); }
