@@ -23,7 +23,8 @@ public class MenuManager : MonoBehaviour
     [Header("Info UI")]
     [SerializeField] TextMeshProUGUI walletAdddressText;
     [SerializeField] TextMeshProUGUI tokenBalanceText;
-    [SerializeField] TextMeshProUGUI eggBalanceText;
+    [SerializeField] TextMeshProUGUI[] eggBalanceTexts;
+    [SerializeField] TextMeshProUGUI[] currentWeekTexts;
 
     [Header("Inventory UI")]
     [SerializeField] GameObject[] weapons;
@@ -59,6 +60,8 @@ public class MenuManager : MonoBehaviour
     {
         string nickname = dm.playerInfo.nickname;
         string walletAddress = dm.playerInfo.walletAddress;
+        string currentWeek = dm.gameInfo.currentWeek;
+        var eggCount = dm.playerInfo.eggs[currentWeek];
 
         if (nickname != null)
         {
@@ -74,6 +77,9 @@ public class MenuManager : MonoBehaviour
         }
 
         walletAdddressText.text = walletAddress;
+
+        foreach (TextMeshProUGUI text in currentWeekTexts) { text.text = currentWeek; }
+        foreach (TextMeshProUGUI text in eggBalanceTexts) { text.text = "x " + eggCount; }
     }
 
     public void FindMatchButton(){

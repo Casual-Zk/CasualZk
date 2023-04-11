@@ -266,6 +266,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 	public bool canFire()
     {
+		if (activeWeaponIndex == 0) return true;
 		return dm.ammoBalance[activeWeaponIndex] > 0;
     }
 

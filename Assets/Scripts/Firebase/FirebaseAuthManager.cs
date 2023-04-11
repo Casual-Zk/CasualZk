@@ -58,7 +58,6 @@ public class FirebaseAuthManager : MonoBehaviour
 
     void AuthStateChanged(object sender, System.EventArgs eventArgs)
     {
-        connectingUI.enabled = false;
         Debug.Log("Auth State Changed!");
         if (auth.CurrentUser != user)
         {
@@ -87,11 +86,10 @@ public class FirebaseAuthManager : MonoBehaviour
 
     private async void StartLoginTasks()
     {
+        connectingUI.enabled = true;
+
         BasicGameInfo gameInfo = null;
         PlayerInfo playerInfo = null;
-
-        int test = 5;
-        Debug.Log("Test 1: " + test);
 
         // Get game info
         var snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
@@ -99,10 +97,10 @@ public class FirebaseAuthManager : MonoBehaviour
         {
             gameInfo = snapshot.ConvertTo<BasicGameInfo>();
         }
-        else SnapFail(snapshot, SnapFailStatus.NotExist);
+        else { SnapFail(snapshot, SnapFailStatus.NotExist); return; }
 
         Debug.Log("Current Week: " + gameInfo.currentWeek);
-
+        FindObjectOfType<FirebaseDataManager>().gameInfo = gameInfo;    // Send game info to the dm
 
 
         snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
@@ -172,6 +170,7 @@ public class FirebaseAuthManager : MonoBehaviour
 
     private void StartGame()
     {
+        connectingUI.enabled = false;
         loginUI.SetActive(false);
         authCanvas.enabled = false;
         MenuCanvas.enabled = true;

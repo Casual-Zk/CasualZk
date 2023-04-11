@@ -164,6 +164,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             audioManager.Play("Win_SFX");
             eggImage.SetActive(true);
+            FindObjectOfType<FirebaseDataManager>().GiveEgg();
         }
         else audioManager.Play("Fail_SFX");
 

@@ -25,6 +25,9 @@ public class FirebaseDataManager : MonoBehaviour
     {
         firestore = FirebaseFirestore.DefaultInstance;
         auth = FirebaseAuth.DefaultInstance;
+
+        playerInfo = null;
+        gameInfo = null;
     }
     
     public void OnLogin()
@@ -63,26 +66,23 @@ public class FirebaseDataManager : MonoBehaviour
         if (playerReg != null) playerReg.Stop();
         if (gameReg != null) gameReg.Stop();
     }
+
+    public void GiveEgg() { Debug.Log("Button pressed"); _ = IncrementEggForWeek(); }
     
-    public async Task IncrementEggForWeek(int week)
+    private async Task IncrementEggForWeek()
     {
-        DocumentReference docRef = firestore.Document("users/" + auth.CurrentUser.UserId);
-        DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-        if (snapshot.Exists)
+        int currentEggNmber = 0;
+        if (playerInfo.eggs[gameInfo.currentWeek] != null)
         {
-            Dictionary<string, object> eggs = snapshot.GetValue<Dictionary<string, object>>("eggs");
-
-            if (eggs.ContainsKey(week.ToString()))
-            {
-                int eggCount = Convert.ToInt32(eggs[week.ToString()]);
-                eggCount++;
-                eggs[week.ToString()] = eggCount;
-                await docRef.UpdateAsync("eggs", eggs);
-            }
+            int.TryParse(playerInfo.eggs[gameInfo.currentWeek].ToString(), out currentEggNmber);
         }
+
+        playerInfo.eggs[gameInfo.currentWeek] = currentEggNmber + 1;
+
+        await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
+
     }
-    
+
     public void SetNickname(string nickname)
     {
         PlayerInfo playerInfo = new PlayerInfo { nickname = nickname };
