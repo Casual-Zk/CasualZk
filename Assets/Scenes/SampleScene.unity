@@ -976,6 +976,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18d638be6e5653439a4e7dbfbf03da3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  connectingUI: {fileID: 1413519619}
   hasWeapon: 0000000000
   ammoBalance: 0000000000000000000000000000000000000000
 --- !u!1 &511826247
@@ -2881,7 +2882,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &1413519620
 MonoBehaviour:
@@ -3776,6 +3777,10 @@ PrefabInstance:
       propertyPath: messageUI
       value: 
       objectReference: {fileID: 1663189199}
+    - target: {fileID: 3601124967704149943, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3601124968633431074, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_Enabled
       value: 0

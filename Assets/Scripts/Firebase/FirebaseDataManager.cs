@@ -11,8 +11,11 @@ using System.Threading.Tasks;
 
 public class FirebaseDataManager : MonoBehaviour
 {
+    [SerializeField] Canvas connectingUI;
+
     public PlayerInfo playerInfo { get; set; }
     public BasicGameInfo gameInfo { get; set; }
+
     private ListenerRegistration playerReg;
     private ListenerRegistration gameReg;
 
@@ -73,6 +76,8 @@ public class FirebaseDataManager : MonoBehaviour
         {
             if (balances[i] > 0) hasWeapon[i] = true; 
         }
+
+        connectingUI.enabled = false;
     }
 
     public void GiveEgg() { Debug.Log("Button pressed"); _ = IncrementEggForWeek(); }

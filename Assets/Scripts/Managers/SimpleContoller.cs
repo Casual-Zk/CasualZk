@@ -39,7 +39,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] float camVerticalDrawBack = 2f;
 	[SerializeField] [Range(0.1f, 0.5f)] float moveSensitivity = 0.2f;
 	[SerializeField] [Range(0.6f, 0.9f)] float jumpSensitivity = 0.2f;
-	[SerializeField] [Range(0.8f, 1f)] float fireSensitivity = 0.8f;
+	[SerializeField] [Range(0.3f, 1f)] float fireSensitivity = 0.8f;
 	[SerializeField] Joystick moveJoystick;
 	[SerializeField] Joystick fireJoystick;
 	float horizontalMove = 0f;
@@ -51,6 +51,8 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 	[Header("Weapons")]
 	[SerializeField] GameObject[] weapons;
+	[SerializeField] Image weaponUI;
+	[SerializeField] Sprite[] weaponSprites;
 	// 0 - Knife
 	// 1 - Glock
 	// 2 - Shotgun
@@ -99,6 +101,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		playerAnimator = GetComponent<Animator>();
 
 		player_v_cam.Follow = followCamPosition;
+		fireJoystick.leaveHandle = true;
 
 		// Display Username
 		if (!GetComponent<PhotonView>().IsMine)
@@ -136,7 +139,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			(camDistance - camVerticalDrawBack) * fireJoystick.Vertical, 0f);
 
 		// Jump or Crouch
-		if (moveJoystick.Vertical > jumpSensitivity && m_Grounded) jump = true; else jump = false;
+		//if (moveJoystick.Vertical > jumpSensitivity) jump = true; else jump = false;
 		//if (moveJoystick.Vertical < -jumpSensitivity) crouch = true; else crouch = false;
 
 		LookAround();
@@ -258,6 +261,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	{
 		photonView.RPC("SwitchWeapon", RpcTarget.All, true);
 	}
+	public void Btn_Jump() { jump = true; }
 	private void StopCurrentWeaponSound()
 	{
 		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
@@ -304,6 +308,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
+			weaponUI.sprite = weaponSprites[activeWeaponIndex];
 			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 		else
@@ -325,6 +330,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
+			weaponUI.sprite = weaponSprites[activeWeaponIndex];
 			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 

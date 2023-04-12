@@ -14,6 +14,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] DisplayMessage messageUI;
     [SerializeField] Canvas MenuCanvas;
     [SerializeField] Canvas profileCanvas;
+    [SerializeField] public GameObject findMatchButton;
 
     [Header("Nickname")]
     [SerializeField] TMP_InputField Nickname_Input;

@@ -81,6 +81,7 @@ public class FirebaseAuthManager : MonoBehaviour
             authCanvas.enabled = true;
             loginUI.SetActive(true);
             registerUI.SetActive(false);
+            connectingUI.enabled = false;
         }
     }
 
@@ -170,7 +171,6 @@ public class FirebaseAuthManager : MonoBehaviour
 
     private void StartGame()
     {
-        connectingUI.enabled = false;
         loginUI.SetActive(false);
         authCanvas.enabled = false;
         MenuCanvas.enabled = true;
