@@ -31,7 +31,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
     [SerializeField] private bool snapX = false;
     [SerializeField] private bool snapY = false;
     
-    public bool leaveHandle = false;
+    public bool onHandle = false;
 
     [SerializeField] protected RectTransform background = null;
     [SerializeField] private RectTransform handle = null;
@@ -61,6 +61,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
+        onHandle = true;
         OnDrag(eventData);
     }
 
@@ -133,7 +134,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
 
     public virtual void OnPointerUp(PointerEventData eventData)
     {
-        if (leaveHandle) return;
+        onHandle = false;
         input = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
     }

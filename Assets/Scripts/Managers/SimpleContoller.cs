@@ -100,8 +100,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		dm = FindObjectOfType<FirebaseDataManager>();
 		playerAnimator = GetComponent<Animator>();
 
-		player_v_cam.Follow = followCamPosition;
-		fireJoystick.leaveHandle = true;
+		if (isOwner) player_v_cam.Follow = followCamPosition;
 
 		// Display Username
 		if (!GetComponent<PhotonView>().IsMine)
@@ -134,9 +133,12 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		else horizontalMove = 0;
 
 		// Camera Movement
-		followCamPosition.localPosition = new Vector3
-			(camDistance * fireJoystick.Horizontal, 
+		if (fireJoystick.onHandle)
+        {
+			followCamPosition.localPosition = new Vector3
+			(camDistance * fireJoystick.Horizontal,
 			(camDistance - camVerticalDrawBack) * fireJoystick.Vertical, 0f);
+		}
 
 		// Jump or Crouch
 		//if (moveJoystick.Vertical > jumpSensitivity) jump = true; else jump = false;
