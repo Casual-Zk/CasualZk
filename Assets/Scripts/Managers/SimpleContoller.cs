@@ -9,7 +9,7 @@ using TMPro;
 
 public class SimpleContoller : MonoBehaviourPunCallbacks
 {
-	[SerializeField] private float m_JumpForce = 400f;                          // Amount of force added when the player jumps.
+	[SerializeField] private float m_JumpForce = 750f;                          // Amount of force added when the player jumps.
 	[Range(0, 1)][SerializeField] private float m_CrouchSpeed = .36f;           // Amount of maxSpeed applied to crouching movement. 1 = 100%
 	[Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
 	[SerializeField] private bool m_AirControl = false;                         // Whether or not a player can steer while jumping;
@@ -31,11 +31,20 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] PlayerInfo playerInfo;
 	[SerializeField] float runSpeed = 40f;
 	[SerializeField] GameObject body;
-	[SerializeField] Transform lookRight;
-	[SerializeField] Transform lookLeft;
 	[SerializeField] Transform holdPoint;
+
+    [Header("Move")]
+	[SerializeField] Transform followCamPosition;
+	[SerializeField] float camDistance = 5f;
+	[SerializeField] float camVerticalDrawBack = 2f;
+	[SerializeField] [Range(0.1f, 0.5f)] float moveSensitivity = 0.2f;
+	[SerializeField] [Range(0.6f, 0.9f)] float jumpSensitivity = 0.2f;
+	[SerializeField] [Range(0.8f, 1f)] float fireSensitivity = 0.8f;
+	[SerializeField] Joystick moveJoystick;
+	[SerializeField] Joystick fireJoystick;
 	float horizontalMove = 0f;
 	bool jump = false;
+	bool crouch = false;
 	public bool isOwner { get; set; }
 	MatchManager matchManager;
 	CinemachineVirtualCamera player_v_cam;
@@ -50,10 +59,8 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	int activeWeaponIndex = 0;  // Always start with knife
 	[SerializeField] LayerMask playerLayer;
 	[SerializeField] Transform knifeHitCenter;
-	[SerializeField] [Range(0.1f, 5f)] float knifeHitRange;
-	[SerializeField] Sprite[] weaponImages;
-	[SerializeField] GameObject overlayUI;
-	[SerializeField] Image weaponImageUI;
+	[SerializeField] [Range(0.1f, 5f)] float knifeHitRange = 0.3f;
+	[SerializeField] GameObject playerUI;
 	[SerializeField] TextMeshProUGUI ammoCounterText;
 	Collider2D[] hitEnemies;
 	Animator playerAnimator;
@@ -91,13 +98,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		dm = FindObjectOfType<FirebaseDataManager>();
 		playerAnimator = GetComponent<Animator>();
 
+		player_v_cam.Follow = followCamPosition;
+
 		// Display Username
 		if (!GetComponent<PhotonView>().IsMine)
 			nameText.text = GetComponent<PhotonView>().Controller.NickName;
 		else
 			nameText.text = PlayerPrefs.GetString("Nickname");
 
-		SetOwnedWeaponsAndAmmo();
+
+		if (!isOwner) playerUI.SetActive(false);
 	}
 
     private void Update()
@@ -106,36 +116,40 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (matchManager.isGameOver)
         {
 			horizontalMove = 0;
-			overlayUI.SetActive(false);
+			playerUI.SetActive(false);
 			return; // Don't move if the time is up
 		}
-		
+
 		if (!isOwner) return;
 
 		// @Bora Getting input
-		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
-
-		if (Input.GetButtonDown("Jump")) jump = true;
-
-		LookAtMouse();
-
-		if (Input.GetKeyDown(KeyCode.E))
+		// Player Movement
+		if (Mathf.Abs(moveJoystick.Horizontal) > moveSensitivity)
 		{
-			photonView.RPC("SwitchWeapon", RpcTarget.All, true);
+			horizontalMove = moveJoystick.Horizontal * runSpeed;
 		}
-		else if (Input.GetKeyDown(KeyCode.Q))
-		{
-			photonView.RPC("SwitchWeapon", RpcTarget.All, false);
-		}
+		else horizontalMove = 0;
+
+		// Camera Movement
+		followCamPosition.localPosition = new Vector3
+			(camDistance * fireJoystick.Horizontal, 
+			(camDistance - camVerticalDrawBack) * fireJoystick.Vertical, 0f);
+
+		// Jump or Crouch
+		if (moveJoystick.Vertical > jumpSensitivity && m_Grounded) jump = true; else jump = false;
+		//if (moveJoystick.Vertical < -jumpSensitivity) crouch = true; else crouch = false;
+
+		LookAround();
 	}
 
-    private void FixedUpdate()
+	private void FixedUpdate()
 	{
 		if (!isOwner) return;
 
 		// @Bora Applying movement
-		Move(horizontalMove * Time.deltaTime, false, jump);
+		Move(horizontalMove * Time.deltaTime, crouch, jump);
 		jump = false;
+		crouch = false;
 
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
@@ -213,9 +227,9 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 	}
 
-	private void LookAtMouse()
+	private void LookAround()
 	{
-		Vector3 aimDirection = (GetMousePos() - transform.position).normalized;
+		Vector3 aimDirection = followCamPosition.localPosition;
 		float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
 
 		// Don't rotate if we hold knife
@@ -228,13 +242,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
         {
 			body.transform.localScale = new Vector3(-1, 1, 1);
 			holdPoint.transform.localScale = new Vector3(-1, -1, 1);
-			player_v_cam.Follow = lookLeft;
 		}			
 		else
         {
 			body.transform.localScale = new Vector3(1, 1, 1);
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
-			player_v_cam.Follow = lookRight;
 		}
 
 		// If we hold knife, correct the holding point
@@ -242,32 +254,25 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
 	}
 
-	public static Vector3 GetMousePos()
+	public void Btn_SwitchWeapon()
 	{
-		return Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		photonView.RPC("SwitchWeapon", RpcTarget.All, true);
 	}
-
 	private void StopCurrentWeaponSound()
 	{
 		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
 		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
 	}
 
-	private void SetOwnedWeaponsAndAmmo()
+	public bool Fire()
     {
-		playerInfo = FindObjectOfType<FirebaseDataManager>().playerInfo;
+		if (Mathf.Abs(fireJoystick.Horizontal) > fireSensitivity || Mathf.Abs(fireJoystick.Vertical) > fireSensitivity)
+		{
+			if (activeWeaponIndex == 0) return true;
+			return dm.ammoBalance[activeWeaponIndex] > 0;
+		}
+		else return false;
 
-		if (playerInfo.hasKnife) dm.hasWeapon[0] = true;
-		if (playerInfo.hasGlock) dm.hasWeapon[1] = true;
-		if (playerInfo.hasShotgun) dm.hasWeapon[2] = true;
-		if (playerInfo.hasM4) dm.hasWeapon[3] = true;
-		if (playerInfo.hasAWP) dm.hasWeapon[4] = true;
-	}
-
-	public bool canFire()
-    {
-		if (activeWeaponIndex == 0) return true;
-		return dm.ammoBalance[activeWeaponIndex] > 0;
     }
 
 	public void Fired() 
@@ -299,7 +304,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
-			weaponImageUI.sprite = weaponImages[activeWeaponIndex];
 			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 		else
@@ -321,7 +325,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
-			weaponImageUI.sprite = weaponImages[activeWeaponIndex];
 			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 

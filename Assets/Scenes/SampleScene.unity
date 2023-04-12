@@ -3789,10 +3789,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5593602613328404032, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5593602613581109512, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
       propertyPath: m_Name
       value: Match Manager
