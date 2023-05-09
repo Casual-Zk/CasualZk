@@ -5,6 +5,6 @@
   <string name="project_id" translatable="false">zk-chickens</string>
   <string name="google_api_key" translatable="false">AIzaSyCl1Qx2v7PQUrwBmvQ2IDy-zkz1iUsAPwY</string>
   <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCl1Qx2v7PQUrwBmvQ2IDy-zkz1iUsAPwY</string>
-  <string name="google_app_id" translatable="false">1:502041118196:android:aff5bacfb7a2e38abca5a1</string>
-  <string name="default_web_client_id" translatable="false">502041118196-oalsvo1bkjotmod2hel1luo0vlih3524.apps.googleusercontent.com</string>
+  <string name="google_app_id" translatable="false">1:502041118196:android:5f3fe0d155837658bca5a1</string>
+  <string name="default_web_client_id" translatable="false">502041118196-7s00rjppdmc3m7umb04u6djblrnb7uoj.apps.googleusercontent.com</string>
 </resources>

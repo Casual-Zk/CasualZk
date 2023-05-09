@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>502041118196-cug03e4egkknmc9bcvhu3bcr6bsd7l1q.apps.googleusercontent.com</string>
+	<string>502041118196-8f224updgrg03if3n0arq3k8dajuud44.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.502041118196-cug03e4egkknmc9bcvhu3bcr6bsd7l1q</string>
+	<string>com.googleusercontent.apps.502041118196-8f224updgrg03if3n0arq3k8dajuud44</string>
 	<key>API_KEY</key>
 	<string>AIzaSyArHQQy5jzlmlIR7e8MDKZW5UC25nIC04w</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.CasualZk.ZkChickens</string>
+	<string>com.casualzk.zkchickens</string>
 	<key>PROJECT_ID</key>
 	<string>zk-chickens</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:502041118196:ios:ae3e445a239d2991bca5a1</string>
+	<string>1:502041118196:ios:57d824f9d705993dbca5a1</string>
 </dict>
 </plist>

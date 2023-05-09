@@ -47,7 +47,7 @@ MonoBehaviour:
   sounds:
   - name: Game_Music
     clip: {fileID: 8300000, guid: caf6068d53633c6458df627a92fa2571, type: 3}
-    volume: 0.02
+    volume: 0.03
     pitch: 1
     loop: 1
     source: {fileID: 0}
