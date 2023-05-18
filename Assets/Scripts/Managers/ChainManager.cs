@@ -11,7 +11,9 @@ public class ChainManager : MonoBehaviour
     // --- Essentials --- //
     string zkMainnetRPC = "https://mainnet.era.zksync.io";
     string zkTestnetRPC = "https://testnet.era.zksync.dev";
-    string itemContractAddress = "0x67F6cd2e7B1840a51A98E38cE58D2f4537a45060";
+    string tokenAddress = "0x2B0758ee301AF7AA2C5fA9B7060648fbB2D0dDBD";
+    string itemAddress = "0xa2B1aD5a0c739A4AbDd9943cF2cA0AE3ad90E67A";
+    string treasuryAddress = "0xA10c223751b208BF18dc0CA9e087B0577fE5b6A8";
     BigInteger zkTestnetID = 280;
     BigInteger zkMainnetID = 280;
 
@@ -38,7 +40,7 @@ public class ChainManager : MonoBehaviour
         List<string> addresses = new List<string>();
         List<BigInteger> ids = new List<BigInteger>();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 9; i++)
         {
             addresses.Add(address);
             ids.Add(i);
@@ -55,7 +57,7 @@ public class ChainManager : MonoBehaviour
         {
             Accounts = addresses,
             Ids = ids
-        }, itemContractAddress);
+        }, itemAddress);
 
         //Getting the dto response already decoded
         List<BigInteger> balances = queryRequest.Result.ReturnValue1;

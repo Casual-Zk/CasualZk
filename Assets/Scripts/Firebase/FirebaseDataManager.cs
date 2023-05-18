@@ -72,10 +72,21 @@ public class FirebaseDataManager : MonoBehaviour
     
     public void OnWeaponBalanceReturn(List<BigInteger> balances)
     {
-        for (int i = 0; i < balances.Count; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (balances[i] > 0) hasWeapon[i] = true; 
         }
+
+        // On chain info saved onto local player info
+        playerInfo.knifeAmount = (int)balances[0];
+        playerInfo.glockAmount = (int)balances[1];
+        playerInfo.shotgunAmount = (int)balances[2];
+        playerInfo.m4Amount = (int)balances[3];
+        playerInfo.awpAmount = (int)balances[4];
+        playerInfo.wallet_12_gauge = (int)balances[5];
+        playerInfo.wallet_9mm = (int)balances[6];
+        playerInfo.wallet_5_65mm = (int)balances[7];
+        playerInfo.wallet_7_62mm = (int)balances[8];
 
         connectingUI.enabled = false;
     }
