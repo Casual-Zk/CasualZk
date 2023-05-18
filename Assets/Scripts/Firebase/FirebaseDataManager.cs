@@ -50,10 +50,10 @@ public class FirebaseDataManager : MonoBehaviour
                 StartCoroutine(FindObjectOfType<ChainManager>().GetWeaponBalances(playerInfo.walletAddress));
 
             // Save ammo balance locally
-            ammoBalance[1] = playerInfo.ammo_9mm;
-            ammoBalance[2] = playerInfo.ammo_12_gauge;
-            ammoBalance[3] = playerInfo.ammo_5_65mm;
-            ammoBalance[4] = playerInfo.ammo_7_62mm;
+            ammoBalance[1] = playerInfo.game_12_gauge;
+            ammoBalance[2] = playerInfo.game_9mm;
+            ammoBalance[3] = playerInfo.game_5_65mm;
+            ammoBalance[4] = playerInfo.game_7_62mm;
         });
 
         gameReg = firestore.Document("gameInfo/basicInfo").Listen(snaphot =>
@@ -106,12 +106,12 @@ public class FirebaseDataManager : MonoBehaviour
 
     public void UpdateAmmoBalance()
     {
-        playerInfo.ammo_9mm = ammoBalance[1];
-        playerInfo.ammo_12_gauge = ammoBalance[2];
-        playerInfo.ammo_5_65mm = ammoBalance[3];
-        playerInfo.ammo_7_62mm = ammoBalance[4];
+        playerInfo.game_12_gauge = ammoBalance[1];
+        playerInfo.game_9mm = ammoBalance[2];
+        playerInfo.game_5_65mm = ammoBalance[3];
+        playerInfo.game_7_62mm = ammoBalance[4];
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(playerInfo, SetOptions.MergeFields("ammo_5_65mm", "ammo_7_62mm", "ammo_9mm", "ammo_12_gauge"));
+            SetAsync(playerInfo, SetOptions.MergeFields("game_5_65mm", "game_7_62mm", "game_9mm", "game_12_gauge"));
     }
 }
