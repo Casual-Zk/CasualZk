@@ -14,6 +14,11 @@ public class Bullet : MonoBehaviourPunCallbacks
 
     bool hit;
 
+    void Start()
+    {
+        StartCoroutine(DestroyObjectAfterDelay());
+    }
+
     private void FixedUpdate()
     {
         transform.position += transform.right * Time.deltaTime * speed;
@@ -47,5 +52,14 @@ public class Bullet : MonoBehaviourPunCallbacks
     public void SetOwner(string owner)
     {
         ownerName = owner;
+    }
+
+    // Destroy bullet after 1 second to avoid buggy behavior.
+    IEnumerator DestroyObjectAfterDelay()
+    {
+        yield return new WaitForSeconds(1f); // Wait for one second
+
+        // Destroy the object
+        Destroy(gameObject);
     }
 }

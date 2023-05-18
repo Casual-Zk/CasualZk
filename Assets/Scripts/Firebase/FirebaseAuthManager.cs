@@ -1,4 +1,4 @@
- using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +13,8 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] Canvas connectingUI;
     [SerializeField] Canvas MenuCanvas;
     [SerializeField] Canvas authCanvas;
+    [SerializeField] GameObject walletConnectUI;
+    [SerializeField] GameObject testerLogin;
     [SerializeField] GameObject loginUI;
     [SerializeField] GameObject registerUI;
     [SerializeField] GameObject messageObject;
@@ -31,6 +33,8 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private FirebaseUser user;
+
+    private int testerClicks;
 
     enum SnapFailStatus
     {
@@ -108,27 +112,20 @@ public class FirebaseAuthManager : MonoBehaviour
         if (snapshot.Exists)
         {
             playerInfo = snapshot.ConvertTo<PlayerInfo>();
+
+            if (playerInfo.walletAddress == null)
+            {
+                Debug.Log("User doesn't have any wallet linked!");
+                DisplayWallerConnectUI();
+                return;
+            }
         }
         else 
         { 
-            Debug.Log("We don't have such user! But now, adding!");
-
-            // Create player
-            playerInfo = new PlayerInfo();
-
-            // Create egg record for this week
-            Dictionary<string, object> eggs = new Dictionary<string, object>();
-            eggs[gameInfo.currentWeek] = 0;
-            playerInfo.eggs = eggs;
-
-            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
-
-            // Restart Procces
-            Debug.Log("Restarting the login tasks!");
-            StartLoginTasks();
+            Debug.Log("We don't have such user! Request login via Web and connect wallet!");
+            DisplayWallerConnectUI();
+            return;
         }
-
-
 
         if (playerInfo.eggs == null)
         {
@@ -167,6 +164,40 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("Restarting the login tasks!");
             StartLoginTasks();
         } 
+    }
+
+    private void DisplayWallerConnectUI()
+    {
+        connectingUI.enabled = false;
+        authCanvas.enabled = true;
+        loginUI.SetActive(false);
+        walletConnectUI.SetActive(true);
+    }
+
+    public async void GoogleTesterButton()
+    {
+        if (testerClicks > 8)
+        {
+            // Give items and wallet
+            PlayerInfo playerInfo = new PlayerInfo();
+
+            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek] = 0;
+            playerInfo.eggs = eggs;
+
+            playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";
+            playerInfo.game_12_gauge = 999;
+            playerInfo.game_9mm = 999;
+            playerInfo.game_5_65mm = 999;
+            playerInfo.game_7_62mm = 999;
+
+            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
+
+            // Restart Procces
+            Debug.Log("Restarting the login tasks!");
+            StartLoginTasks();
+        }
+        else testerClicks++;
     }
 
     private void StartGame()
