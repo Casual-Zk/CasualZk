@@ -10,7 +10,7 @@ public class PlayerInfo
     [FirestoreProperty] public string walletAddress { get; set; }
 
     // Total Egg number and weapon info
-    [FirestoreProperty] public Dictionary<string, object> eggs { get; set; }
+    [FirestoreProperty] public Dictionary<int, object> eggs { get; set; }
     [FirestoreProperty] public int knifeAmount { get; set; }
     [FirestoreProperty] public int glockAmount { get; set; }
     [FirestoreProperty] public int shotgunAmount { get; set; }

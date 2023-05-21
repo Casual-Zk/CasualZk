@@ -1,77 +1,42 @@
 {
   "project_info": {
-    "project_number": "502041118196",
-    "project_id": "zk-chickens",
-    "storage_bucket": "zk-chickens.appspot.com"
+    "project_number": "622001726277",
+    "project_id": "zkchickens",
+    "storage_bucket": "zkchickens.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:502041118196:android:aff5bacfb7a2e38abca5a1",
+        "mobilesdk_app_id": "1:622001726277:android:31317eb70c9a6c5da0142c",
         "android_client_info": {
-          "package_name": "com.CasualZk.ZkChickens"
+          "package_name": "com.casualzkgame.zkchickens"
         }
       },
       "oauth_client": [
         {
-          "client_id": "502041118196-7s00rjppdmc3m7umb04u6djblrnb7uoj.apps.googleusercontent.com",
+          "client_id": "622001726277-apg9m00l72p5fi7lv501ukns0oeku1cb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.casualzkgame.zkchickens",
+            "certificate_hash": "3bd7b7f80eae3799f2ff6f0246404b8b2147cdca"
+          }
+        },
+        {
+          "client_id": "622001726277-d0v7f0qj0s776qrfpg75l5cqkuj17a5e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCl1Qx2v7PQUrwBmvQ2IDy-zkz1iUsAPwY"
+          "current_key": "AIzaSyBm0Hyyv_SaKZZfiq48Gc_HeY9hzsvQVUA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "502041118196-7s00rjppdmc3m7umb04u6djblrnb7uoj.apps.googleusercontent.com",
+              "client_id": "622001726277-d0v7f0qj0s776qrfpg75l5cqkuj17a5e.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "502041118196-cug03e4egkknmc9bcvhu3bcr6bsd7l1q.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.CasualZk.ZkChickens"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:502041118196:android:5f3fe0d155837658bca5a1",
-        "android_client_info": {
-          "package_name": "com.casualzk.zkchickens"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "502041118196-7s00rjppdmc3m7umb04u6djblrnb7uoj.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCl1Qx2v7PQUrwBmvQ2IDy-zkz1iUsAPwY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "502041118196-7s00rjppdmc3m7umb04u6djblrnb7uoj.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "502041118196-cug03e4egkknmc9bcvhu3bcr6bsd7l1q.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.CasualZk.ZkChickens"
-              }
             }
           ]
         }

@@ -132,7 +132,7 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("No egg at all!");
 
             // Then add this week
-            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            Dictionary<int, object> eggs = new Dictionary<int, object>();
             eggs[gameInfo.currentWeek] = 0;
             playerInfo.eggs = eggs;
 
@@ -181,7 +181,7 @@ public class FirebaseAuthManager : MonoBehaviour
             // Give items and wallet
             PlayerInfo playerInfo = new PlayerInfo();
 
-            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            Dictionary<int, object> eggs = new Dictionary<int, object>();
             eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek] = 0;
             playerInfo.eggs = eggs;
 
@@ -285,12 +285,12 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
             }
 
-            messageUI.Display(message, 3f);
+            messageUI.Display(message + errorCode, 3f);
         }
         else
         {
             // Firebase user has been created.
-            FirebaseUser newUser = task.Result;
+            FirebaseUser newUser = task.Result.User;
             Debug.LogFormat("Firebase user created successfully: {0} ({1})",
                 newUser.DisplayName, newUser.UserId);
 
@@ -343,7 +343,7 @@ public class FirebaseAuthManager : MonoBehaviour
             yield break;
         }
 
-        FirebaseUser newUser = task.Result;
+        FirebaseUser newUser = task.Result.User;
         Debug.LogFormat("User signed in successfully: {0} ({1})", newUser.DisplayName, newUser.UserId);
 
         loginUI.SetActive(false);

@@ -5,6 +5,5 @@ using Firebase.Firestore;
 [FirestoreData]
 public class BasicGameInfo
 {
-    [FirestoreProperty]
-    public string currentWeek { get; set; }
+    [FirestoreProperty] public int currentWeek { get; set; }
 }
