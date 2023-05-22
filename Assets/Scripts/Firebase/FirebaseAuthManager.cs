@@ -304,7 +304,29 @@ public class FirebaseAuthManager : MonoBehaviour
     }
     public void Btn_ResetPassword()
     {
-        StartCoroutine(RegisterUser());         // RESET PASSWORD
+        int nowUnix = 0;
+        string timeString = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        int.TryParse(timeString, out nowUnix);
+
+        int reqAmount = 0;
+
+        if (PlayerPrefs.HasKey("passwordRequestAmount")) reqAmount = PlayerPrefs.GetInt("passwordRequestAmount");
+
+        // if no request has been made till now, then create record
+        if (reqAmount == 0) { ResetPasswordResTime(nowUnix); }
+
+        // else if it exist but 24h passed, then reset the record
+        else if ((nowUnix - PlayerPrefs.GetInt("passwordRequestTime")) > 86400) { ResetPasswordResTime(nowUnix); }
+
+        // else if 24 not passed AND 5 request not exceeded, then send new one
+        else if (reqAmount <= 5) 
+        {
+            PlayerPrefs.SetInt("passwordRequestAmount", reqAmount + 1);
+            StartCoroutine(ResetPassword()); 
+        }
+
+        // if it exceed 5 request in the past 24h, then display error message
+        else { messageUI.Display("You can not request more then 5 password reset in 24 hours! Please try later.", 5f); }
     }
     public void Btn_SendVerification()
     {
@@ -361,7 +383,6 @@ public class FirebaseAuthManager : MonoBehaviour
         }
                 
     }
-
     IEnumerator LoginUser()
     {
         var task = auth.SignInWithEmailAndPasswordAsync(loginEmailInput.text, loginPasswordInput.text);
@@ -412,7 +433,6 @@ public class FirebaseAuthManager : MonoBehaviour
         authCanvas.SetActive(false);
         MenuCanvas.SetActive(true);
     }
-
     IEnumerator SendEmailVerification()
     {
         if (user == null) yield return null;
@@ -454,7 +474,38 @@ public class FirebaseAuthManager : MonoBehaviour
             StartCoroutine(LogoutOnDelay());
         }
     }
+    IEnumerator ResetPassword()
+    {
+        var task = auth.SendPasswordResetEmailAsync(resetEmailInput.text);
 
+        yield return new WaitUntil(predicate: () => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("Resetting password was canceled.");
+                yield break;
+            }
+
+            //If there are errors handle them
+            Debug.LogWarning(message: $"Failed to send email verification! Exception: {task.Exception}");
+            FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
+            AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
+
+            string message = "Password reset failed! " + errorCode;
+
+            messageUI.Display(message, 3f);
+        }
+        else
+        {
+            Debug.Log("Sent reset password email!");
+            messageUI.Display("A email to reset password has been sent! Please check your email!", 3f);
+            Btn_BackToLoginUIFromReset();
+        }
+    }
+
+    // For force-logout user if the verification is not complete
     IEnumerator LogoutOnDelay()
     {
         yield return new WaitForSeconds(10);
@@ -471,6 +522,16 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("User logged out !");
             Application.Quit();
         }
+    }
+
+    // Others
+    private void ResetPasswordResTime(int now)
+    {
+        PlayerPrefs.SetInt("passwordRequestTime", now);
+        PlayerPrefs.SetInt("passwordRequestAmount", 1);
+
+        StartCoroutine(ResetPassword());
+        return;
     }
 
 

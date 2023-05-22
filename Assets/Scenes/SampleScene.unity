@@ -133,6 +133,17 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 3601124968633431074, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
   m_PrefabInstance: {fileID: 3601124968589618954}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &82670659 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7549753742380331517, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+  m_PrefabInstance: {fileID: 3601124968589618954}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &90903332
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,7 +995,7 @@ MonoBehaviour:
   registerEmailInput: {fileID: 745609189}
   registerPasswordInput: {fileID: 1355819615}
   registerPasswordRepeatInput: {fileID: 783112521}
-  resetEmailInput: {fileID: 0}
+  resetEmailInput: {fileID: 82670659}
   messageUI: {fileID: 1663189199}
 --- !u!114 &451565029
 MonoBehaviour:
