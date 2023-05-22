@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Firestore;
@@ -10,15 +11,18 @@ using TMPro;
 public class FirebaseAuthManager : MonoBehaviour
 {
     [Header("Objects")]
-    [SerializeField] Canvas connectingUI;
-    [SerializeField] Canvas MenuCanvas;
-    [SerializeField] Canvas authCanvas;
-    [SerializeField] GameObject walletConnectUI;
-    [SerializeField] GameObject testerLogin;
+    [SerializeField] GameObject connectingUI;
+    [SerializeField] GameObject MenuCanvas;
+    [SerializeField] GameObject authCanvas;
+    [SerializeField] GameObject loginWarningUI;
+    [SerializeField] GameObject emailVerificationTextUI;
+    [SerializeField] GameObject linkWalletTextUI;
+    [SerializeField] GameObject resetUI;
     [SerializeField] GameObject loginUI;
     [SerializeField] GameObject registerUI;
     [SerializeField] GameObject messageObject;
     [SerializeField] TextMeshProUGUI messageText;
+    [SerializeField] Button sendVerificationButton;
 
     [Header("Inputs")]
     [SerializeField] TMP_InputField loginEmailInput;
@@ -26,6 +30,7 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] TMP_InputField registerEmailInput;
     [SerializeField] TMP_InputField registerPasswordInput;
     [SerializeField] TMP_InputField registerPasswordRepeatInput;
+    [SerializeField] TMP_InputField resetEmailInput;
 
     [Header("Other")]
     [SerializeField] DisplayMessage messageUI;
@@ -35,6 +40,27 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseUser user;
 
     private int testerClicks;
+
+    /*
+        Default Canvas and Object status (only closed ones)
+        
+        - Message Object: false
+        - Menu Manager > Auth Canvas: False, Profile Canvas: False
+        - Menu Manager > Main Manu Canvas > Set Nickname UI : False
+        - Menu Manager > Auth Canvas > Register UI: False, Connect Wallet UI, False
+        - Menu Manager > Profile Canvas > Inventory UI: False, Lottery UI: False, Set Nickname UI: False
+
+        - Match Manager > In-Game Canvas: False, End Game Vancas: False
+        - Match Manager > In-game canvas > Game Over UI
+        - Match Manager > End Game Canvas > Egg
+        - Map_0: False
+        - Room Manager > Canvas > Connecting Background: False
+
+
+        ## TO-DO ##
+        - Send Reset password but email should be verified! Max 5 reset request per day, store locally
+     
+     */
 
     enum SnapFailStatus
     {
@@ -81,23 +107,57 @@ public class FirebaseAuthManager : MonoBehaviour
         else if (auth.CurrentUser == null)
         {
             Debug.Log("No user found! Opening the login UI");
-            MenuCanvas.enabled = false;
-            authCanvas.enabled = true;
+            MenuCanvas.SetActive(false);
+            authCanvas.SetActive(true);
             loginUI.SetActive(true);
             registerUI.SetActive(false);
-            connectingUI.enabled = false;
+            connectingUI.SetActive(false);
         }
     }
 
     private async void StartLoginTasks()
     {
-        connectingUI.enabled = true;
+        connectingUI.SetActive(true);
 
         BasicGameInfo gameInfo = null;
         PlayerInfo playerInfo = null;
 
+        bool emailVerified = user.IsEmailVerified;
+        bool walletLinked = false;
+
+        // If this is first login, send email verification now and
+        if (!PlayerPrefs.HasKey("lastLogin")) StartCoroutine(SendEmailVerification());
+
+        // Save the login time
+        int nowUnix = 0;
+        string timeString = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        int.TryParse(timeString, out nowUnix);
+        PlayerPrefs.SetInt("lastLogin", nowUnix);
+
+        // Get user data
+        var snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
+        if (snapshot.Exists)
+        {
+            // If data exist, get it's info and check if wallet is linked or not
+            playerInfo = snapshot.ConvertTo<PlayerInfo>();
+
+            if (playerInfo.walletAddress == null)
+            {
+                Debug.Log("User doesn't have any wallet linked!");
+            }
+            else { walletLinked = true; }
+        }
+        // If data doesn't exist, no such user then!
+        else
+        {
+            Debug.Log("We don't have such user data! Request login via Web and connect wallet!");
+        }
+
+        // If email not verified or wallet not linked then show warning and stop further execution
+        if (!emailVerified || !walletLinked) { LoginWarning(emailVerified, walletLinked); return; }
+
         // Get game info
-        var snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
+        snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
         if (snapshot.Exists)
         {
             gameInfo = snapshot.ConvertTo<BasicGameInfo>();
@@ -106,26 +166,6 @@ public class FirebaseAuthManager : MonoBehaviour
 
         Debug.Log("Current Week: " + gameInfo.currentWeek);
         FindObjectOfType<FirebaseDataManager>().gameInfo = gameInfo;    // Send game info to the dm
-
-
-        snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
-        if (snapshot.Exists)
-        {
-            playerInfo = snapshot.ConvertTo<PlayerInfo>();
-
-            if (playerInfo.walletAddress == null)
-            {
-                Debug.Log("User doesn't have any wallet linked!");
-                DisplayWallerConnectUI();
-                return;
-            }
-        }
-        else 
-        { 
-            Debug.Log("We don't have such user! Request login via Web and connect wallet!");
-            DisplayWallerConnectUI();
-            return;
-        }
 
         if (playerInfo.eggs == null)
         {
@@ -166,12 +206,16 @@ public class FirebaseAuthManager : MonoBehaviour
         } 
     }
 
-    private void DisplayWallerConnectUI()
+    private void LoginWarning(bool emailVerification, bool walletLink)
     {
-        connectingUI.enabled = false;
-        authCanvas.enabled = true;
+        connectingUI.SetActive(false);
+        authCanvas.SetActive(true);
         loginUI.SetActive(false);
-        walletConnectUI.SetActive(true);
+        loginWarningUI.SetActive(true);
+
+        // Close the obtained stuff
+        if (emailVerification) emailVerificationTextUI.SetActive(false);
+        if (walletLink) emailVerificationTextUI.SetActive(false);
     }
 
     public async void GoogleTesterButton()
@@ -203,8 +247,8 @@ public class FirebaseAuthManager : MonoBehaviour
     private void StartGame()
     {
         loginUI.SetActive(false);
-        authCanvas.enabled = false;
-        MenuCanvas.enabled = true;
+        authCanvas.SetActive(false);
+        MenuCanvas.SetActive(true);
 
         FindObjectOfType<FirebaseDataManager>().OnLogin();
     }
@@ -235,6 +279,16 @@ public class FirebaseAuthManager : MonoBehaviour
         registerUI.SetActive(false);
         loginUI.SetActive(true);
     }
+    public void Btn_OpenResetUI()
+    {
+        resetUI.SetActive(true);
+        loginUI.SetActive(false);
+    }
+    public void Btn_BackToLoginUIFromReset()
+    {
+        resetUI.SetActive(false);
+        loginUI.SetActive(true);
+    }
 
     // Execution Buttons
     public void Btn_Register()
@@ -247,6 +301,14 @@ public class FirebaseAuthManager : MonoBehaviour
     public void Btn_Login()
     {
         StartCoroutine(LoginUser());
+    }
+    public void Btn_ResetPassword()
+    {
+        StartCoroutine(RegisterUser());         // RESET PASSWORD
+    }
+    public void Btn_SendVerification()
+    {
+        StartCoroutine(SendEmailVerification());
     }
 
     IEnumerator RegisterUser()
@@ -285,7 +347,7 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
             }
 
-            messageUI.Display(message + errorCode, 3f);
+            messageUI.Display(message, 3f);
         }
         else
         {
@@ -347,8 +409,58 @@ public class FirebaseAuthManager : MonoBehaviour
         Debug.LogFormat("User signed in successfully: {0} ({1})", newUser.DisplayName, newUser.UserId);
 
         loginUI.SetActive(false);
-        authCanvas.enabled = false;
-        MenuCanvas.enabled = true;
+        authCanvas.SetActive(false);
+        MenuCanvas.SetActive(true);
+    }
+
+    IEnumerator SendEmailVerification()
+    {
+        if (user == null) yield return null;
+
+        var task = user.SendEmailVerificationAsync();
+
+        yield return new WaitUntil(predicate: () => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("Sending email verification was canceled.");
+                yield break;
+            }
+
+            //If there are errors handle them
+            Debug.LogWarning(message: $"Failed to send email verification! Exception: {task.Exception}");
+            FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
+            AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
+
+            string message = "Sending email verification failed! Please try again.";
+            switch (errorCode)
+            {
+                case AuthError.TooManyRequests:
+                    message = "Sending email verification failed! Too many request!";
+                    break;
+                case AuthError.InvalidEmail:
+                    message = "Sending email verification failed! Invalid email!";
+                    break;
+            }
+
+            messageUI.Display(message, 3f);
+        }
+        else
+        {
+            Debug.Log("Sent email verification!");
+            messageUI.Display("A verification email has been sent! Please log in again after verifying your email!", 8f);
+            StartCoroutine(LogoutOnDelay());
+        }
+    }
+
+    IEnumerator LogoutOnDelay()
+    {
+        yield return new WaitForSeconds(10);
+        auth.SignOut();
+        loginUI.SetActive(true);
+        loginWarningUI.SetActive(false);
     }
 
     public void LogoutUser()
