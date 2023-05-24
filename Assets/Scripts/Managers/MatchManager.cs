@@ -23,6 +23,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     FirebaseDataManager dataManager;
 
     [SerializeField] float matchTime;
+    [SerializeField] int DEBUG_extraPlayer;
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] GameObject waitingPlayersCanvas;
     [SerializeField] TextMeshProUGUI playerCountText;
@@ -70,7 +71,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (isWaitingForPlayers)
         {
-            currentPlayerCount = PhotonNetwork.CurrentRoom.Players.Count;
+            currentPlayerCount = PhotonNetwork.CurrentRoom.Players.Count + DEBUG_extraPlayer;
             neededPlayerCount = dataManager.gameInfo.playerAmount;
 
             waitingPlayersCanvas.SetActive(true);
@@ -98,7 +99,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         dataManager = FindObjectOfType<FirebaseDataManager>();
 
         inGameUI.SetActive(true);
-        isGameOver = false;
         map_0.SetActive(true);
         isWaitingForPlayers = true; // start waiting screen
     }
@@ -320,7 +320,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [PunRPC]
     public void AddPlayer(string playerNickname)
     {
-        //Debug.LogError("New player: " + playerNickname);
+        Debug.LogError("New player: " + playerNickname);
 
         ScoreTable newPlayer = Instantiate(miniScorePrefab, miniScorePanel.transform);
         newPlayer.playerName = playerNickname;

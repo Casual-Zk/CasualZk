@@ -20,6 +20,7 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] GameObject resetUI;
     [SerializeField] GameObject loginUI;
     [SerializeField] GameObject registerUI;
+    [SerializeField] GameObject appUpdateUI;
     [SerializeField] GameObject messageObject;
     [SerializeField] TextMeshProUGUI messageText;
     [SerializeField] Button sendVerificationButton;
@@ -72,6 +73,7 @@ public class FirebaseAuthManager : MonoBehaviour
         // TEST
         auth = FirebaseAuth.DefaultInstance;
         firestore = FirebaseFirestore.DefaultInstance;
+        Debug.LogWarning("Application Version : " + Application.version);
     }
 
     public void StartAuthManager()
@@ -84,6 +86,18 @@ public class FirebaseAuthManager : MonoBehaviour
     {
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
+    }
+
+    public void DisplayAppUpdateUI()
+    {
+        Debug.LogError("App version is old, displaying update UI !!");
+        authCanvas.SetActive(true);
+        loginUI.SetActive(false);
+        MenuCanvas.SetActive(false);
+        connectingUI.SetActive(false);
+        appUpdateUI.SetActive(true);
+
+        StartCoroutine(QuitAppOnDelay());
     }
 
     void AuthStateChanged(object sender, System.EventArgs eventArgs)
@@ -122,11 +136,22 @@ public class FirebaseAuthManager : MonoBehaviour
         BasicGameInfo gameInfo = null;
         PlayerInfo playerInfo = null;
 
+        // Get game info
+        var snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
+        if (snapshot.Exists)
+        {
+            gameInfo = snapshot.ConvertTo<BasicGameInfo>();
+        }
+        else { SnapFail(snapshot, SnapFailStatus.NotExist); return; }
+
+        Debug.Log("Current Week: " + gameInfo.currentWeek);
+        FindObjectOfType<FirebaseDataManager>().gameInfo = gameInfo;    // Send game info to the dm
+
         bool emailVerified = user.IsEmailVerified;
         bool walletLinked = false;
 
         // If this is first login, send email verification now and
-        if (!PlayerPrefs.HasKey("lastLogin")) StartCoroutine(SendEmailVerification());
+        if (!PlayerPrefs.HasKey("lastLogin") && !emailVerified) StartCoroutine(SendEmailVerification());
 
         // Save the login time
         int nowUnix = 0;
@@ -135,7 +160,7 @@ public class FirebaseAuthManager : MonoBehaviour
         PlayerPrefs.SetInt("lastLogin", nowUnix);
 
         // Get user data
-        var snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
+        snapshot = await firestore.Document("users/" + auth.CurrentUser.UserId).GetSnapshotAsync();
         if (snapshot.Exists)
         {
             // If data exist, get it's info and check if wallet is linked or not
@@ -146,6 +171,8 @@ public class FirebaseAuthManager : MonoBehaviour
                 Debug.Log("User doesn't have any wallet linked!");
             }
             else { walletLinked = true; }
+
+            if (playerInfo.isTester) { emailVerified = true; }
         }
         // If data doesn't exist, no such user then!
         else
@@ -155,17 +182,6 @@ public class FirebaseAuthManager : MonoBehaviour
 
         // If email not verified or wallet not linked then show warning and stop further execution
         if (!emailVerified || !walletLinked) { LoginWarning(emailVerified, walletLinked); return; }
-
-        // Get game info
-        snapshot = await firestore.Document("gameInfo/basicInfo").GetSnapshotAsync();
-        if (snapshot.Exists)
-        {
-            gameInfo = snapshot.ConvertTo<BasicGameInfo>();
-        }
-        else { SnapFail(snapshot, SnapFailStatus.NotExist); return; }
-
-        Debug.Log("Current Week: " + gameInfo.currentWeek);
-        FindObjectOfType<FirebaseDataManager>().gameInfo = gameInfo;    // Send game info to the dm
 
         if (playerInfo.eggs == null)
         {
@@ -208,6 +224,8 @@ public class FirebaseAuthManager : MonoBehaviour
 
     private void LoginWarning(bool emailVerification, bool walletLink)
     {
+        Debug.Log("Log warning: Email:" + emailVerification + "  Wallet: " + walletLink);
+
         connectingUI.SetActive(false);
         authCanvas.SetActive(true);
         loginUI.SetActive(false);
@@ -215,7 +233,7 @@ public class FirebaseAuthManager : MonoBehaviour
 
         // Close the obtained stuff
         if (emailVerification) emailVerificationTextUI.SetActive(false);
-        if (walletLink) emailVerificationTextUI.SetActive(false);
+        if (walletLink) linkWalletTextUI.SetActive(false);
     }
 
     public async void GoogleTesterButton()
@@ -230,6 +248,7 @@ public class FirebaseAuthManager : MonoBehaviour
             playerInfo.eggs = eggs;
 
             playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";
+            playerInfo.isTester = true;
             playerInfo.game_12_gauge = 999;
             playerInfo.game_9mm = 999;
             playerInfo.game_5_56mm = 999;
@@ -352,9 +371,12 @@ public class FirebaseAuthManager : MonoBehaviour
             FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
 
-            string message = "Register Failed!";
+            string message;
             switch (errorCode)
             {
+                case AuthError.InvalidEmail:
+                    message = "Invalid Email";
+                    break;
                 case AuthError.MissingEmail:
                     message = "Missing Email";
                     break;
@@ -366,6 +388,9 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
                 case AuthError.EmailAlreadyInUse:
                     message = "Email Already In Use";
+                    break;
+                default:
+                    message = "Register Failed! Error code: " + errorCode;
                     break;
             }
 
@@ -402,7 +427,7 @@ public class FirebaseAuthManager : MonoBehaviour
             FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
 
-            string message = "Login Failed!";
+            string message;
             switch (errorCode)
             {
                 case AuthError.MissingEmail:
@@ -419,6 +444,9 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
                 case AuthError.UserNotFound:
                     message = "Account does not exist";
+                    break;
+                default:
+                    message = "Login Failed! Error code: " + errorCode;
                     break;
             }
 
@@ -454,7 +482,7 @@ public class FirebaseAuthManager : MonoBehaviour
             FirebaseException firebaseEx = task.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
 
-            string message = "Sending email verification failed! Please try again.";
+            string message;
             switch (errorCode)
             {
                 case AuthError.TooManyRequests:
@@ -462,6 +490,9 @@ public class FirebaseAuthManager : MonoBehaviour
                     break;
                 case AuthError.InvalidEmail:
                     message = "Sending email verification failed! Invalid email!";
+                    break;
+                default:
+                    message = "Sending email verification failed! Please try again.! Error code: " + errorCode;
                     break;
             }
 
@@ -512,6 +543,12 @@ public class FirebaseAuthManager : MonoBehaviour
         auth.SignOut();
         loginUI.SetActive(true);
         loginWarningUI.SetActive(false);
+    }
+    IEnumerator QuitAppOnDelay()
+    {
+        yield return new WaitForSeconds(10);
+        Debug.Log("Closing app!");
+        Application.Quit();
     }
 
     public void LogoutUser()

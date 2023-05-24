@@ -1566,7 +1566,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   matchTime: 45
+  DEBUG_extraPlayer: 0
   timeText: {fileID: 5593602612626349516}
+  waitingPlayersCanvas: {fileID: 0}
+  playerCountText: {fileID: 0}
   scorePrefab: {fileID: 3555889794781942791, guid: 50e2de664df9d3f44a5ef3f5e2474b8c, type: 3}
   scorePanel: {fileID: 5593602613842952219}
   miniScorePrefab: {fileID: 3897085011298190245, guid: 7eb5fc272dffbff4fad5c9d3ac7de0b9, type: 3}

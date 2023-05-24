@@ -18,14 +18,19 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] float playerRespawnTime;
     [SerializeField] CinemachineVirtualCamera player_v_cam;
 
-    int duelCounter;
-    bool duelRoomFound;
+    int roomCounter;
 
     MatchManager matchManager;
+    FirebaseDataManager dataManager;
 
     private void Awake()
     {
         Instance = this;
+    }
+
+    private void Start()
+    {
+        dataManager = FindObjectOfType<FirebaseDataManager>();
     }
 
     public void FindMatch()
@@ -60,24 +65,20 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        duelCounter = 0;
+        roomCounter = 0;
+        int maxPlayerAmount = dataManager.gameInfo.playerAmount;
 
         foreach (RoomInfo room in roomList)
         {
-            Debug.LogError("Room Found: " + room.Name);
+            Debug.Log("Room Found: " + room.Name);
 
-            if (room.Name.Contains("Duel")) duelRoomFound = true;
-            if (room.Name.Contains("Duel") && room.PlayerCount >= 3) duelCounter++;
+            if (room.Name.Contains("Room") && room.PlayerCount >= maxPlayerAmount) roomCounter++;
         }
 
         RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 3;
-
-        if (!duelRoomFound) PhotonNetwork.JoinOrCreateRoom("Duel_0", roomOptions, TypedLobby.Default);
-        else PhotonNetwork.JoinOrCreateRoom("Duel_" + duelCounter, roomOptions, TypedLobby.Default);
+        roomOptions.MaxPlayers = (byte)maxPlayerAmount;
+        PhotonNetwork.JoinOrCreateRoom("Room_" + roomCounter, roomOptions, TypedLobby.Default);
     }
-
-
 
     public override void OnJoinedRoom()
     {

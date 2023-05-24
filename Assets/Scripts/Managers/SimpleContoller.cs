@@ -121,6 +121,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			playerUI.SetActive(false);
 			return; // Don't move if the time is up
 		}
+		else if (isOwner) { playerUI.SetActive(true); }
 
 		if (!isOwner) return;
 
