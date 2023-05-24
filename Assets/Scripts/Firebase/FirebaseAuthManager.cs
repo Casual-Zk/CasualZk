@@ -232,7 +232,7 @@ public class FirebaseAuthManager : MonoBehaviour
             playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";
             playerInfo.game_12_gauge = 999;
             playerInfo.game_9mm = 999;
-            playerInfo.game_5_65mm = 999;
+            playerInfo.game_5_56mm = 999;
             playerInfo.game_7_62mm = 999;
 
             await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
@@ -315,8 +315,8 @@ public class FirebaseAuthManager : MonoBehaviour
         // if no request has been made till now, then create record
         if (reqAmount == 0) { ResetPasswordResTime(nowUnix); }
 
-        // else if it exist but 24h passed, then reset the record
-        else if ((nowUnix - PlayerPrefs.GetInt("passwordRequestTime")) > 86400) { ResetPasswordResTime(nowUnix); }
+        // else if it exist but 1-week passed passed, then reset the record
+        else if ((nowUnix - PlayerPrefs.GetInt("passwordRequestTime")) > 604800) { ResetPasswordResTime(nowUnix); }
 
         // else if 24 not passed AND 5 request not exceeded, then send new one
         else if (reqAmount <= 5) 
@@ -326,7 +326,7 @@ public class FirebaseAuthManager : MonoBehaviour
         }
 
         // if it exceed 5 request in the past 24h, then display error message
-        else { messageUI.Display("You can not request more then 5 password reset in 24 hours! Please try later.", 5f); }
+        else { messageUI.Display("You can not request more then 5 password reset in a week! Please try later.", 5f); }
     }
     public void Btn_SendVerification()
     {

@@ -19,10 +19,13 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     public bool isGameOver { get; set; }
 
-    AudioManager audioManager;
+    AudioManager audioManager; 
+    FirebaseDataManager dataManager;
 
     [SerializeField] float matchTime;
     [SerializeField] TextMeshProUGUI timeText;
+    [SerializeField] GameObject waitingPlayersCanvas;
+    [SerializeField] TextMeshProUGUI playerCountText;
 
     [Header("Score")]
     [SerializeField] ScoreTable scorePrefab;
@@ -39,6 +42,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private float time;
     private Coroutine timerCoroutine;
+    private bool isWaitingForPlayers;
+    private int currentPlayerCount;
+    private int neededPlayerCount;
 
     List<ScoreTable> scoreList = new List<ScoreTable>();
 
@@ -57,16 +63,44 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Start()
     {
         isGameOver = true;
+        timeText.text = matchTime.ToString();
+    }
+
+    void Update()
+    {
+        if (isWaitingForPlayers)
+        {
+            currentPlayerCount = PhotonNetwork.CurrentRoom.Players.Count;
+            neededPlayerCount = dataManager.gameInfo.playerAmount;
+
+            waitingPlayersCanvas.SetActive(true);
+            playerCountText.text = "(" + currentPlayerCount + "/" + neededPlayerCount + ")";
+
+            // If enough player is connected to the room, then close the waiting UI and start the game
+            if (currentPlayerCount >= neededPlayerCount)
+            {
+                waitingPlayersCanvas.SetActive(false);
+                isWaitingForPlayers = false;
+                isGameOver = false;
+
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    InitializeTimer();
+                }
+            }
+        }
     }
 
     public void StartMatch()
     {
         PhotonNetwork.AddCallbackTarget(this);
         audioManager = FindObjectOfType<AudioManager>();
+        dataManager = FindObjectOfType<FirebaseDataManager>();
 
         inGameUI.SetActive(true);
         isGameOver = false;
         map_0.SetActive(true);
+        isWaitingForPlayers = true; // start waiting screen
     }
 
     void OnDestroy()
@@ -77,11 +111,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room CALLED");
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.Log("I am the master client");
-            InitializeTimer();
-        }
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)

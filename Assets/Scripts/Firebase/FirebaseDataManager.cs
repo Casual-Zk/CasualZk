@@ -52,7 +52,7 @@ public class FirebaseDataManager : MonoBehaviour
             // Save ammo balance locally
             ammoBalance[1] = playerInfo.game_12_gauge;
             ammoBalance[2] = playerInfo.game_9mm;
-            ammoBalance[3] = playerInfo.game_5_65mm;
+            ammoBalance[3] = playerInfo.game_5_56mm;
             ammoBalance[4] = playerInfo.game_7_62mm;
         });
 
@@ -60,6 +60,7 @@ public class FirebaseDataManager : MonoBehaviour
         {   
             gameInfo = snaphot.ConvertTo<BasicGameInfo>();
             Debug.Log("Current Week : " + gameInfo.currentWeek);
+            Debug.Log("Needed player amount : " + gameInfo.playerAmount);
         });
     }
 
@@ -85,7 +86,7 @@ public class FirebaseDataManager : MonoBehaviour
         playerInfo.awpAmount = (int)balances[4];
         playerInfo.wallet_12_gauge = (int)balances[5];
         playerInfo.wallet_9mm = (int)balances[6];
-        playerInfo.wallet_5_65mm = (int)balances[7];
+        playerInfo.wallet_5_56mm = (int)balances[7];
         playerInfo.wallet_7_62mm = (int)balances[8];
 
         connectingUI.enabled = false;
@@ -120,10 +121,10 @@ public class FirebaseDataManager : MonoBehaviour
     {
         playerInfo.game_12_gauge = ammoBalance[1];
         playerInfo.game_9mm = ammoBalance[2];
-        playerInfo.game_5_65mm = ammoBalance[3];
+        playerInfo.game_5_56mm = ammoBalance[3];
         playerInfo.game_7_62mm = ammoBalance[4];
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(playerInfo, SetOptions.MergeFields("game_5_65mm", "game_7_62mm", "game_9mm", "game_12_gauge"));
+            SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge"));
     }
 }

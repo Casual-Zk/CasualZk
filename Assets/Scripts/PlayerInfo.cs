@@ -20,14 +20,14 @@ public class PlayerInfo
     // Amount of ammo that user have
     [FirestoreProperty] public int wallet_12_gauge { get; set; }
     [FirestoreProperty] public int wallet_9mm { get; set; }
-    [FirestoreProperty] public int wallet_5_65mm { get; set; }
+    [FirestoreProperty] public int wallet_5_56mm { get; set; }
     [FirestoreProperty] public int wallet_7_62mm { get; set; }
     [FirestoreProperty] public int game_12_gauge { get; set; }
     [FirestoreProperty] public int game_9mm { get; set; }
-    [FirestoreProperty] public int game_5_65mm { get; set; }
+    [FirestoreProperty] public int game_5_56mm { get; set; }
     [FirestoreProperty] public int game_7_62mm { get; set; }
     [FirestoreProperty] public int consumed_12_gauge { get; set; }
     [FirestoreProperty] public int consumed_9mm { get; set; }
-    [FirestoreProperty] public int consumed_5_65mm { get; set; }
+    [FirestoreProperty] public int consumed_5_56mm { get; set; }
     [FirestoreProperty] public int consumed_7_62mm { get; set; }
 }
