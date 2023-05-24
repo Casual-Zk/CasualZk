@@ -6,4 +6,5 @@ using Firebase.Firestore;
 public class BasicGameInfo
 {
     [FirestoreProperty] public int currentWeek { get; set; }
+    [FirestoreProperty] public int playerAmount { get; set; }
 }

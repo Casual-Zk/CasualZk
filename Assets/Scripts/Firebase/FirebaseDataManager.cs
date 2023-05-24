@@ -96,12 +96,13 @@ public class FirebaseDataManager : MonoBehaviour
     private async Task IncrementEggForWeek()
     {
         int currentEggNmber = 0;
-        if (playerInfo.eggs[gameInfo.currentWeek] != null)
+        string crrWeek = gameInfo.currentWeek.ToString();
+        if (playerInfo.eggs[crrWeek] != null)
         {
-            int.TryParse(playerInfo.eggs[gameInfo.currentWeek].ToString(), out currentEggNmber);
+            int.TryParse(playerInfo.eggs[crrWeek].ToString(), out currentEggNmber);
         }
 
-        playerInfo.eggs[gameInfo.currentWeek] = currentEggNmber + 1;
+        playerInfo.eggs[crrWeek] = currentEggNmber + 1;
 
         await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
 

@@ -172,8 +172,8 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("No egg at all!");
 
             // Then add this week
-            Dictionary<int, object> eggs = new Dictionary<int, object>();
-            eggs[gameInfo.currentWeek] = 0;
+            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            eggs[gameInfo.currentWeek.ToString()] = 0;
             playerInfo.eggs = eggs;
 
             await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
@@ -184,7 +184,7 @@ public class FirebaseAuthManager : MonoBehaviour
         }
         else Debug.Log("We have eggs");
 
-        if (playerInfo.eggs.ContainsKey(gameInfo.currentWeek))
+        if (playerInfo.eggs.ContainsKey(gameInfo.currentWeek.ToString()))
         {
             Debug.Log("Current week exist!");
             // Start game
@@ -196,7 +196,7 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.Log("This week is not here!");
 
             // Then add this week
-            playerInfo.eggs[gameInfo.currentWeek] = 0;
+            playerInfo.eggs[gameInfo.currentWeek.ToString()] = 0;
 
             await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
 
@@ -225,8 +225,8 @@ public class FirebaseAuthManager : MonoBehaviour
             // Give items and wallet
             PlayerInfo playerInfo = new PlayerInfo();
 
-            Dictionary<int, object> eggs = new Dictionary<int, object>();
-            eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek] = 0;
+            Dictionary<string, object> eggs = new Dictionary<string, object>();
+            eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek.ToString()] = 0;
             playerInfo.eggs = eggs;
 
             playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";

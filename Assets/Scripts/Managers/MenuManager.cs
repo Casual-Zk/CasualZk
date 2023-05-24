@@ -62,7 +62,7 @@ public class MenuManager : MonoBehaviour
         string nickname = dm.playerInfo.nickname;
         string walletAddress = dm.playerInfo.walletAddress;
         int currentWeek = dm.gameInfo.currentWeek;
-        var eggCount = dm.playerInfo.eggs[currentWeek];
+        var eggCount = dm.playerInfo.eggs[currentWeek.ToString()];
 
         if (nickname != null)
         {
