@@ -120,7 +120,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (newMasterClient == PhotonNetwork.LocalPlayer)
         {
             Debug.Log("Local is the master");
-            timerCoroutine = StartCoroutine(Timer());
+            if (timerCoroutine != null) timerCoroutine = StartCoroutine(Timer());
         }
     }
 
@@ -149,8 +149,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         gameOverUI.SetActive(true); 
         audioManager.Play("GameOver_SFX");
 
-        // Save the balance to the database
+        // Save the balance to the database and get online player count
         FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
+        FindObjectOfType<FirebaseDataManager>().UpdateOnlinePlayerCount(false, false);
 
         StartCoroutine(DisplayMainScore());
     }

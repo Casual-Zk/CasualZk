@@ -10,6 +10,8 @@ public class MenuManager : MonoBehaviour
     RoomManager roomManager;
     FirebaseDataManager dm;
 
+    [SerializeField] TextMeshProUGUI onlinePlayerCounter;
+
     [Header("Objects")]
     [SerializeField] DisplayMessage messageUI;
     [SerializeField] Canvas MenuCanvas;
@@ -47,6 +49,10 @@ public class MenuManager : MonoBehaviour
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
         dm = FindObjectOfType<FirebaseDataManager>();
+
+        // if a new version is available, Display update UI
+        if (dm.gameInfo != null && dm.gameInfo.appVersion != Application.version)
+            FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateUI();
     }
 
     public void Btn_SetNickname()
@@ -99,6 +105,11 @@ public class MenuManager : MonoBehaviour
             MenuCanvas.enabled = false;
         }
         else { messageUI.Display("Error: Set a username first!", 3f); }
+    }
+
+    public void UpdateOnlineCounter(int count)
+    {
+        onlinePlayerCounter.text = "Online: " + count;
     }
 
     // ------ PROFILE FUNCTIONS ------ //
