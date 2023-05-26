@@ -28,6 +28,7 @@ public class Health : MonoBehaviourPunCallbacks
         if (deadAlready) return;    // avoid multi death
 
         //Debug.Log("Shooter: " + shooterName);
+        if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
 
         health -= damage;

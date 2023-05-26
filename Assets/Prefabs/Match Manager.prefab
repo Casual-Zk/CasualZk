@@ -1565,7 +1565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 761ac6366b57ce347b9fee25bbca5abf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  matchTime: 45
+  matchTime: 300
   DEBUG_extraPlayer: 0
   timeText: {fileID: 5593602612626349516}
   waitingPlayersCanvas: {fileID: 0}

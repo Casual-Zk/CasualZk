@@ -9,9 +9,14 @@ public class DeathWall : MonoBehaviourPunCallbacks
 
     List<int> hitIDs = new List<int>();
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
-        GameObject obj = collision.gameObject;
+        GameObject obj = collider.gameObject;
+
+        if (!obj.GetComponent<SimpleContoller>()) return;   // don't take action if the obj is not player
+
+        // Don't hit target Colliders
+        if (collider.isTrigger) return;
 
         // Prevent double death by double collider
         if (hitIDs.Contains(obj.GetInstanceID())) return;

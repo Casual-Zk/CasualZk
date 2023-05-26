@@ -38,15 +38,14 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] float camDistance = 5f;
 	[SerializeField] float camVerticalDrawBack = 2f;
 	[SerializeField] [Range(0.1f, 0.5f)] float moveSensitivity = 0.2f;
-	[SerializeField] [Range(0.6f, 0.9f)] float jumpSensitivity = 0.2f;
-	[SerializeField] [Range(0.3f, 1f)] float fireSensitivity = 0.8f;
+	//[SerializeField] [Range(0.6f, 0.9f)] float jumpSensitivity = 0.2f;  // OLD SYSTEM
+	//[SerializeField] [Range(0.3f, 1f)] float fireSensitivity = 0.8f;    // OLD SYSTEM
+	//[SerializeField] Joystick fireJoystick;	// OLD SYSTEM
 	[SerializeField] Joystick moveJoystick;
-	[SerializeField] Joystick fireJoystick;
 	float horizontalMove = 0f;
 	bool jump = false;
 	bool crouch = false;
 	public bool isOwner { get; set; }
-	MatchManager matchManager;
 	CinemachineVirtualCamera player_v_cam;
 
 	[Header("Weapons")]
@@ -60,14 +59,32 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	// 4 - AWP
 	int activeWeaponIndex = 0;  // Always start with knife
 	[SerializeField] LayerMask playerLayer;
-	[SerializeField] Transform knifeHitCenter;
+	[SerializeField] Transform knifeHitCenter;	// Knife attack
 	[SerializeField] [Range(0.1f, 5f)] float knifeHitRange = 0.3f;
-	[SerializeField] GameObject playerUI;
+	[SerializeField] GameObject controlUI;
+	[SerializeField] GameObject hitRangeUI;
+	[SerializeField] Image healthFillImage;
+	[SerializeField] Image onTargetImage;
 	[SerializeField] TextMeshProUGUI ammoCounterText;
-	Collider2D[] hitEnemies;
+	[SerializeField] Image autoBackground;	// Auto Aim
+	[SerializeField] Image autoText;        // Auto Aim
+	[SerializeField] public bool isThisFake;		// Test purposes
+	[SerializeField] float weaponRotationSpeed;        // Auto Aim
+	[SerializeField] Collider2D targetCollider;	// Auto aim
+	Collider2D[] hitEnemies;	// Knife attacks
 	Animator playerAnimator;
 
+	// Save colors to enable/disable auto button
+	Color autoBackgrounEnabledColor;
+	Color autoBackgrounDisabledColor;
+	Color autoTextEnabledColor;
+	Color autoTextDisabledColor;
+	bool fireButtonDown = false;	// Fire button down event
+	Transform target;	// closes target
+	SimpleContoller targetController;   // get target's controler
+	List<SimpleContoller> enemyList = new List<SimpleContoller>();  // In range
 
+	MatchManager matchManager;
 	AudioManager audioManager;
 	FirebaseDataManager dm;
 
@@ -84,6 +101,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 	private void Awake()
 	{
+		if (isThisFake) return;
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 
 		if (OnLandEvent == null)
@@ -95,57 +113,73 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+		if (isThisFake) return;
 		player_v_cam = FindObjectOfType<CinemachineVirtualCamera>();
 		audioManager = FindObjectOfType<AudioManager>();
 		dm = FindObjectOfType<FirebaseDataManager>();
 		playerAnimator = GetComponent<Animator>();
 
-		if (isOwner) player_v_cam.Follow = followCamPosition;
+		if (isOwner)
+        {
+			player_v_cam.Follow = followCamPosition;    // Set cam to follow
+			healthFillImage.color = Color.cyan;			// Set health color to cyan to distinguish 
+
+			// Save enabled and disabled colors of auto button (images)
+			Color bColor = autoBackground.color;
+			autoBackgrounEnabledColor = bColor;
+			autoBackgrounDisabledColor = new Color(bColor.r, bColor.g, bColor.b, 0.6f);
+
+			Color tColor = autoText.color;
+			autoTextEnabledColor = tColor;
+			autoTextDisabledColor = new Color(tColor.r, tColor.g, tColor.b, 0.6f);
+		}
+		else
+        {
+			controlUI.SetActive(false);  // Close other's control UI
+			hitRangeUI.SetActive(false); // Close other's range UI
+		}
 
 		// Display Username
 		if (!GetComponent<PhotonView>().IsMine)
 			nameText.text = GetComponent<PhotonView>().Controller.NickName;
 		else
 			nameText.text = PlayerPrefs.GetString("Nickname");
-
-
-		if (!isOwner) playerUI.SetActive(false);
 	}
 
     private void Update()
 	{
+		if (isThisFake) return;
 		if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
+		
+		// Check if game is over
 		if (matchManager.isGameOver)
         {
 			horizontalMove = 0;
-			playerUI.SetActive(false);
+			controlUI.SetActive(false);
 			return; // Don't move if the time is up
 		}
-		else if (isOwner) { playerUI.SetActive(true); }
+		else if (isOwner) { controlUI.SetActive(true); }
 
-		if (!isOwner) return;
+		if (!isOwner) return;	// Below code is valid for just the owner
 
 		// @Bora Getting input
 		// Player Movement
 		if (Mathf.Abs(moveJoystick.Horizontal) > moveSensitivity)
 		{
 			horizontalMove = moveJoystick.Horizontal * runSpeed;
+
+			if (moveJoystick.Horizontal > 0)
+				followCamPosition.localPosition = new Vector3(camDistance, 0f, 0f);
+			else
+				followCamPosition.localPosition = new Vector3(-camDistance, 0f, 0f);
 		}
 		else horizontalMove = 0;
-
-		// Camera Movement
-		if (fireJoystick.onHandle)
-        {
-			followCamPosition.localPosition = new Vector3
-			(camDistance * fireJoystick.Horizontal,
-			(camDistance - camVerticalDrawBack) * fireJoystick.Vertical, 0f);
-		}
 
 		// Jump or Crouch
 		//if (moveJoystick.Vertical > jumpSensitivity) jump = true; else jump = false;
 		//if (moveJoystick.Vertical < -jumpSensitivity) crouch = true; else crouch = false;
 
-		LookAround();
+		Aim();
 	}
 
 	private void FixedUpdate()
@@ -233,15 +267,125 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 	}
 
-	private void LookAround()
+	// Detect enemies with target detection colliders (Trigger)
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+		if (!isOwner) return;
+
+		if (collider.GetComponent<SimpleContoller>()) 
+		{
+			// Ignore enemy's target collider
+			if (collider.isTrigger) return;
+
+			// If target is not on the target list, then add it.
+			enemyList.Add(collider.GetComponent<SimpleContoller>());
+
+			Debug.Log("Target in range!: " + collider.name); 
+		}
+    }
+
+    private void OnTriggerExit2D(Collider2D collider)
+    {
+		if (!isOwner) return;
+
+		if (collider.GetComponent<SimpleContoller>())
+		{
+			// Ignore enemy's target collider
+			if (collider.isTrigger) return;
+
+			SimpleContoller enemy = collider.GetComponent<SimpleContoller>();
+
+			// If target is not on the target list, then add it.
+			if (enemyList.Contains(enemy)) enemyList.Remove(enemy);
+
+			// Turn off the target UI if the enemy is out of range
+			enemy.OnTarget(false);
+
+			Debug.Log("Target out of the range!: " + collider.name);
+		}
+	}
+
+    private void Aim()
 	{
-		Vector3 aimDirection = followCamPosition.localPosition;
-		float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+		target = followCamPosition;	// by default
+
+		// if there are multiple targets in the list, find the closest one
+		if (enemyList.Count >= 2) 
+		{
+			float distance = 10000000;	// set a too high value to compare with the first enemy
+			float tDistance;			// to save target distance
+
+			// Iterate through all enemies
+			foreach (SimpleContoller enemy in enemyList)
+            {
+				// Save distance and compare
+				tDistance = Vector3.Distance(enemy.transform.position, this.transform.position);
+				if (tDistance < distance)
+                {
+					// If it is closer then current one, then save this as the target
+					distance = tDistance;
+					target = enemy.transform;
+					targetController = enemy;
+                }
+            }
+		}
+		// If there is just 1 enemy in the list, then just target it
+		else if (enemyList.Count == 1)
+        {
+			target = enemyList[0].transform;
+			targetController = enemyList[0];
+		}
+		// If no target, just look strait left and right based on movement
+		else if (Mathf.Abs(moveJoystick.Horizontal) > moveSensitivity)
+		{
+			if (moveJoystick.Horizontal > 0)
+				followCamPosition.localPosition = new Vector3(camDistance, 0f, 0f);
+			else
+				followCamPosition.localPosition = new Vector3(-camDistance, 0f, 0f);
+		}
+
+		// JUST FOR CAMERA: if we have target, move camera to the location of the target's side. No up/down
+		if (enemyList.Count >= 1)
+		{
+			if (target.position.x > transform.position.x)
+				followCamPosition.localPosition = new Vector3(camDistance, 0f, 0f);
+			else
+				followCamPosition.localPosition = new Vector3(-camDistance, 0f, 0f);
+
+			if (!targetController.isThisFake)
+				targetController.OnTarget(true);   // open target UI on the enemy
+		}
+
+		// Turn body and holding point based on target location
+		if (target.position.x > transform.position.x)
+		{
+			body.transform.localScale = new Vector3(1, 1, 1);
+			holdPoint.transform.localScale = new Vector3(1, 1, 1);
+		}
+		else
+        {
+			body.transform.localScale = new Vector3(-1, 1, 1);
+			holdPoint.transform.localScale = new Vector3(-1, -1, 1);
+		}
+
+		// Rotate weapon
+		Vector3 vectorToTarget = target.position - holdPoint.position;  // Get vector
+		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;  // Calculate angle
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);    // Create quaternion
+		holdPoint.rotation = q; // Apply to holding point
+
+		// Add turn speed if rotation speed is set
+		if (weaponRotationSpeed > 0)
+			holdPoint.rotation = Quaternion.Slerp(holdPoint.rotation, q, Time.deltaTime * weaponRotationSpeed);
+
+		////////////    Manuel Aim System    ////////////
+		/*
+		targetLocation = followCamPosition.localPosition;
+		float angle = Mathf.Atan2(target.position.y, target.position.x) * Mathf.Rad2Deg;
 
 		// Don't rotate if we hold knife
 		if (activeWeaponIndex == 0) holdPoint.eulerAngles = new Vector3(0, 0, 0);
 		else holdPoint.eulerAngles = new Vector3(0, 0, angle);
-
 
 		// Reverse the weapon if we look at reverse
 		if (angle > 90 || angle < -90)
@@ -258,7 +402,15 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		// If we hold knife, correct the holding point
 		if (activeWeaponIndex == 0)
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
+		*/
 	}
+
+	// Enable/disable target UI on this player if gets targetted
+	public void OnTarget(bool isThisTarget)
+    {
+		if (isThisTarget) onTargetImage.enabled = true;
+		else onTargetImage.enabled = false;
+    }
 
 	public void Btn_SwitchWeapon()
 	{
@@ -271,17 +423,27 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
 	}
 
+	public void Btn_Fire(bool fire) { fireButtonDown = fire; }
+
+	// Turns bool to weapon if player able to fire
 	public bool Fire()
     {
+		if (!fireButtonDown) return false;  // Can't fire if the button is not down
+		if (activeWeaponIndex == 0) return true;	// if we hold knife, then always can fire
+		return dm.ammoBalance[activeWeaponIndex] > 0;	// else, fire if we have ammo to fire
+
+		////////////    Manuel Aim System    ////////////
+		/*	
 		if (Mathf.Abs(fireJoystick.Horizontal) > fireSensitivity || Mathf.Abs(fireJoystick.Vertical) > fireSensitivity)
 		{
 			if (activeWeaponIndex == 0) return true;
 			return dm.ammoBalance[activeWeaponIndex] > 0;
 		}
 		else return false;
-
+		*/
     }
 
+	// Updates ammo on local
 	public void Fired() 
 	{
 		if (activeWeaponIndex == 0) return;
@@ -352,25 +514,32 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		List<int> ids = new List<int>();
 
 		// Give damage
-		foreach (Collider2D enemy in hitEnemies) {
-			int enemyID = enemy.GetComponent<PhotonView>().GetInstanceID();
+		foreach (Collider2D enemyCollider in hitEnemies) {
+			if(enemyCollider.isTrigger) continue; // don't include target detection colliders
 
-			if (ids.Contains(enemyID)) continue;
+			int enemyID = enemyCollider.GetComponent<PhotonView>().GetInstanceID();
+
+			if (enemyID == GetComponent<PhotonView>().GetInstanceID()) continue; // don't hurt itself
+			if (ids.Contains(enemyID)) continue;	// Don't give double damage to enemy
 			ids.Add(enemyID);
 
 			if (!isOwner) return;
 
-			enemy.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 
-				damage, ownerName, enemy.GetComponent<PhotonView>().Controller.NickName);
+			enemyCollider.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 
+				damage, ownerName, enemyCollider.GetComponent<PhotonView>().Controller.NickName);
 
 			photonView.RPC("PlayFireSFX", RpcTarget.All, "Knife_Damage_SFX");
 		}
 	}
 	private void OnDrawGizmos()
 	{
-		Vector2 drawGismos = new Vector2(knifeHitCenter.position.x, knifeHitCenter.position.y);
-		Gizmos.DrawWireSphere(drawGismos, knifeHitRange);
+		if (isThisFake) return;
+		Gizmos.DrawWireSphere(knifeHitCenter.position, knifeHitRange);
 
+		if (!target) return;
+		Vector2 enemyPos = new Vector2(target.position.x, target.position.y);
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(enemyPos, knifeHitRange + 1);
 	}
 
 	[PunRPC]

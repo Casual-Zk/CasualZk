@@ -27,7 +27,9 @@ public class Bullet : MonoBehaviourPunCallbacks
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Avoid bullets hitting each other
-        if (collision.GetComponent<Bullet>() != null) return;
+        if (collision.GetComponent<Bullet>()) return;
+        // don't hit player's target collider
+        if (collision.GetComponent<SimpleContoller>() && collision.isTrigger) return;
 
         // Prevent double hit
         if (hit) return;
