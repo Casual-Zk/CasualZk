@@ -151,7 +151,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         // Save the balance to the database and get online player count
         FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
-        FindObjectOfType<FirebaseDataManager>().UpdateOnlinePlayerCount(false, false);
 
         StartCoroutine(DisplayMainScore());
     }
@@ -207,10 +206,11 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             //PhotonNetwork.EnableCloseConnection = true;
         }
 
-        // Disconnect
-        PhotonNetwork.Disconnect();
+        // Leave the room and lobby
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.LeaveLobby();
 
-        
+        FindObjectOfType<RoomManager>().UpdateCounter();
     }
 
     public void EndGameButton()

@@ -68,7 +68,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] TextMeshProUGUI ammoCounterText;
 	[SerializeField] Image autoBackground;	// Auto Aim
 	[SerializeField] Image autoText;        // Auto Aim
-	[SerializeField] public bool isThisFake;		// Test purposes
+	[SerializeField] public bool isThisFake;        // Test purposes
 	[SerializeField] float weaponRotationSpeed;        // Auto Aim
 	[SerializeField] Collider2D targetCollider;	// Auto aim
 	Collider2D[] hitEnemies;	// Knife attacks
@@ -80,8 +80,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	Color autoTextEnabledColor;
 	Color autoTextDisabledColor;
 	bool fireButtonDown = false;	// Fire button down event
-	Transform target;	// closes target
-	SimpleContoller targetController;   // get target's controler
+	Transform targetPos;	// closes target
 	List<SimpleContoller> enemyList = new List<SimpleContoller>();  // In range
 
 	MatchManager matchManager;
@@ -150,7 +149,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	{
 		if (isThisFake) return;
 		if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
-		
+
 		// Check if game is over
 		if (matchManager.isGameOver)
         {
@@ -182,7 +181,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		Aim();
 	}
 
-	private void FixedUpdate()
+    private void FixedUpdate()
 	{
 		if (!isOwner) return;
 
@@ -277,8 +276,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// Ignore enemy's target collider
 			if (collider.isTrigger) return;
 
+			// Get enemy controller
+			SimpleContoller enemy = collider.GetComponent<SimpleContoller>();
+
 			// If target is not on the target list, then add it.
-			enemyList.Add(collider.GetComponent<SimpleContoller>());
+			if (!enemyList.Contains(enemy)) enemyList.Add(enemy);
 
 			Debug.Log("Target in range!: " + collider.name); 
 		}
@@ -295,7 +297,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 			SimpleContoller enemy = collider.GetComponent<SimpleContoller>();
 
-			// If target is not on the target list, then add it.
+			// If target is in the target list, then remove it.
 			if (enemyList.Contains(enemy)) enemyList.Remove(enemy);
 
 			// Turn off the target UI if the enemy is out of range
@@ -307,33 +309,45 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
     private void Aim()
 	{
-		target = followCamPosition;	// by default
+		targetPos = followCamPosition;	// by default
 
 		// if there are multiple targets in the list, find the closest one
 		if (enemyList.Count >= 2) 
 		{
-			float distance = 10000000;	// set a too high value to compare with the first enemy
-			float tDistance;			// to save target distance
+			float currentDistance = 10000000;	// set a too high value to compare with the first enemy
+			float targetDistance;			// to save target distance
+			float checkDistance;            // to save target distance
 
 			// Iterate through all enemies
 			foreach (SimpleContoller enemy in enemyList)
             {
 				// Save distance and compare
-				tDistance = Vector3.Distance(enemy.transform.position, this.transform.position);
-				if (tDistance < distance)
+				targetDistance = Vector3.Distance(enemy.transform.position, this.transform.position);
+
+				if (targetDistance < currentDistance)
                 {
 					// If it is closer then current one, then save this as the target
-					distance = tDistance;
-					target = enemy.transform;
-					targetController = enemy;
-                }
+					currentDistance = targetDistance;
+					targetPos = enemy.transform;
+					enemy.OnTarget(true);
+				}
             }
+
+			// Iterate again to close target UI on the ones who are not target
+			foreach (SimpleContoller enemy in enemyList)
+			{
+				// Get the target's distance
+				checkDistance = Vector3.Distance(enemy.transform.position, this.transform.position);
+
+				// If it is not current target's distance, then close its target UI
+				if (!Mathf.Approximately(checkDistance, currentDistance)) enemy.OnTarget(false);
+			}
 		}
 		// If there is just 1 enemy in the list, then just target it
 		else if (enemyList.Count == 1)
         {
-			target = enemyList[0].transform;
-			targetController = enemyList[0];
+			targetPos = enemyList[0].transform;
+			enemyList[0].OnTarget(true);	// Open target UI on enemy
 		}
 		// If no target, just look strait left and right based on movement
 		else if (Mathf.Abs(moveJoystick.Horizontal) > moveSensitivity)
@@ -347,17 +361,14 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		// JUST FOR CAMERA: if we have target, move camera to the location of the target's side. No up/down
 		if (enemyList.Count >= 1)
 		{
-			if (target.position.x > transform.position.x)
+			if (targetPos.position.x > transform.position.x)
 				followCamPosition.localPosition = new Vector3(camDistance, 0f, 0f);
 			else
 				followCamPosition.localPosition = new Vector3(-camDistance, 0f, 0f);
-
-			if (!targetController.isThisFake)
-				targetController.OnTarget(true);   // open target UI on the enemy
 		}
 
 		// Turn body and holding point based on target location
-		if (target.position.x > transform.position.x)
+		if (targetPos.position.x > transform.position.x)
 		{
 			body.transform.localScale = new Vector3(1, 1, 1);
 			holdPoint.transform.localScale = new Vector3(1, 1, 1);
@@ -369,7 +380,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 
 		// Rotate weapon
-		Vector3 vectorToTarget = target.position - holdPoint.position;  // Get vector
+		Vector3 vectorToTarget = targetPos.position - holdPoint.position;  // Get vector
 		float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;  // Calculate angle
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);    // Create quaternion
 		holdPoint.rotation = q; // Apply to holding point
@@ -536,8 +547,8 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		if (isThisFake) return;
 		Gizmos.DrawWireSphere(knifeHitCenter.position, knifeHitRange);
 
-		if (!target) return;
-		Vector2 enemyPos = new Vector2(target.position.x, target.position.y);
+		if (!targetPos) return;
+		Vector2 enemyPos = new Vector2(targetPos.position.x, targetPos.position.y);
 		Gizmos.color = Color.red;
 		Gizmos.DrawWireSphere(enemyPos, knifeHitRange + 1);
 	}

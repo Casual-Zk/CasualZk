@@ -19,9 +19,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] CinemachineVirtualCamera player_v_cam;
 
     int roomCounter;
+    int onlineCounter;
 
     MatchManager matchManager;
     FirebaseDataManager dataManager;
+    MenuManager menuManager;
 
     private void Awake()
     {
@@ -31,30 +33,58 @@ public class RoomManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         dataManager = FindObjectOfType<FirebaseDataManager>();
+        matchManager = FindObjectOfType<MatchManager>();
+        menuManager = FindObjectOfType<MenuManager>();
+
+        if (matchManager.GetComponent<PhotonView>().IsMine)
+        {
+            Debug.Log("Connecting to server...");
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 
     public void FindMatch()
     {
-        Debug.Log("Connecting...");
-        PhotonNetwork.ConnectUsingSettings();
-
         if (!matchManager.GetComponent<PhotonView>().IsMine) return;
+        if (PhotonNetwork.IsConnected)
+            PhotonNetwork.JoinLobby();
+        else
+        {
+            Debug.LogError("NOT CONNECTED TO MASTER SERVER !!!");
+            FindObjectOfType<DisplayMessage>().Display("Not connected to server!", 3f);
+            return;
+        }
 
         connectingUI.SetActive(true);
-        roomNameText.enabled = false;
+        roomNameText.enabled = false;        
     }
 
     private void Update()
     {
         if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
         if (!matchManager.isGameOver) connectingUI.SetActive(false);    // Prevent connectiong UI to open if the game is on!
+
+        // If connected and online counter has changed, update it
+        if (PhotonNetwork.IsConnected && onlineCounter != PhotonNetwork.CountOfPlayers)
+        {
+            onlineCounter = PhotonNetwork.CountOfPlayers;
+            menuManager.UpdateOnlineCounter(onlineCounter);
+        }
+    }
+
+    public void UpdateCounter()
+    {
+        onlineCounter = PhotonNetwork.CountOfPlayers;
+        menuManager.UpdateOnlineCounter(onlineCounter);
     }
 
     public override void OnConnectedToMaster()
     {
         base.OnConnectedToMaster();
         Debug.Log("Connected to server");
-        PhotonNetwork.JoinLobby();  
+
+        onlineCounter = PhotonNetwork.CountOfPlayers;
+        menuManager.UpdateOnlineCounter(onlineCounter);
     }
 
     public override void OnJoinedLobby()

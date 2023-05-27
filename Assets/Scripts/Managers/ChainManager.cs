@@ -63,6 +63,6 @@ public class ChainManager : MonoBehaviour
         List<BigInteger> balances = queryRequest.Result.ReturnValue1;
         FindObjectOfType<FirebaseDataManager>().OnWeaponBalanceReturn(balances);
 
-        foreach(BigInteger balance in balances) { Debug.Log("Balance: " + balance); }
+        //foreach(BigInteger balance in balances) { Debug.Log("Balance: " + balance); }
     }
 }

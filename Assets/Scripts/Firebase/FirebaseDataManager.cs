@@ -60,64 +60,11 @@ public class FirebaseDataManager : MonoBehaviour
         gameReg = firestore.Document("gameInfo/basicInfo").Listen(snaphot =>
         {   
             gameInfo = snaphot.ConvertTo<BasicGameInfo>();
-            Debug.Log("Current Week : " + gameInfo.currentWeek);
-            Debug.Log("Needed player amount : " + gameInfo.playerAmount);
+            //Debug.Log("Current Week : " + gameInfo.currentWeek);
+            //Debug.Log("Needed player amount : " + gameInfo.playerAmount);
+
+            FindObjectOfType<RoomManager>().UpdateCounter();// Update counter at start
         });
-
-        // Add player to the online counter
-        UpdateOnlinePlayerCount(true, true);
-    }
-
-    public void UpdateOnlinePlayerCount(bool writeData, bool increase)
-    {
-        MenuManager menuManager = FindObjectOfType<MenuManager>();
-
-        DocumentReference doc = firestore.Document("gameInfo/onlinePlayerCounter");
-        _ = doc.GetSnapshotAsync().ContinueWithOnMainThread(task =>
-        {
-            DocumentSnapshot snap = task.Result;
-
-            if (snap.Exists && snap.ContainsField("online"))
-                onlineCounter = snap.GetValue<int>("online");
-
-            float seed = 0;
-
-            if (snap.Exists && snap.ContainsField("seed"))
-                seed = snap.GetValue<float>("seed");
-            
-            // Increase and display online count
-            if (writeData && increase)
-            {
-                onlineCounter++;
-                int seeded = (int)(seed * onlineCounter);
-
-                Dictionary<string, object> data = new Dictionary<string, object> {
-                    { "online", onlineCounter },
-                    { "seed", seed }
-                };
-                doc.SetAsync(data).ContinueWithOnMainThread(task => { menuManager.UpdateOnlineCounter(seeded); });
-            }
-
-            // Decrease and display online count
-            if (writeData && !increase)
-            {
-                onlineCounter--;
-                int seeded = (int)(seed * onlineCounter);
-
-                Dictionary<string, object> data = new Dictionary<string, object> {
-                    { "online", onlineCounter },
-                    { "seed", seed }
-                };
-                doc.SetAsync(data).ContinueWithOnMainThread(task => { menuManager.UpdateOnlineCounter(seeded); });
-            }
-
-            // Just display the online count
-            if (!writeData)
-            {
-                int seeded = (int)(seed * onlineCounter); 
-                menuManager.UpdateOnlineCounter(seeded);
-            }
-        });        
     }
 
     private void OnDestroy()
@@ -126,9 +73,6 @@ public class FirebaseDataManager : MonoBehaviour
         UpdateAmmoBalance();
         if (playerReg != null) playerReg.Stop();
         if (gameReg != null) gameReg.Stop();
-
-        // Subtract the player from the online counter
-        UpdateOnlinePlayerCount(true, false);
     }
 
     public void OnWeaponBalanceReturn(List<BigInteger> balances)

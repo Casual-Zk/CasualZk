@@ -42,6 +42,8 @@ public class MenuManager : MonoBehaviour
     {
         StartMenu();
         weekCounterInput.text = weekCounter.ToString();
+
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
     public void StartMenu()
@@ -62,6 +64,8 @@ public class MenuManager : MonoBehaviour
         else
             FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
     }
+
+    public void Btn_Quit() { Application.Quit(); }
 
     public void DisplayInfo()
     {
@@ -109,6 +113,8 @@ public class MenuManager : MonoBehaviour
 
     public void UpdateOnlineCounter(int count)
     {
+        //Debug.LogWarning("dm Seed: " + dm.gameInfo.onlineSeed);
+        count = (int)(dm.gameInfo.onlineSeed * count);
         onlinePlayerCounter.text = "Online: " + count;
     }
 
