@@ -52,6 +52,8 @@ public class MenuManager : MonoBehaviour
     float moveDistance;
     Vector3 localPos;       // same but for localPos as a whole
 
+    AudioManager audioManager;
+
     private void Start()
     {
         StartMenu();
@@ -59,11 +61,15 @@ public class MenuManager : MonoBehaviour
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
+        audioManager = FindObjectOfType<AudioManager>();
+
         if (!PlayerPrefs.HasKey("MusicVol")) Btn_SaveSettings();
         else
         {
             musicVolSlider.value = PlayerPrefs.GetFloat("MusicVol");
             SFXVolSlider.value = PlayerPrefs.GetFloat("SFXVol");
+
+            audioManager.ApplyVolumeSettings();
         }
 
         moveDistance = closedPos - openedPos;
@@ -123,6 +129,11 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    public void PlayClickSound()
+    {
+        audioManager.Play("Click_SFX");
+    }
+
     public void StartMenu()
     {
         matchManager = FindObjectOfType<MatchManager>();
@@ -158,11 +169,12 @@ public class MenuManager : MonoBehaviour
 
     public void Btn_SaveSettings()
     {
-        // Apply settings to the audio manager
-
         // Records settings to the player prefs
         PlayerPrefs.SetFloat("MusicVol", musicVolSlider.value);
         PlayerPrefs.SetFloat("SFXVol", SFXVolSlider.value);
+
+        // Apply settings to the audio manager
+        audioManager.ApplyVolumeSettings();
 
         // Close settings UI
         openStart = false;
@@ -189,7 +201,7 @@ public class MenuManager : MonoBehaviour
             PlayerPrefs.DeleteKey("Nickname");
         }
 
-        walletAdddressText.text = walletAddress;
+        walletAdddressText.text = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);
 
         foreach (TextMeshProUGUI text in currentWeekTexts) { text.text = currentWeek.ToString(); }
         foreach (TextMeshProUGUI text in eggBalanceTexts) { text.text = "x " + eggCount; }
