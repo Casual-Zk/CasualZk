@@ -159,6 +159,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 		else if (isOwner) { controlUI.SetActive(true); }
 
+		// DEBUG fire with keyboard
+		//if (Input.GetKeyDown(KeyCode.A)) Btn_Fire(true);
+		//else Btn_Fire(false);
+
+		// vel return +/-13
+		if (Mathf.Abs(m_Rigidbody2D.velocity.x) > 2f) 
+			playerAnimator.SetBool("Walking", true);
+		else 
+			playerAnimator.SetBool("Walking", false);
+
 		if (!isOwner) return;	// Below code is valid for just the owner
 
 		// @Bora Getting input
