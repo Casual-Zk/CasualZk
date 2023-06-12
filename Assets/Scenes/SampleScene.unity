@@ -17085,7 +17085,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!1 &1364059694
 GameObject:
@@ -18480,6 +18480,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 451565028}
+    - target: {fileID: 1639235419, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1961355286, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -18568,10 +18572,6 @@ PrefabInstance:
       propertyPath: messageUI
       value: 
       objectReference: {fileID: 1663189199}
-    - target: {fileID: 3601124967579148492, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -97.299805
-      objectReference: {fileID: 0}
     - target: {fileID: 3726023673290256852, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

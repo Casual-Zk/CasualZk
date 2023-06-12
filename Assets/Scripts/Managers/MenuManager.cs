@@ -14,9 +14,18 @@ public class MenuManager : MonoBehaviour
 
     [Header("Objects")]
     [SerializeField] DisplayMessage messageUI;
-    [SerializeField] Canvas MenuCanvas;
-    [SerializeField] Canvas profileCanvas;
+    [SerializeField] GameObject MenuCanvas;
+    [SerializeField] Canvas loopingCanvas;
     [SerializeField] public GameObject findMatchButton;
+    [SerializeField] TextMeshProUGUI loopingText;
+    [SerializeField] TextMeshProUGUI cloneText;
+    [SerializeField] float loopingSpeed;
+    RectTransform textRectTransform;
+    public string sourceText;
+    float textWidth;
+    Vector3 textStartPos;
+    float scrollPos;
+    bool loopingOpen;
 
     [Header("Nickname")]
     [SerializeField] TMP_InputField Nickname_Input;
@@ -54,6 +63,7 @@ public class MenuManager : MonoBehaviour
 
     AudioManager audioManager;
 
+
     private void Start()
     {
         StartMenu();
@@ -73,6 +83,13 @@ public class MenuManager : MonoBehaviour
         }
 
         moveDistance = closedPos - openedPos;
+
+        // Looping text vars
+        textRectTransform = loopingText.GetComponent<RectTransform>();
+        textWidth = loopingText.preferredWidth;
+        textStartPos = textRectTransform.position;
+        scrollPos = 0;
+        loopingOpen = true;
     }
 
     private void Update()
@@ -129,6 +146,30 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        loopingCanvas.enabled = MenuCanvas.activeSelf;
+
+        // Text looping
+        if (loopingText.text != sourceText)
+        {
+            loopingText.text = sourceText;
+            cloneText.text = sourceText;
+
+            textWidth = loopingText.preferredWidth;
+            scrollPos = 0;
+
+            Debug.Log("New witdh: " + textWidth);
+            Debug.Log("New X given: " + textWidth / 0.75f);
+
+            cloneText.GetComponent<RectTransform>().localPosition = new Vector3(textWidth, 0, 0);
+        }
+
+        if (scrollPos < -textWidth) scrollPos = 0;
+        textRectTransform.position = new Vector3(scrollPos / 0.75f, textStartPos.y, textStartPos.z);
+        scrollPos -= loopingSpeed * Time.deltaTime;
+    }
+
     public void PlayClickSound()
     {
         audioManager.Play("Click_SFX");
@@ -136,6 +177,7 @@ public class MenuManager : MonoBehaviour
 
     public void StartMenu()
     {
+        MenuCanvas.SetActive(true);
         matchManager = FindObjectOfType<MatchManager>();
         roomManager = FindObjectOfType<RoomManager>();
         dm = FindObjectOfType<FirebaseDataManager>();
@@ -220,9 +262,9 @@ public class MenuManager : MonoBehaviour
         if (PlayerPrefs.HasKey("Nickname"))
         {
             roomManager.FindMatch();
-            MenuCanvas.enabled = false;
+            MenuCanvas.SetActive(false);
         }
-        else { messageUI.Display("Error: Set a username first!", 3f); }
+        else { messageUI.Display("Error: Set a username from profile!", 3f); }
     }
 
     public void UpdateOnlineCounter(int count)
