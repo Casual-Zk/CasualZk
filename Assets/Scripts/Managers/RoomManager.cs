@@ -117,12 +117,19 @@ public class RoomManager : MonoBehaviourPunCallbacks
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
         Debug.Log("We're connected and in a room!");
-        connectingUI.SetActive(false);
+        StartCoroutine(CloseConnectingUIOnDelay());
         SpawnPlayer();
 
         FindAnyObjectByType<MatchManager>().StartMatch();
         FindAnyObjectByType<MatchManager>().GetComponent<PhotonView>().RPC(
             "AddPlayer", RpcTarget.All, PlayerPrefs.GetString("Nickname"));
+    }
+
+    IEnumerator CloseConnectingUIOnDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        connectingUI.SetActive(false);
+        matchManager.waitingPlayersCanvas.SetActive(true);
     }
 
     public void RespawnPlayer()

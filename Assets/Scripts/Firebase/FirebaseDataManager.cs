@@ -23,7 +23,7 @@ public class FirebaseDataManager : MonoBehaviour
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
 
-    public bool[] hasWeapon = new bool[5];
+    public int[] weaponBalance = new int[5];
     public int[] ammoBalance = new int[5];
 
     private void Awake()
@@ -79,7 +79,7 @@ public class FirebaseDataManager : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
-            if (balances[i] > 0) hasWeapon[i] = true; 
+            weaponBalance[i] = (int)balances[i]; 
         }
 
         // On chain info saved onto local player info

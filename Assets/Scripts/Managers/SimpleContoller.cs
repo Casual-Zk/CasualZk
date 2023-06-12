@@ -480,7 +480,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				// If we go beyond the range, reset the index
 				if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0; 
 			}
-			while (!dm.hasWeapon[activeWeaponIndex]);
+			while (dm.weaponBalance[activeWeaponIndex] <= 0);
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);
@@ -502,7 +502,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				// If we go beyond the range, reset the index
 				if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
 			}
-			while (!dm.hasWeapon[activeWeaponIndex]);
+			while (dm.weaponBalance[activeWeaponIndex] <= 0);
 
 			// Activate the new weapon
 			weapons[activeWeaponIndex].SetActive(true);

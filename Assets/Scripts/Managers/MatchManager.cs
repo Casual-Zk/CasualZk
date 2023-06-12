@@ -25,7 +25,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] float matchTime;
     [SerializeField] int DEBUG_extraPlayer;
     [SerializeField] TextMeshProUGUI timeText;
-    [SerializeField] GameObject waitingPlayersCanvas;
+    [SerializeField] public GameObject waitingPlayersCanvas;
     [SerializeField] TextMeshProUGUI playerCountText;
 
     [Header("Score")]
@@ -74,21 +74,26 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             currentPlayerCount = PhotonNetwork.CurrentRoom.Players.Count + DEBUG_extraPlayer;
             neededPlayerCount = dataManager.gameInfo.playerAmount;
 
-            waitingPlayersCanvas.SetActive(true);
             playerCountText.text = "(" + currentPlayerCount + "/" + neededPlayerCount + ")";
 
             // If enough player is connected to the room, then close the waiting UI and start the game
             if (currentPlayerCount >= neededPlayerCount)
             {
-                waitingPlayersCanvas.SetActive(false);
                 isWaitingForPlayers = false;
-                isGameOver = false;
-
-                if (PhotonNetwork.IsMasterClient)
-                {
-                    InitializeTimer();
-                }
+                StartCoroutine(StartActualMatchOnDelay());
             }
+        }
+    }
+    IEnumerator StartActualMatchOnDelay()
+    {
+        yield return new WaitForSeconds(2.5f);
+
+        waitingPlayersCanvas.SetActive(false);
+        isGameOver = false;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            InitializeTimer();
         }
     }
 

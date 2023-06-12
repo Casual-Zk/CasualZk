@@ -32,11 +32,25 @@ public class MenuManager : MonoBehaviour
     [Header("Inventory UI")]
     [SerializeField] GameObject[] weapons;
     [SerializeField] GameObject[] ammo;
+    [SerializeField] TextMeshProUGUI[] weaponBalanceText;
     [SerializeField] TextMeshProUGUI[] ammoBalanceText;
 
     [Header("Lottery UI")]
     [SerializeField] TMP_InputField weekCounterInput;
     int weekCounter = 0;
+
+    [Header("Settings UI")]
+    [SerializeField] GameObject settingsUI;
+    [SerializeField] float moveSpeed;
+    [SerializeField] Slider musicVolSlider;
+    [SerializeField] Slider SFXVolSlider;
+    bool openStart;
+    bool closeStart;
+    bool settingsOpen;
+    float closedPos = 1600f;
+    float openedPos = 600f;
+    float moveDistance;
+    Vector3 localPos;       // same but for localPos as a whole
 
     private void Start()
     {
@@ -44,6 +58,69 @@ public class MenuManager : MonoBehaviour
         weekCounterInput.text = weekCounter.ToString();
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        if (!PlayerPrefs.HasKey("MusicVol")) Btn_SaveSettings();
+        else
+        {
+            musicVolSlider.value = PlayerPrefs.GetFloat("MusicVol");
+            SFXVolSlider.value = PlayerPrefs.GetFloat("SFXVol");
+        }
+
+        moveDistance = closedPos - openedPos;
+    }
+
+    private void Update()
+    {
+        if (openStart)
+        {
+            localPos = settingsUI.transform.localPosition;
+
+            // Stop when arrive
+            if (localPos.x <= openedPos) 
+            {
+                openStart = false;
+                settingsOpen = true;
+                settingsUI.transform.localPosition = new Vector3(openedPos - 1f, localPos.y, localPos.z);
+                return;
+            }
+
+            // Move left with normal speed till get the 60% of the distance
+            if (localPos.x > closedPos - (moveDistance * 0.6f))
+            {
+                settingsUI.transform.localPosition -= new Vector3(moveSpeed * Time.deltaTime, 0, 0);
+            }
+            // Move slower when getting closer
+            else if (localPos.x > closedPos - (moveDistance * 0.8f))
+            {
+                settingsUI.transform.localPosition -= new Vector3(moveSpeed / 2 * Time.deltaTime, 0, 0);
+            }
+            // Move slower when getting closer
+            else if (localPos.x > closedPos - (moveDistance * 0.9f))
+            {
+                settingsUI.transform.localPosition -= new Vector3(moveSpeed / 4 * Time.deltaTime, 0, 0);
+            }
+            // Move slower when getting closer
+            else
+            {
+                settingsUI.transform.localPosition -= new Vector3(moveSpeed / 8 * Time.deltaTime, 0, 0);
+            }
+        }
+        if (closeStart)
+        {
+            localPos = settingsUI.transform.localPosition;
+
+            // Stop when arrive
+            if (localPos.x >= closedPos)
+            {
+                closeStart = false;
+                settingsOpen = false;
+                settingsUI.transform.localPosition = new Vector3(closedPos + 1f, localPos.y, localPos.z);
+                return;
+            }
+
+            // Move left with half of the normal speed
+            settingsUI.transform.localPosition += new Vector3(moveSpeed / 2 * Time.deltaTime, 0, 0);
+        }
     }
 
     public void StartMenu()
@@ -66,6 +143,31 @@ public class MenuManager : MonoBehaviour
     }
 
     public void Btn_Quit() { Application.Quit(); }
+
+    public void Btn_OpenSettingsUI() 
+    {
+        if (settingsOpen)
+        {
+            closeStart = true; openStart = false;
+        }
+        else
+        {
+            closeStart = false; openStart = true;
+        }
+    }
+
+    public void Btn_SaveSettings()
+    {
+        // Apply settings to the audio manager
+
+        // Records settings to the player prefs
+        PlayerPrefs.SetFloat("MusicVol", musicVolSlider.value);
+        PlayerPrefs.SetFloat("SFXVol", SFXVolSlider.value);
+
+        // Close settings UI
+        openStart = false;
+        closeStart = true;
+    }
 
     public void DisplayInfo()
     {
@@ -96,9 +198,9 @@ public class MenuManager : MonoBehaviour
     public void FindMatchButton(){
         bool hasWeapons = false;
 
-        foreach(bool weapons in dm.hasWeapon)
+        foreach(int balance in dm.weaponBalance)
         {
-            if (weapons) { hasWeapons = true; break; }
+            if (balance > 0) { hasWeapons = true; break; }
         }
 
         if (!hasWeapons) { messageUI.Display("You don't have any weapons to play with!!", 5f); return; }
@@ -123,15 +225,19 @@ public class MenuManager : MonoBehaviour
     // ------ INVENTORY FUNCTIONS ------ //
     public void DisplayInventory()
     {
-        for (int i = 0; i < dm.hasWeapon.Length; i++)
+        for (int i = 0; i < dm.weaponBalance.Length; i++)
         {
-            if (dm.hasWeapon[i]) weapons[i].SetActive(true);
+            if (dm.weaponBalance[i] > 0)
+            {
+                weapons[i].SetActive(true);
+                weaponBalanceText[i].text = "x" + dm.weaponBalance[i].ToString();
+            }
 
             if (i == 0) continue; // skip knife
             if (dm.ammoBalance[i] > 0)
             {
                 ammo[i].SetActive(true); 
-                ammoBalanceText[i].text = dm.ammoBalance[i].ToString();
+                ammoBalanceText[i].text = "x" + dm.ammoBalance[i].ToString();
             }
             else  // if ammo is finished, then disable
                 ammo[i].SetActive(false);
