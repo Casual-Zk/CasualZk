@@ -182,8 +182,21 @@ public class MenuManager : MonoBehaviour
         dm = FindObjectOfType<FirebaseDataManager>();
 
         // if a new version is available, Display update UI
-        if (dm.gameInfo != null && dm.gameInfo.appVersion != Application.version)
+        if (dm.gameInfo != null && UpdateNeeded(dm.gameInfo.appVersion))
             FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateUI();
+    }
+
+    private bool UpdateNeeded(string databaseVersion)
+    {
+        string[] dbVersionNumbers = databaseVersion.Split(".");
+        string[] localVersionNumbers = Application.version.Split(".");
+
+        for (int i = 0; i < dbVersionNumbers.Length; i++)
+        {
+            if (int.Parse(dbVersionNumbers[i]) > int.Parse(localVersionNumbers[i])) return true;
+        }
+
+        return false;
     }
 
     public void Btn_SetNickname()

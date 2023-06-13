@@ -52,11 +52,23 @@ public class FirebaseInit : MonoBehaviour
         {
             BasicGameInfo gameInfo = snapshot.ConvertTo<BasicGameInfo>();
 
-            if (gameInfo.appVersion != Application.version)
+            if (UpdateNeeded(gameInfo.appVersion))
                 authManager.DisplayAppUpdateUI();
             else
                 authManager.StartAuthManager();
         }
         else { Debug.LogError("Error while getting basic Info from DB within FirebaseInit.cs !!"); }
+    }
+    private bool UpdateNeeded(string databaseVersion)
+    {
+        string[] dbVersionNumbers = databaseVersion.Split(".");
+        string[] localVersionNumbers = Application.version.Split(".");
+
+        for (int i = 0; i < dbVersionNumbers.Length; i++)
+        {
+            if (int.Parse(dbVersionNumbers[i]) > int.Parse(localVersionNumbers[i])) return true;
+        }
+
+        return false;
     }
 }
