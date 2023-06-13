@@ -3826,7 +3826,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 188.12494, y: -340.5}
+  m_AnchoredPosition: {x: 188.12494, y: -347}
   m_SizeDelta: {x: 346.8799, y: 81}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &816102237
@@ -7998,10 +7998,10 @@ RectTransform:
   m_Father: {fileID: 3601124968633431087}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -810.4081, y: -15.765709}
-  m_SizeDelta: {x: 269.8199, y: 203.5855}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 149.59192, y: -516.5}
+  m_SizeDelta: {x: 269.8199, y: 203.58551}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1629632848
 CanvasRenderer:
@@ -8358,7 +8358,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 3185.74, y: 0}
+  m_AnchoredPosition: {x: 3168.16, y: 0}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1639235422
@@ -8389,10 +8389,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '          ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -'
+  m_text: '          ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10249,7 +10249,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 25}
-  m_SizeDelta: {x: 0, y: 50}
+  m_SizeDelta: {x: 0, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1876002284
 CanvasRenderer:
@@ -10272,7 +10272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.39607844}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10950,10 +10950,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '          ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -'
+  m_text: '          ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+    |'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15416,10 +15416,6 @@ MonoBehaviour:
   loopingText: {fileID: 1977230120}
   cloneText: {fileID: 1639235421}
   loopingSpeed: 100
-  sourceText: '          ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -         ZkChickens          -          <#FF0000>Work-In-Progress<#FFFFFF>         
-    -'
   Nickname_Input: {fileID: 1890640873}
   setNicknameUIs:
   - {fileID: 861753602}

@@ -61,14 +61,16 @@ public class FirebaseInit : MonoBehaviour
     }
     private bool UpdateNeeded(string databaseVersion)
     {
+        if (databaseVersion == Application.version) return false;
+
         string[] dbVersionNumbers = databaseVersion.Split(".");
         string[] localVersionNumbers = Application.version.Split(".");
 
         for (int i = 0; i < dbVersionNumbers.Length; i++)
         {
-            if (int.Parse(dbVersionNumbers[i]) > int.Parse(localVersionNumbers[i])) return true;
+            if (int.Parse(localVersionNumbers[i]) > int.Parse(dbVersionNumbers[i])) return false;
         }
 
-        return false;
+        return true;
     }
 }
