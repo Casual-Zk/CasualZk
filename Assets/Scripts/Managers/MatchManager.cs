@@ -64,7 +64,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Start()
     {
         isGameOver = true;
-        timeText.text = matchTime.ToString();
     }
 
     void Update()
@@ -105,6 +104,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         inGameUI.SetActive(true);
         map_0.SetActive(true);
+        timeText.text = matchTime.ToString();
         isWaitingForPlayers = true; // start waiting screen
     }
 
