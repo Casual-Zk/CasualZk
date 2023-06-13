@@ -21,11 +21,9 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI cloneText;
     [SerializeField] float loopingSpeed;
     RectTransform textRectTransform;
-    public string sourceText;
     float textWidth;
     Vector3 textStartPos;
     float scrollPos;
-    bool loopingOpen;
 
     [Header("Nickname")]
     [SerializeField] TMP_InputField Nickname_Input;
@@ -89,7 +87,6 @@ public class MenuManager : MonoBehaviour
         textWidth = loopingText.preferredWidth;
         textStartPos = textRectTransform.position;
         scrollPos = 0;
-        loopingOpen = true;
     }
 
     private void Update()
@@ -151,10 +148,12 @@ public class MenuManager : MonoBehaviour
         loopingCanvas.enabled = MenuCanvas.activeSelf;
 
         // Text looping
-        if (loopingText.text != sourceText)
+        if (dm.dv != null && loopingText.text != dm.dv.loopingText)
         {
-            loopingText.text = sourceText;
-            cloneText.text = sourceText;
+            loopingText.text = dm.dv.loopingText;
+            cloneText.text = dm.dv.loopingText;
+
+            loopingSpeed = dm.dv.loopingTextSpeed;
 
             textWidth = loopingText.preferredWidth;
             scrollPos = 0;

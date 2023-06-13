@@ -9,7 +9,7 @@ public class Bullet : MonoBehaviourPunCallbacks
     public bool isOwner { get; set; }
     public string ownerName { get; set; }
 
-    [SerializeField] int damage = 10;
+    [SerializeField] public int damage = 10;
     [SerializeField] float speed = .1f;
 
     bool hit;

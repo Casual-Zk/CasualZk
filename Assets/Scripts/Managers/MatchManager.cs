@@ -104,7 +104,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         inGameUI.SetActive(true);
         map_0.SetActive(true);
-        timeText.text = matchTime.ToString();
+        timeText.text = dataManager.dv.matchTime.ToString();
         isWaitingForPlayers = true; // start waiting screen
     }
 
@@ -240,7 +240,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void InitializeTimer()
     {
-        time = matchTime;
+        time = dataManager.dv.matchTime;
         RefreshTimerUI();
 
         Debug.Log("initilizing Timer");

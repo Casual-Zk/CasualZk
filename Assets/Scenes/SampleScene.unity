@@ -18484,6 +18484,17 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1639235419, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 3168.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1639235421, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_text
+      value: '          ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |'
+      objectReference: {fileID: 0}
     - target: {fileID: 1876002282, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_SizeDelta.y
       value: 55
@@ -18499,6 +18510,13 @@ PrefabInstance:
     - target: {fileID: 1977230118, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977230120, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_text
+      value: '          ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |         ZkChickens          |          <#FF0000>Work-In-Progress<#FFFFFF>         
+        |'
       objectReference: {fileID: 0}
     - target: {fileID: 2071949034, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

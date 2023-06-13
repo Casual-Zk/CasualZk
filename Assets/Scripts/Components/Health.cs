@@ -22,6 +22,15 @@ public class Health : MonoBehaviourPunCallbacks
         audioManager = FindObjectOfType<AudioManager>();
     }
 
+    public void SetHealth(int health)
+    {
+        if (health <= 0) return;
+
+        this.health = health;
+        slider.maxValue = health;
+        slider.value = health;
+    }
+
     [PunRPC]
     public void TakeDamage(int damage, string shooterName, string targetName)
     {

@@ -13,24 +13,41 @@ public class Weapon : MonoBehaviourPunCallbacks
     [SerializeField] Transform[] shotgunDirections;
     [SerializeField] Bullet bullet;
     [SerializeField] SimpleContoller controllerToSet;
-    [SerializeField] int knifeDamage;
     [SerializeField] bool isKnife;
+    [SerializeField] bool isGlock;
     [SerializeField] bool isShotgun;
-    [SerializeField] bool isSniper;
+    [SerializeField] bool isM4;
+    [SerializeField] bool isAWP;
 
     MatchManager matchManager;
-    private float nextFire;
+    FirebaseDataManager dm;
+    
+    float nextFire;
+    bool fireRateUpdated;
 
     private void Start()
     {
         controller = controllerToSet;
         matchManager = FindObjectOfType<MatchManager>();
+        dm = FindObjectOfType<FirebaseDataManager>();
     }
 
     void Update()
     {
         if (matchManager.isGameOver) return; // Don't fire if the time is up
         if (!controller.isOwner) return;   // Do not execute any code if it's not owner!
+
+        // If we have the data and it is not updated yet, update!
+        if (dm.dv != null && !fireRateUpdated) 
+        {
+            if (isKnife) fireRate = dm.dv.weaponFireRate_Knife;
+            if (isGlock) fireRate = dm.dv.weaponFireRate_Glock;
+            if (isShotgun) fireRate = dm.dv.weaponFireRate_Shotgun;
+            if (isM4) fireRate = dm.dv.weaponFireRate_M4;
+            if (isAWP) fireRate = dm.dv.weaponFireRate_AWP;
+
+            fireRateUpdated = true;
+        }
 
         // Decrease the timer
         if (nextFire > 0) nextFire -= Time.deltaTime;
@@ -48,7 +65,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     {
         if (isKnife)
         {
-            controller.photonView.RPC("TriggerKnife", RpcTarget.All, knifeDamage, PhotonNetwork.NickName);
+            controller.photonView.RPC("TriggerKnife", RpcTarget.All, dm.dv.weaponDamage_Knife, PhotonNetwork.NickName);
 
             // Play SFX
             controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Knife_Attack_SFX");
@@ -61,6 +78,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 GameObject newBullet = PhotonNetwork.Instantiate(bullet.name, nozzle.position, nozzle.rotation);
                 newBullet.GetComponent<Bullet>().isOwner = true;
                 newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
+                newBullet.GetComponent<Bullet>().damage = dm.dv.weaponDamage_Shotgun;
             }
 
             // Play SFX
@@ -73,7 +91,14 @@ public class Weapon : MonoBehaviourPunCallbacks
             newBullet.GetComponent<Bullet>().isOwner = true;
             newBullet.GetComponent<PhotonView>().RPC("SetOwner", RpcTarget.All, PhotonNetwork.NickName);
 
-            if (isSniper) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX");
+            if (isGlock)
+                newBullet.GetComponent<Bullet>().damage = dm.dv.weaponDamage_Glock;
+            else if (isM4)
+                newBullet.GetComponent<Bullet>().damage = dm.dv.weaponDamage_M4;
+            else if (isAWP)
+                newBullet.GetComponent<Bullet>().damage = dm.dv.weaponDamage_AWP;
+
+            if (isAWP) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX");
             else controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Short_Fire");
         }
 

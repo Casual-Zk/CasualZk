@@ -455,10 +455,11 @@ MonoBehaviour:
   shotgunDirections: []
   bullet: {fileID: 7137776409426426427, guid: ec01abaffb2729342a9ba32925263b9a, type: 3}
   controllerToSet: {fileID: 247168243351703701}
-  knifeDamage: 5
   isKnife: 1
+  isGlock: 0
   isShotgun: 0
-  isSniper: 0
+  isM4: 0
+  isAWP: 0
 --- !u!1 &1665465492590155353
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,10 +746,11 @@ MonoBehaviour:
   shotgunDirections: []
   bullet: {fileID: 7137776409426426427, guid: ec01abaffb2729342a9ba32925263b9a, type: 3}
   controllerToSet: {fileID: 247168243351703701}
-  knifeDamage: 0
   isKnife: 0
+  isGlock: 1
   isShotgun: 0
-  isSniper: 0
+  isM4: 0
+  isAWP: 0
 --- !u!1 &2430256468368255962
 GameObject:
   m_ObjectHideFlags: 0
@@ -1547,10 +1549,11 @@ MonoBehaviour:
   shotgunDirections: []
   bullet: {fileID: 7137776409426426427, guid: 085f2ef4703f8c14f958bed0f8cab38b, type: 3}
   controllerToSet: {fileID: 247168243351703701}
-  knifeDamage: 0
   isKnife: 0
+  isGlock: 0
   isShotgun: 0
-  isSniper: 0
+  isM4: 1
+  isAWP: 0
 --- !u!1 &3698579230733635230
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,10 +2161,11 @@ MonoBehaviour:
   - {fileID: 3964620614617955337}
   bullet: {fileID: 7137776409426426427, guid: 1f6d1be2ea67459449e2f44d74747d26, type: 3}
   controllerToSet: {fileID: 247168243351703701}
-  knifeDamage: 0
   isKnife: 0
+  isGlock: 0
   isShotgun: 1
-  isSniper: 0
+  isM4: 0
+  isAWP: 0
 --- !u!1 &4555078227363121734
 GameObject:
   m_ObjectHideFlags: 0
@@ -2492,10 +2496,11 @@ MonoBehaviour:
   shotgunDirections: []
   bullet: {fileID: 7137776409426426427, guid: b7d8d194d01453a4d88ce8df85e29200, type: 3}
   controllerToSet: {fileID: 247168243351703701}
-  knifeDamage: 0
   isKnife: 0
+  isGlock: 0
   isShotgun: 0
-  isSniper: 1
+  isM4: 0
+  isAWP: 1
 --- !u!1 &5132254648630193834
 GameObject:
   m_ObjectHideFlags: 0
@@ -4217,19 +4222,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7292780950638773178}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 247168243351703701}
-        m_TargetAssemblyTypeName: SimpleContoller, Assembly-CSharp
-        m_MethodName: Btn_Fire
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &910052099980595522
 MonoBehaviour:
   m_ObjectHideFlags: 0

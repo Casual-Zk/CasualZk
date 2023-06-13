@@ -15,10 +15,12 @@ public class FirebaseDataManager : MonoBehaviour
 
     public PlayerInfo playerInfo { get; set; }
     public BasicGameInfo gameInfo { get; set; }
+    public DynamicVariables dv { get; set; }
     public int onlineCounter { get; set; }
 
     private ListenerRegistration playerReg;
     private ListenerRegistration gameReg;
+    private ListenerRegistration dvReg;
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
@@ -33,6 +35,7 @@ public class FirebaseDataManager : MonoBehaviour
 
         playerInfo = null;
         gameInfo = null;
+        dv = null;
     }
     
     public void OnLogin()
@@ -65,6 +68,11 @@ public class FirebaseDataManager : MonoBehaviour
 
             FindObjectOfType<RoomManager>().UpdateCounter();// Update counter at start
         });
+
+        dvReg = firestore.Document("gameInfo/dynamicVariables").Listen(snaphot =>
+        {
+            dv = snaphot.ConvertTo<DynamicVariables>();
+        });
     }
 
     private void OnDestroy()
@@ -73,6 +81,7 @@ public class FirebaseDataManager : MonoBehaviour
         UpdateAmmoBalance();
         if (playerReg != null) playerReg.Stop();
         if (gameReg != null) gameReg.Stop();
+        if (dvReg != null) dvReg.Stop();
     }
 
     public void OnWeaponBalanceReturn(List<BigInteger> balances)

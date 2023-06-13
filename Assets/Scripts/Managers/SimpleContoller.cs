@@ -131,6 +131,14 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			Color tColor = autoText.color;
 			autoTextEnabledColor = tColor;
 			autoTextDisabledColor = new Color(tColor.r, tColor.g, tColor.b, 0.6f);
+
+			// Set dynamic player variables
+			player_v_cam.m_Lens.OrthographicSize = dm.dv.player_CamOrthoSize;
+			player_v_cam.GetCinemachineComponent<CinemachineFramingTransposer>().m_XDamping = dm.dv.player_CamXdamping;
+			camDistance = dm.dv.player_FollowCamDistance;
+			GetComponent<Health>().SetHealth(dm.dv.player_Health);
+			m_JumpForce = dm.dv.player_JumpForce;
+			runSpeed = dm.dv.player_RunSpeed;
 		}
 		else
         {
