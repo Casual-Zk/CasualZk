@@ -221,6 +221,12 @@ public class MenuManager : MonoBehaviour
         {
             closeStart = false; openStart = true;
         }
+
+        System.Random random = new System.Random(316849754);
+        for (int i = 0; i < 5; i++)
+        {
+            Debug.Log(random.Next(10000));
+        }
     }
 
     public void Btn_SaveSettings()

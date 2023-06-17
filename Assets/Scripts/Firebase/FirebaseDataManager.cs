@@ -140,4 +140,28 @@ public class FirebaseDataManager : MonoBehaviour
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge"));
     }
+
+    // Queries
+    public async void QueryTest1()
+    {
+
+
+        /*
+        Query query = firestore.Collection("users").
+            WhereGreaterThan("eggs.4", 0).OrderByDescending("eggs.4").Limit(30);
+
+        var querySnapshot = await query.GetSnapshotAsync();
+        Debug.Log("Count: " + querySnapshot.Count);
+
+        foreach (DocumentSnapshot snap in querySnapshot.Documents)
+        {
+            PlayerInfo player = snap.ConvertTo<PlayerInfo>();
+
+            Debug.Log("User ID: " + snap.Id);
+            Debug.Log("Nickname: " + player.nickname);
+            Debug.Log("Eggs: " + player.eggs["4"]);
+            Debug.Log("");
+        }
+        */
+    }
 }
