@@ -35,6 +35,7 @@ public class FirebaseDataManager : MonoBehaviour
 
     int topUserRecordCounter = 0;
     int weekRecordDiff = 0;
+    bool firstOfThisWeek = false;
 
     private void Awake()
     {
@@ -104,7 +105,10 @@ public class FirebaseDataManager : MonoBehaviour
                     topUserRecordCounter++;
                 }
                 else
+                {
+                    firstOfThisWeek = true;
                     UpdateTopUsers();  // If there is no topUsers doc, then create one
+                }
                 
                 // Then get previous weeks' top users as well
                 for (int i = gameInfo.currentWeek - 1; i > gameInfo.currentWeek - gameInfo.topUserRecordAmount; i--)
@@ -123,7 +127,7 @@ public class FirebaseDataManager : MonoBehaviour
 
                         if (document.Exists)
                         {
-                            //Debug.Log("***** " + index + " *****");
+                            Debug.Log("***** " + index + " *****");
                             Dictionary<string, object> prevTopUsers = document.ToDictionary();
 
                             // index (week number) - diff gives the accurate index in the array
@@ -296,6 +300,20 @@ public class FirebaseDataManager : MonoBehaviour
 
         // Display updated info
         menuManager.OnCurrentWeekTopUserUpdate(topUsers);
+
+        if (firstOfThisWeek)
+        {
+            allTopUsers[gameInfo.topUserRecordAmount - 1] = topUsers;
+            FindObjectOfType<MenuManager>().OnCurrentWeekTopUserUpdate(topUsers);
+            topUserRecordCounter++;
+            
+            Debug.Log("First of this week (update) executed");
+
+            if (topUserRecordCounter == gameInfo.topUserRecordAmount)
+            {
+                menuManager.OnReturnAllTopUsers(allTopUsers);
+            }
+        }
 
         // Add the map with all updated values as document into DB as topUsers of the week
         string topUsersDocPath = "gameInfo/topUsers_" + gameInfo.currentWeek.ToString();
