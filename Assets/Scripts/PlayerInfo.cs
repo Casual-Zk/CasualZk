@@ -9,6 +9,7 @@ public class PlayerInfo
     [FirestoreProperty] public string nickname { get; set; }
     [FirestoreProperty] public string walletAddress { get; set; }
     [FirestoreProperty] public bool isTester { get; set; }
+    [FirestoreProperty] public Timestamp weekInfoUpdateTime { get; set; }
 
     // Total Egg number and weapon info
     [FirestoreProperty] public Dictionary<string, object> eggs { get; set; }

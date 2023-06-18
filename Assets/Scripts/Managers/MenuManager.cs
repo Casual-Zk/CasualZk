@@ -45,6 +45,9 @@ public class MenuManager : MonoBehaviour
 
     [Header("Lottery UI")]
     [SerializeField] TMP_InputField weekCounterInput;
+    [SerializeField] TextMeshProUGUI playerCountText;
+    [SerializeField] TextMeshProUGUI eggCountText;
+    [SerializeField] TextMeshProUGUI playerEggText;
     [SerializeField] GameObject topUsersPanel;
     [SerializeField] TopUser topUserPrefab;
     int weekCounter = 1;
@@ -340,20 +343,25 @@ public class MenuManager : MonoBehaviour
 
     public void OnReturnAllTopUsers(Dictionary<string, object>[] allTopUsers)
     {
-        Debug.Log("-- OnReturnAll --");
+        //Debug.Log("-- OnReturnAll --");
         this.allTopUsers = new Dictionary<string, object>[allTopUsers.Length];
         this.allTopUsers = allTopUsers;
-
+        /*
         Debug.Log("All top count: " + allTopUsers.Length);
         for (int i = 0; i <= allTopUsers.Length; i++)
         {
             Dictionary<string, object> _user = (Dictionary<string, object>)allTopUsers[i]["1"];
             Debug.Log(_user["eggs"]);
         }
+        */
     }
 
     public void OnCurrentWeekTopUserUpdate(Dictionary<string, object> topUsers)
     {
+        //Debug.Log("here in on cureent week top user");
+        //Dictionary<string, object> user = (Dictionary<string, object>)topUsers["1"];
+        //Debug.Log(user);
+        //Debug.Log(user["userID"]);
         if (allTopUsers == null) allTopUsers = new Dictionary<string, object>[dm.gameInfo.topUserRecordAmount];
 
         allTopUsers[dm.gameInfo.topUserRecordAmount - 1] = topUsers;
@@ -365,18 +373,33 @@ public class MenuManager : MonoBehaviour
     private void DisplayTopUsers(Dictionary<string, object> topUsers, int weekNumber)
     {
         //Debug.Log("On Display Top Users - Week: " + weekNumber);
-        //Dictionary<string, object> _user = (Dictionary<string, object>)topUsers["1"];
+        //Dictionary<string, object> _user = (Dictionary<string, object>)topUsers["0"];
         //Debug.Log(_user);
-        //Debug.Log(_user["userID"]);
+        //Debug.Log(_user["playerCount"]);
 
         // Clear the panel first
         TopUser[] currentTopList = topUsersPanel.GetComponentsInChildren<TopUser>();
         foreach (TopUser listUser in currentTopList) { Destroy(listUser.gameObject); }
 
         // Instantiate top users
-        for (int i = 1; i <= topUsers.Count; i++)
+        for (int i = 0; i < topUsers.Count; i++)
         {
             Dictionary<string, object> user = (Dictionary<string, object>)topUsers[i.ToString()];
+            
+            if (i == 0) // Which is the week's soft info (egg and player count)
+            {
+                try
+                {
+                    var eggCount = dm.playerInfo.eggs[weekNumber.ToString()];
+                    playerEggText.text = "Your Eggs: " + eggCount;
+                }
+                catch { playerEggText.text = "Your Eggs: 0"; }
+
+                playerCountText.text = "Total Player Count: " + JsonConvert.SerializeObject(user["playerCount"]);
+                eggCountText.text = "Total Egg Count: " + JsonConvert.SerializeObject(user["eggCount"]);
+
+                continue;
+            }
 
             string nickname = JsonConvert.SerializeObject(user["nickname"]).Trim('"');
             string eggs = JsonConvert.SerializeObject(user["eggs"]);
@@ -390,7 +413,6 @@ public class MenuManager : MonoBehaviour
             newUser.AssignValues(i, walletAddress, nickname, "-", eggs);
             //newUser.AssignValues(pair.Key, user["walletAddress"], user["nickname"], user["matches"], user["eggs"]);
         }
-
         // adjust the week input to the current week
         weekCounter = weekNumber;
         weekCounterInput.text = weekNumber.ToString();

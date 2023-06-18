@@ -10,4 +10,5 @@ public class BasicGameInfo
     [FirestoreProperty] public float onlineSeed { get; set; }
     [FirestoreProperty] public string appVersion { get; set; }
     [FirestoreProperty] public int topUserRecordAmount { get; set; }
+    [FirestoreProperty] public int recordUpdateTime { get; set; }
 }

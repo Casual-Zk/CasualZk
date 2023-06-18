@@ -8,10 +8,12 @@ using Firebase.Auth;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 public class FirebaseDataManager : MonoBehaviour
 {
     [SerializeField] Canvas connectingUI;
+    [SerializeField] DisplayMessage messageUI;
 
     public PlayerInfo playerInfo { get; set; }
     public BasicGameInfo gameInfo { get; set; }
@@ -24,11 +26,11 @@ public class FirebaseDataManager : MonoBehaviour
 
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
+    private MenuManager menuManager;
 
     public int[] weaponBalance = new int[5];
     public int[] ammoBalance = new int[5];
 
-    Dictionary<string, object> topUsers = new Dictionary<string, object>();
     Dictionary<string, object>[] allTopUsers;
 
     int topUserRecordCounter = 0;
@@ -46,6 +48,8 @@ public class FirebaseDataManager : MonoBehaviour
     
     public void OnLogin()
     {
+        menuManager = FindObjectOfType<MenuManager>();
+
         playerReg = firestore.Document("users/" + auth.CurrentUser.UserId).Listen(snaphot =>
         {
             playerInfo = snaphot.ConvertTo<PlayerInfo>();
@@ -83,18 +87,20 @@ public class FirebaseDataManager : MonoBehaviour
             // Get top users
             string topUsersDocPath = "gameInfo/topUsers_" + gameInfo.currentWeek;
 
+            // Get top user documents
             firestore.Document(topUsersDocPath).GetSnapshotAsync().ContinueWithOnMainThread(task =>
             {
                 DocumentSnapshot document = task.Result;
 
                 if (document.Exists)
                 {
-                    topUsers = document.ToDictionary();
                     //Dictionary<string, object> user = (Dictionary<string, object>)topUsers["1"];
                     //Debug.Log(user);
                     //Debug.Log(user["userID"]);
-                    FindObjectOfType<MenuManager>().OnCurrentWeekTopUserUpdate(topUsers);
-                    allTopUsers[gameInfo.topUserRecordAmount - 1] = topUsers;
+                    allTopUsers[gameInfo.topUserRecordAmount - 1] = document.ToDictionary();
+                    FindObjectOfType<MenuManager>().
+                    OnCurrentWeekTopUserUpdate(allTopUsers[gameInfo.topUserRecordAmount - 1]);
+                    //Debug.Log("Got current week");
                     topUserRecordCounter++;
                 }
                 else
@@ -126,15 +132,13 @@ public class FirebaseDataManager : MonoBehaviour
 
                             if (topUserRecordCounter == gameInfo.topUserRecordAmount)
                             {
-                                FindAnyObjectByType<MenuManager>().OnReturnAllTopUsers(allTopUsers);
+                                menuManager.OnReturnAllTopUsers(allTopUsers);
                             }
                         }
                         else
                             Debug.LogError("Top user info for week " + i + " doesn not exist!!");
                     });
-                }
-                
-                
+                }                
             });
         });
 
@@ -213,68 +217,96 @@ public class FirebaseDataManager : MonoBehaviour
     // Queries
     public async void UpdateTopUsers()
     {
-        // Get current top users
-        string eggsOfTheWeek = "eggs." + gameInfo.currentWeek;
+        // Get the most recent update from users
+        Query updateQuery = firestore.Collection("users").OrderByDescending("weekInfoUpdateTime").Limit(1);
 
-        Query query = firestore.Collection("users").
-            WhereGreaterThan(eggsOfTheWeek, 0).OrderByDescending(eggsOfTheWeek).Limit(dv.topUsers);
         //Debug.Log("Updating this weeks topUsers - Week: " + eggsOfTheWeek);
 
-        var querySnapshot = await query.GetSnapshotAsync();
-        //Debug.Log("Count: " + querySnapshot.Count);
+        var updateQuerySnapshot = await updateQuery.GetSnapshotAsync();
+        PlayerInfo updatePlayer = new PlayerInfo();
 
-        topUsers.Clear();   // Clear the dictionary first
-        int index = 1;
-
-        // Then add all users again but updated
-        foreach (DocumentSnapshot snap in querySnapshot.Documents)
+        // If there is any time record for this weeks update, then check the time
+        if (updateQuerySnapshot.Count > 0)
         {
-            PlayerInfo player = snap.ConvertTo<PlayerInfo>();
+            DocumentSnapshot updateQuerySnap = updateQuerySnapshot[0];
+            updatePlayer = updateQuerySnap.ConvertTo<PlayerInfo>();
+            //Debug.Log("Most recent time: " + updatePlayer.weekInfoUpdateTime.ToDateTime());
 
-            //Debug.Log("User ID: " + snap.Id);
-            //Debug.Log("Nickname: " + player.nickname);
-            //Debug.Log("Eggs: " + player.eggs[gameInfo.currentWeek.ToString()]);
-            //Debug.Log("");
+            TimeSpan timeDifference = DateTime.UtcNow - updatePlayer.weekInfoUpdateTime.ToDateTime();
+
+            // If recently updated then skip whole update stuff
+            if (timeDifference.TotalMinutes <= gameInfo.recordUpdateTime)
+            {
+                // Less than 5 minutes have passed between the timestamps
+                Debug.LogWarning("The data updated less than " + gameInfo.recordUpdateTime + "minutes ago!");
+                messageUI.Display("The data has been updated less than " + gameInfo.recordUpdateTime + " minutes ago!", 3f);
+                return;
+            }
+        }
+
+        ///// If not updated, then get all the users of this week to update    /////
+
+        // Get current week's users
+        string eggsOfTheWeek = "eggs." + gameInfo.currentWeek;
+        //Debug.Log("Updating this weeks topUsers - Week: " + eggsOfTheWeek);
+
+        // Get all players of this week who has played (therefore has eggs)
+        Query usersQuery = firestore.Collection("users").
+            WhereGreaterThan(eggsOfTheWeek, 0).OrderByDescending(eggsOfTheWeek);
+
+        var usersQuerySnapshot = await usersQuery.GetSnapshotAsync();
+        //Debug.Log("Total users of this week: " + usersQuerySnapshot.Count);
+
+        int sumOfEggs = 0;
+        int index = 1;
+        Dictionary<string, object> topUsers = new Dictionary<string, object>();
+
+        // Iteraite through all of them and calculate total eggs and create a map of current values
+        foreach (DocumentSnapshot userSnap in usersQuerySnapshot.Documents)
+        {
+            PlayerInfo weeklyPlayer = userSnap.ConvertTo<PlayerInfo>();
+
+            sumOfEggs += int.Parse(JsonConvert.SerializeObject
+                (weeklyPlayer.eggs[gameInfo.currentWeek.ToString()]));
+
+            // Don't create topUser entry after desired amount, just continue to count eggs
+            if (index > gameInfo.topUserRecordAmount) { continue; }
 
             // Create top user map
             Dictionary<string, object> _user = new Dictionary<string, object>();
-            _user["eggs"] = player.eggs[gameInfo.currentWeek.ToString()];
+            _user["eggs"] = weeklyPlayer.eggs[gameInfo.currentWeek.ToString()];
             //user["matches"] = player.matches;
-            _user["nickname"] = player.nickname;
-            _user["walletAddress"] = player.walletAddress;
-            _user["userID"] = snap.Id;
+            _user["nickname"] = weeklyPlayer.nickname;
+            _user["walletAddress"] = weeklyPlayer.walletAddress;
+            _user["userID"] = userSnap.Id;
 
             topUsers.Add(index.ToString(), _user);   // Add users in order 1, 2, 3...
             index++;
         }
+        //Debug.Log("Total Eggs of this week: " + sumOfEggs);
 
-        FindObjectOfType<MenuManager>().OnCurrentWeekTopUserUpdate(topUsers);
+        // Add week info to the map
+        Dictionary<string, object> softWeekInfo = new Dictionary<string, object>(){
+            { "eggCount", sumOfEggs },
+            { "playerCount", usersQuerySnapshot.Count }
+        };
 
-        // Update the topUsers doc
+        topUsers.Add("0", softWeekInfo);    // Add week info to index 0
+        //Debug.Log("Soft info added as well");
+
+        // Display updated info
+        menuManager.OnCurrentWeekTopUserUpdate(topUsers);
+
+        // Add the map with all updated values as document into DB as topUsers of the week
         string topUsersDocPath = "gameInfo/topUsers_" + gameInfo.currentWeek.ToString();
         await firestore.Document(topUsersDocPath).SetAsync(topUsers);
         Debug.LogWarning("Updated top users on DB");
-    }
-    public async void QueryTest1()
-    {
 
+        // Save the update time so that nobody can request update shortly
+        updatePlayer.weekInfoUpdateTime = Timestamp.FromDateTime(DateTime.Now);
 
-        /*
-        Query query = firestore.Collection("users").
-            WhereGreaterThan("eggs.4", 0).OrderByDescending("eggs.4").Limit(30);
-
-        var querySnapshot = await query.GetSnapshotAsync();
-        Debug.Log("Count: " + querySnapshot.Count);
-
-        foreach (DocumentSnapshot snap in querySnapshot.Documents)
-        {
-            PlayerInfo player = snap.ConvertTo<PlayerInfo>();
-
-            Debug.Log("User ID: " + snap.Id);
-            Debug.Log("Nickname: " + player.nickname);
-            Debug.Log("Eggs: " + player.eggs["4"]);
-            Debug.Log("");
-        }
-        */
+        // update only the week info update time field
+        await firestore.Document("users/" + auth.CurrentUser.UserId).
+            SetAsync(updatePlayer, SetOptions.MergeFields("weekInfoUpdateTime"));
     }
 }
