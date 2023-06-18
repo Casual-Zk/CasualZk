@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using Newtonsoft.Json;
 
 public class MenuManager : MonoBehaviour
 {
@@ -44,7 +45,11 @@ public class MenuManager : MonoBehaviour
 
     [Header("Lottery UI")]
     [SerializeField] TMP_InputField weekCounterInput;
-    int weekCounter = 0;
+    [SerializeField] GameObject topUsersPanel;
+    [SerializeField] TopUser topUserPrefab;
+    int weekCounter = 1;
+    int weekRecordDiff = 0;
+    Dictionary<string, object>[] allTopUsers;
 
     [Header("Settings UI")]
     [SerializeField] GameObject settingsUI;
@@ -60,6 +65,8 @@ public class MenuManager : MonoBehaviour
     Vector3 localPos;       // same but for localPos as a whole
 
     AudioManager audioManager;
+
+
 
 
     private void Start()
@@ -221,12 +228,6 @@ public class MenuManager : MonoBehaviour
         {
             closeStart = false; openStart = true;
         }
-
-        System.Random random = new System.Random(316849754);
-        for (int i = 0; i < 5; i++)
-        {
-            Debug.Log(random.Next(10000));
-        }
     }
 
     public void Btn_SaveSettings()
@@ -323,19 +324,75 @@ public class MenuManager : MonoBehaviour
     {
         if (right)
         {
-            if (weekCounter >= 10) return; 
+            if (weekCounter >= dm.gameInfo.currentWeek) return; 
 
             weekCounter++;
-            weekCounterInput.text = weekCounter.ToString();
+            DisplayTopUsers(allTopUsers[weekCounter - weekRecordDiff], weekCounter);
         }
         else
         {
+            if (weekCounter <= dm.gameInfo.currentWeek - dm.gameInfo.topUserRecordAmount + 1) return;
+
             weekCounter--;
-
-            if (weekCounter <= 0) weekCounter = 0;
-
-            weekCounterInput.text = weekCounter.ToString();
+            DisplayTopUsers(allTopUsers[weekCounter - weekRecordDiff], weekCounter);
         }
     }
 
+    public void OnReturnAllTopUsers(Dictionary<string, object>[] allTopUsers)
+    {
+        Debug.Log("-- OnReturnAll --");
+        this.allTopUsers = new Dictionary<string, object>[allTopUsers.Length];
+        this.allTopUsers = allTopUsers;
+
+        Debug.Log("All top count: " + allTopUsers.Length);
+        for (int i = 0; i <= allTopUsers.Length; i++)
+        {
+            Dictionary<string, object> _user = (Dictionary<string, object>)allTopUsers[i]["1"];
+            Debug.Log(_user["eggs"]);
+        }
+    }
+
+    public void OnCurrentWeekTopUserUpdate(Dictionary<string, object> topUsers)
+    {
+        if (allTopUsers == null) allTopUsers = new Dictionary<string, object>[dm.gameInfo.topUserRecordAmount];
+
+        allTopUsers[dm.gameInfo.topUserRecordAmount - 1] = topUsers;
+        DisplayTopUsers(topUsers, dm.gameInfo.currentWeek);
+
+        weekRecordDiff = (dm.gameInfo.currentWeek - dm.gameInfo.topUserRecordAmount) + 1;
+    }
+    
+    private void DisplayTopUsers(Dictionary<string, object> topUsers, int weekNumber)
+    {
+        //Debug.Log("On Display Top Users - Week: " + weekNumber);
+        //Dictionary<string, object> _user = (Dictionary<string, object>)topUsers["1"];
+        //Debug.Log(_user);
+        //Debug.Log(_user["userID"]);
+
+        // Clear the panel first
+        TopUser[] currentTopList = topUsersPanel.GetComponentsInChildren<TopUser>();
+        foreach (TopUser listUser in currentTopList) { Destroy(listUser.gameObject); }
+
+        // Instantiate top users
+        for (int i = 1; i <= topUsers.Count; i++)
+        {
+            Dictionary<string, object> user = (Dictionary<string, object>)topUsers[i.ToString()];
+
+            string nickname = JsonConvert.SerializeObject(user["nickname"]).Trim('"');
+            string eggs = JsonConvert.SerializeObject(user["eggs"]);
+            string walletAddress = JsonConvert.SerializeObject(user["walletAddress"]).Trim('"');
+            walletAddress = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);    // Shorten
+
+            //Debug.Log("nickname: " + nickname);
+            //Debug.Log("eggs: " + eggs);
+
+            TopUser newUser = Instantiate(topUserPrefab, topUsersPanel.transform);
+            newUser.AssignValues(i, walletAddress, nickname, "-", eggs);
+            //newUser.AssignValues(pair.Key, user["walletAddress"], user["nickname"], user["matches"], user["eggs"]);
+        }
+
+        // adjust the week input to the current week
+        weekCounter = weekNumber;
+        weekCounterInput.text = weekNumber.ToString();
+    }
 }

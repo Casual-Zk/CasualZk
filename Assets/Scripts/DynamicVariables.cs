@@ -6,6 +6,7 @@ using Firebase.Firestore;
 public class DynamicVariables
 {
     [FirestoreProperty] public float matchTime { get; set; }
+    [FirestoreProperty] public int topUsers { get; set; }
 
     // Player
     [FirestoreProperty] public float player_CamOrthoSize { get; set; }
