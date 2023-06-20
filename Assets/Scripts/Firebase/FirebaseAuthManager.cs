@@ -21,6 +21,7 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] GameObject loginUI;
     [SerializeField] GameObject registerUI;
     [SerializeField] GameObject appUpdateUI;
+    [SerializeField] GameObject appPauseUI;
     [SerializeField] GameObject messageObject;
     [SerializeField] TextMeshProUGUI messageText;
     [SerializeField] Button sendVerificationButton;
@@ -88,14 +89,17 @@ public class FirebaseAuthManager : MonoBehaviour
         AuthStateChanged(this, null);
     }
 
-    public void DisplayAppUpdateUI()
+    public void DisplayAppUpdateOrPauseUI(bool isUpdate)
     {
         Debug.LogError("App version is old, displaying update UI !!");
         authCanvas.SetActive(true);
         loginUI.SetActive(false);
         MenuCanvas.SetActive(false);
         connectingUI.SetActive(false);
-        appUpdateUI.SetActive(true);
+        if (isUpdate)
+            appUpdateUI.SetActive(true);
+        else
+            appPauseUI.SetActive(true);
 
         StartCoroutine(QuitAppOnDelay());
     }
@@ -236,31 +240,36 @@ public class FirebaseAuthManager : MonoBehaviour
         if (walletLink) linkWalletTextUI.SetActive(false);
     }
 
-    public async void GoogleTesterButton()
+    public void GoogleTesterButton()
     {
         if (testerClicks > 8)
         {
-            // Give items and wallet
-            PlayerInfo playerInfo = new PlayerInfo();
-
-            Dictionary<string, object> eggs = new Dictionary<string, object>();
-            eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek.ToString()] = 0;
-            playerInfo.eggs = eggs;
-
-            playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";
-            playerInfo.isTester = true;
-            playerInfo.game_12_gauge = 999;
-            playerInfo.game_9mm = 999;
-            playerInfo.game_5_56mm = 999;
-            playerInfo.game_7_62mm = 999;
-
-            await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
-
-            // Restart Procces
-            Debug.Log("Restarting the login tasks!");
-            StartLoginTasks();
+            OpenTesterAccount();
         }
         else testerClicks++;
+    }
+
+    public async void OpenTesterAccount()
+    {
+        // Give items and wallet
+        PlayerInfo playerInfo = new PlayerInfo();
+
+        Dictionary<string, object> eggs = new Dictionary<string, object>();
+        eggs[FindObjectOfType<FirebaseDataManager>().gameInfo.currentWeek.ToString()] = 0;
+        playerInfo.eggs = eggs;
+
+        playerInfo.walletAddress = "0xc6b32E450FB3A70BD8a5EC12D879292BF92F2944";
+        playerInfo.isTester = true;
+        playerInfo.game_12_gauge = 999;
+        playerInfo.game_9mm = 999;
+        playerInfo.game_5_56mm = 999;
+        playerInfo.game_7_62mm = 999;
+
+        await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo);
+
+        // Restart Procces
+        Debug.Log("Restarting the login tasks!");
+        StartLoginTasks();
     }
 
     private void StartGame()

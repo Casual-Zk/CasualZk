@@ -53,7 +53,9 @@ public class FirebaseInit : MonoBehaviour
             BasicGameInfo gameInfo = snapshot.ConvertTo<BasicGameInfo>();
 
             if (UpdateNeeded(gameInfo.appVersion))
-                authManager.DisplayAppUpdateUI();
+                authManager.DisplayAppUpdateOrPauseUI(true);
+            else if (gameInfo.appPaused)
+                authManager.DisplayAppUpdateOrPauseUI(false);
             else
                 authManager.StartAuthManager();
         }
@@ -68,9 +70,10 @@ public class FirebaseInit : MonoBehaviour
 
         for (int i = 0; i < dbVersionNumbers.Length; i++)
         {
-            if (int.Parse(localVersionNumbers[i]) > int.Parse(dbVersionNumbers[i])) return false;
+            //Debug.Log("Local: " + localVersionNumbers[i] + " - DB: " + dbVersionNumbers[i]);
+            if (int.Parse(dbVersionNumbers[i]) > int.Parse(localVersionNumbers[i])) return true;
         }
 
-        return true;
+        return false;
     }
 }

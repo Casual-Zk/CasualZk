@@ -274,7 +274,7 @@ public class FirebaseDataManager : MonoBehaviour
                 (weeklyPlayer.eggs[gameInfo.currentWeek.ToString()]));
 
             // Don't create topUser entry after desired amount, just continue to count eggs
-            if (index > gameInfo.topUserRecordAmount) { continue; }
+            if (index > dv.topUsers) { continue; }
 
             // Create top user map
             Dictionary<string, object> _user = new Dictionary<string, object>();

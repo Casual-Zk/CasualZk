@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using TMPro;
 using Newtonsoft.Json;
 
-public class MenuManager : MonoBehaviour
+public class MenuManager : MonoBehaviour, IPointerDownHandler
 {
     MatchManager matchManager;
     RoomManager roomManager;
@@ -16,6 +17,7 @@ public class MenuManager : MonoBehaviour
     [Header("Objects")]
     [SerializeField] DisplayMessage messageUI;
     [SerializeField] GameObject MenuCanvas;
+    [SerializeField] GameObject ProfileCanvas;
     [SerializeField] Canvas loopingCanvas;
     [SerializeField] public GameObject findMatchButton;
     [SerializeField] TextMeshProUGUI loopingText;
@@ -36,6 +38,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI tokenBalanceText;
     [SerializeField] TextMeshProUGUI[] eggBalanceTexts;
     [SerializeField] TextMeshProUGUI[] currentWeekTexts;
+    [SerializeField] GameObject usernameBackButton;
 
     [Header("Inventory UI")]
     [SerializeField] GameObject[] weapons;
@@ -153,6 +156,23 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        // Get the GameObject that the user touched
+        GameObject touchedObject = eventData.pointerCurrentRaycast.gameObject;
+
+        // Perform the desired action based on the touched object
+        if (touchedObject != null)
+        {
+            //Debug.Log("User touched: " + touchedObject.name);
+            // If settings open and toched object is not a setttings UI element, then close settings UI
+            if (settingsOpen && !touchedObject.name.Contains("Sett"))
+            {
+                Btn_OpenSettingsUI();
+            }
+        }
+    }
+
     private void FixedUpdate()
     {
         loopingCanvas.enabled = MenuCanvas.activeSelf;
@@ -193,7 +213,11 @@ public class MenuManager : MonoBehaviour
 
         // if a new version is available, Display update UI
         if (dm.gameInfo != null && UpdateNeeded(dm.gameInfo.appVersion))
-            FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateUI();
+            FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateOrPauseUI(true);
+
+        // if the game is in maintanence, Display maintenance UI
+        if (dm.gameInfo != null && dm.gameInfo.appPaused)
+            FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateOrPauseUI(false);
     }
 
     private bool UpdateNeeded(string databaseVersion)
@@ -205,10 +229,11 @@ public class MenuManager : MonoBehaviour
 
         for (int i = 0; i < dbVersionNumbers.Length; i++)
         {
-            if (int.Parse(localVersionNumbers[i]) > int.Parse(dbVersionNumbers[i])) return false;
+            //Debug.Log("Local: " + localVersionNumbers[i] + " - DB: " + dbVersionNumbers[i]);
+            if (int.Parse(dbVersionNumbers[i]) > int.Parse(localVersionNumbers[i])) return true;
         }
 
-        return true;
+        return false;
     }
 
     public void Btn_SetNickname()
@@ -217,6 +242,14 @@ public class MenuManager : MonoBehaviour
             messageUI.Display("Nickname can not be empty!", 2f);
         else
             FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
+    }
+    
+    public void Btn_ShowBackButtonOnUsername()
+    {
+        if (PlayerPrefs.HasKey("Nickname"))
+            usernameBackButton.SetActive(true);
+        else 
+            usernameBackButton.SetActive(false);
     }
 
     public void Btn_Quit() { Application.Quit(); }
@@ -264,6 +297,8 @@ public class MenuManager : MonoBehaviour
         {
             foreach (GameObject ui in setNicknameUIs) ui.SetActive(true);
             foreach (TextMeshProUGUI text in nicknameTexts) text.text = "";
+            MenuCanvas.SetActive(false);
+            ProfileCanvas.SetActive(true);
             PlayerPrefs.DeleteKey("Nickname");
         }
 
@@ -299,6 +334,7 @@ public class MenuManager : MonoBehaviour
     }
 
     // ------ PROFILE FUNCTIONS ------ //
+
 
     // ------ INVENTORY FUNCTIONS ------ //
     public void DisplayInventory()
