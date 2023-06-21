@@ -111,3 +111,27 @@ MonoBehaviour:
     pitch: 1
     loop: 0
     source: {fileID: 0}
+  - name: ReloadSFX_Glock
+    clip: {fileID: 8300000, guid: a9cb27c4680c9584eb7d41172b934b8d, type: 3}
+    volume: 0.6
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: ReloadSFX_M4
+    clip: {fileID: 8300000, guid: 630d819f2cf84334a817439e2ecad887, type: 3}
+    volume: 0.6
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: ReloadSFX_Shotgun
+    clip: {fileID: 8300000, guid: 6facbb5d74adbb348be3a472a68ac846, type: 3}
+    volume: 0.75
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: ReloadSFX_AWP
+    clip: {fileID: 8300000, guid: b9fed008f2629cd46b0bafb669ac17c5, type: 3}
+    volume: 0.55
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}

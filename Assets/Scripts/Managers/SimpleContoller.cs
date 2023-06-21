@@ -63,6 +63,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	int[] magCounts = new int[5];
 	float[] reloadTime = new float[] { 0f, 3.2f, 1.5f, 4.8f, 3f};
 	float reloadingCounter = -1;
+    private Coroutine reloadCoroutine;
 	int activeWeaponIndex = 0;  // Always start with knife
 	[SerializeField] LayerMask playerLayer;
 	[SerializeField] Transform knifeHitCenter;	// Knife attack
@@ -476,10 +477,12 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		photonView.RPC("SwitchWeapon", RpcTarget.All, true);
 	}
 	public void Btn_Jump() { jump = true; }
-	private void StopCurrentWeaponSound()
+	private void StopReloadSound(int index)
 	{
-		if (activeWeaponIndex == 2) photonView.RPC("StopFireSFX", RpcTarget.All, "Shotgun_SFX");
-		if (activeWeaponIndex == 4) photonView.RPC("StopFireSFX", RpcTarget.All, "Sniper_SFX");
+		if (index == 1) audioManager.Stop("ReloadSFX_Glock"); 
+		if (index == 2) audioManager.Stop("ReloadSFX_Shotgun");
+		if (index == 3) audioManager.Stop("ReloadSFX_M4");
+		if (index == 4) audioManager.Stop("ReloadSFX_AWP");
 	}
 
 	public void Btn_Fire(bool fire) { fireButtonDown = fire; }
@@ -516,7 +519,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		// Reload the mag if its empty and we have ammo to load
 		if (magCounts[index] <= 0 && dm.ammoBalance[index] > 0)
 		{
-			StartCoroutine(Reloading(index));
+			reloadCoroutine = StartCoroutine(Reloading(index));
 		}		
 	}
 
@@ -524,16 +527,10 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	{
 		reloadingImage.color = Color.red;
 
-
-
-		if (index == 1)
-        {
-			audioManager.Play("ReloadSFX_Glock");
-		}
-		else if (index == 3)
-        {
-			audioManager.Play("ReloadSFX_M4");
-		}
+		if (index == 1) audioManager.Play("ReloadSFX_Glock");
+		else if (index == 2) audioManager.Play("ReloadSFX_Shotgun");
+		else if (index == 3) audioManager.Play("ReloadSFX_M4");
+		else if (index == 4) audioManager.Play("ReloadSFX_AWP");
 
 		// Set the slider's max value and the counter to reload time
 		// Counter will start to decrease in Update
@@ -553,8 +550,8 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		ammoCounterText.text = magCounts[index].ToString() + "/" +
 			(dm.ammoBalance[index] - magCounts[index]).ToString();
 
-		reloadingSlider.maxValue = magSizes[activeWeaponIndex];
-		reloadingSlider.value = magCounts[activeWeaponIndex];
+		reloadingSlider.maxValue = magSizes[index];
+		reloadingSlider.value = magCounts[index];
 	}
 
 	// Updates ammo on local
@@ -565,15 +562,22 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 		magCounts[activeWeaponIndex]--;
 		ReloadMag(activeWeaponIndex);
+
+		// If no bullet to reload, then make it all red
+		if (magCounts[activeWeaponIndex] <= 0 && dm.ammoBalance[activeWeaponIndex] <= 0)
+		{
+			reloadingImage.color = Color.red;
+			reloadingSlider.maxValue = reloadingSlider.value = 1;
+		}
 	}
 
 	[PunRPC]
 	public void SwitchWeapon(bool switchRight)
     {
+		int previousIndex = activeWeaponIndex;	// save for stop reload sound
+
 		if (switchRight)
 		{
-			//StopCurrentWeaponSound();
-
 			// Inactivate the current one
 			weapons[activeWeaponIndex].SetActive(false);
 
@@ -587,22 +591,13 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			}
 			while (dm.weaponBalance[activeWeaponIndex] <= 0);
 		}
-		else
-		{
-			//StopCurrentWeaponSound();
 
-			// Inactivate the current one
-			weapons[activeWeaponIndex].SetActive(false);
-
-			// Decrease the index until find a owned weapon
-			do
-			{
-				activeWeaponIndex--;
-
-				// If we go beyond the range, reset the index
-				if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
-			}
-			while (dm.weaponBalance[activeWeaponIndex] <= 0);
+		// If a reloading couroutine was there
+		if (reloadCoroutine != null)
+        {
+			reloadingCounter = -1;	// Reset reloading counter
+			StopCoroutine(reloadCoroutine);
+			StopReloadSound(previousIndex);
 		}
 
 		// Activate the new weapon sprite
@@ -616,6 +611,20 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		// Ammo slider
 		reloadingSlider.maxValue = magSizes[activeWeaponIndex];
 		reloadingSlider.value = magCounts[activeWeaponIndex];
+
+		// Set the color accourding to mag situation
+		if (magCounts[activeWeaponIndex] <= 0)
+		{
+			reloadingImage.color = Color.red;
+			reloadingSlider.maxValue = reloadingSlider.value = 1;
+		}
+		else reloadingImage.color = Color.green;
+
+		// if we have a empty mag but ammo in hand when we switch to this new weapon, then reload
+		if (magCounts[activeWeaponIndex] <= 0 && dm.ammoBalance[activeWeaponIndex] > 0)
+		{
+			reloadCoroutine = StartCoroutine(Reloading(activeWeaponIndex));
+		}
 
 		if (activeWeaponIndex == 0) ammoCounterText.text = "";  // clean knife counter
 

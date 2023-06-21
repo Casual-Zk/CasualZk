@@ -18820,41 +18820,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: Audio Manager
       objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.size
-      value: 13
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[11].clip
-      value: 
-      objectReference: {fileID: 8300000, guid: a9cb27c4680c9584eb7d41172b934b8d, type: 3}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[11].name
-      value: ReloadSFX_Glock
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[12].clip
-      value: 
-      objectReference: {fileID: 8300000, guid: 630d819f2cf84334a817439e2ecad887, type: 3}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[12].name
-      value: ReloadSFX_M4
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[11].pitch
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[12].pitch
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[11].volume
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5707440821738572059, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}
-      propertyPath: sounds.Array.data[12].volume
-      value: 0.6
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b528f7ca3f86df24b9719c656b9b6c28, type: 3}

@@ -216,8 +216,8 @@ public class FirebaseDataManager : MonoBehaviour
 
     public void UpdateAmmoBalance()
     {
-        playerInfo.game_12_gauge = ammoBalance[1];
-        playerInfo.game_9mm = ammoBalance[2];
+        playerInfo.game_9mm = ammoBalance[1];
+        playerInfo.game_12_gauge = ammoBalance[2];
         playerInfo.game_5_56mm = ammoBalance[3];
         playerInfo.game_7_62mm = ammoBalance[4];
 
