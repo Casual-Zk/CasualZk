@@ -28,8 +28,9 @@ public class FirebaseDataManager : MonoBehaviour
     private FirebaseAuth auth;
     private MenuManager menuManager;
 
-    public int[] weaponBalance = new int[5];
-    public int[] ammoBalance = new int[5];
+    public int[] weaponBalance = new int[5];    // On-Chain
+    public int[] magSize = new int[5];          // On-Chain
+    public int[] ammoBalance = new int[5];      // Off-chain, on DB
 
     Dictionary<string, object>[] allTopUsers;
 
@@ -65,8 +66,8 @@ public class FirebaseDataManager : MonoBehaviour
                 StartCoroutine(FindObjectOfType<ChainManager>().GetWeaponBalances(playerInfo.walletAddress));
 
             // Save ammo balance locally
-            ammoBalance[1] = playerInfo.game_12_gauge;
-            ammoBalance[2] = playerInfo.game_9mm;
+            ammoBalance[1] = playerInfo.game_9mm; 
+            ammoBalance[2] = playerInfo.game_12_gauge;
             ammoBalance[3] = playerInfo.game_5_56mm;
             ammoBalance[4] = playerInfo.game_7_62mm;
         });
@@ -169,7 +170,7 @@ public class FirebaseDataManager : MonoBehaviour
         }
 
         // On chain info saved onto local player info
-        playerInfo.knifeAmount = (int)balances[0];
+        playerInfo.knifeAmount = 1; // Mandatory in-game asset
         playerInfo.glockAmount = (int)balances[1];
         playerInfo.shotgunAmount = (int)balances[2];
         playerInfo.m4Amount = (int)balances[3];
@@ -178,6 +179,10 @@ public class FirebaseDataManager : MonoBehaviour
         playerInfo.wallet_9mm = (int)balances[6];
         playerInfo.wallet_5_56mm = (int)balances[7];
         playerInfo.wallet_7_62mm = (int)balances[8];
+
+        // TEST - Give mags
+        magSize[1] = 10;    // Glock default 10
+        magSize[3] = 20;    // M4 default 20
 
         connectingUI.enabled = false;
     }

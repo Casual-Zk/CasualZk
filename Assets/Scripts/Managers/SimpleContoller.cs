@@ -33,11 +33,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] GameObject body;
 	[SerializeField] Transform holdPoint;
 
-    [Header("Move")]
+	[Header("Move")]
 	[SerializeField] Transform followCamPosition;
 	[SerializeField] float camDistance = 5f;
 	[SerializeField] float camVerticalDrawBack = 2f;
-	[SerializeField] [Range(0.1f, 0.5f)] float moveSensitivity = 0.2f;
+	[SerializeField][Range(0.1f, 0.5f)] float moveSensitivity = 0.2f;
 	//[SerializeField] [Range(0.6f, 0.9f)] float jumpSensitivity = 0.2f;  // OLD SYSTEM
 	//[SerializeField] [Range(0.3f, 1f)] float fireSensitivity = 0.8f;    // OLD SYSTEM
 	//[SerializeField] Joystick fireJoystick;	// OLD SYSTEM
@@ -52,11 +52,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] GameObject[] weapons;
 	[SerializeField] Image weaponUI;
 	[SerializeField] Sprite[] weaponSprites;
+	[SerializeField] Slider reloadingSlider;
+	[SerializeField] Image reloadingImage;
 	// 0 - Knife
 	// 1 - Glock
 	// 2 - Shotgun
 	// 3 - M4
 	// 4 - AWP
+	int[] magSizes = new int[5];
+	int[] magCounts = new int[5];
+	float reloadingCounter = -1;
 	int activeWeaponIndex = 0;  // Always start with knife
 	[SerializeField] LayerMask playerLayer;
 	[SerializeField] Transform knifeHitCenter;	// Knife attack
@@ -139,6 +144,30 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			GetComponent<Health>().SetHealth(dm.dv.player_Health);
 			m_JumpForce = dm.dv.player_JumpForce;
 			runSpeed = dm.dv.player_RunSpeed;
+
+			// Get mag sizes
+			magSizes[1] = dm.magSize[1];
+			magSizes[3] = dm.magSize[3];
+
+			// Load mags with ammo
+			if (dm.ammoBalance[1] > 0)
+            {
+				// Check if we have enough to fill
+				if (dm.ammoBalance[1] >= magSizes[1])
+					magCounts[1] = magSizes[1];
+				else
+					magCounts[1] = dm.ammoBalance[1];
+			}
+			if (dm.ammoBalance[3] > 0)
+			{
+				// Check if we have enough to fill
+				if (dm.ammoBalance[3] >= magSizes[3])
+					magCounts[3] = magSizes[3];
+				else
+					magCounts[3] = dm.ammoBalance[3];
+			}
+
+			reloadingImage.enabled = false;	// Starting with knife, therefore close the reloading image
 		}
 		else
         {
@@ -166,6 +195,13 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			return; // Don't move if the time is up
 		}
 		else if (isOwner) { controlUI.SetActive(true); }
+
+		// If reloading, move slider
+		if (reloadingCounter > 0)
+        {
+			reloadingCounter = reloadingCounter - Time.deltaTime;
+			reloadingSlider.value = reloadingCounter;
+        }
 
 		// DEBUG fire with keyboard
 		//if (Input.GetKeyDown(KeyCode.A)) Btn_Fire(true);
@@ -455,11 +491,16 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	public void Btn_Fire(bool fire) { fireButtonDown = fire; }
 
 	// Turns bool to weapon if player able to fire
-	public bool Fire()
+	public bool CanFire()
     {
 		if (!fireButtonDown) return false;  // Can't fire if the button is not down
-		if (activeWeaponIndex == 0) return true;	// if we hold knife, then always can fire
-		return dm.ammoBalance[activeWeaponIndex] > 0;	// else, fire if we have ammo to fire
+		if (activeWeaponIndex == 0) return true;    // if we hold knife, then always can fire
+
+		// Fire if the mag has ammo
+		if (activeWeaponIndex == 1 || activeWeaponIndex == 3)
+			return magCounts[activeWeaponIndex] > 0;
+		else 
+			return dm.ammoBalance[activeWeaponIndex] > 0;
 
 		////////////    Manuel Aim System    ////////////
 		/*	
@@ -470,14 +511,86 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 		else return false;
 		*/
-    }
+	}
+
+	private void ReloadMag(int index)
+    {
+		// Display current situation first
+		ammoCounterText.text = magCounts[index].ToString() + "/" +
+			(dm.ammoBalance[index] - magCounts[index]).ToString();
+
+		// Reflext the mag size into reloading UI
+		reloadingSlider.value--;
+
+		// Reload the mag if its empty and we have ammo to load
+		if (magCounts[index] <= 0 && dm.ammoBalance[index] > 0)
+		{
+			StartCoroutine(Reloading(index));
+		}		
+	}
+
+	private IEnumerator Reloading(int index)
+	{
+		reloadingImage.color = Color.red;
+
+		if (index == 1)
+        {
+			audioManager.Play("ReloadSFX_Glock");
+
+			reloadingSlider.maxValue = reloadingCounter = 3.2f;
+
+			yield return new WaitForSeconds(3.2f);
+		}
+		else if (index == 3)
+        {
+			audioManager.Play("ReloadSFX_M4");
+
+			reloadingSlider.maxValue = reloadingCounter = 4.8f;
+			
+			yield return new WaitForSeconds(4.8f);
+		}
+
+		Debug.Log("Max Value: " + reloadingSlider.maxValue);
+		Debug.Log("Value: " + reloadingSlider.value);
+
+		reloadingImage.color = Color.green;
+
+		// If we have enough to fill fully, then fill it with size
+		if (dm.ammoBalance[index] >= magSizes[index])
+			magCounts[index] = magSizes[index];
+		// Else, fill it with what we have
+		else
+			magCounts[index] = dm.ammoBalance[index];
+
+		ammoCounterText.text = magCounts[index].ToString() + "/" +
+			(dm.ammoBalance[index] - magCounts[index]).ToString();
+
+		if (activeWeaponIndex == 1 || activeWeaponIndex == 3)
+		{
+			reloadingSlider.maxValue = magSizes[activeWeaponIndex];
+			reloadingSlider.value = magCounts[activeWeaponIndex];
+		}
+	}
 
 	// Updates ammo on local
 	public void Fired() 
 	{
 		if (activeWeaponIndex == 0) return;
 		dm.ammoBalance[activeWeaponIndex]--;
-		ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
+
+		// If we have a weapon has extenable mag feature
+		if (activeWeaponIndex == 1 || activeWeaponIndex == 3)
+        {
+			magCounts[activeWeaponIndex]--;
+			ReloadMag(activeWeaponIndex);
+		}
+
+		// If not, just update the UI as it was
+		else
+        {
+			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
+			reloadingSlider.maxValue = reloadingSlider.value = 1;
+		}
 	}
 
 	[PunRPC]
@@ -499,11 +612,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0; 
 			}
 			while (dm.weaponBalance[activeWeaponIndex] <= 0);
-
-			// Activate the new weapon
-			weapons[activeWeaponIndex].SetActive(true);
-			weaponUI.sprite = weaponSprites[activeWeaponIndex];
-			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
 		}
 		else
 		{
@@ -521,14 +629,40 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				if (activeWeaponIndex < 0) activeWeaponIndex = weapons.Length - 1;
 			}
 			while (dm.weaponBalance[activeWeaponIndex] <= 0);
+		}
 
-			// Activate the new weapon
-			weapons[activeWeaponIndex].SetActive(true);
-			weaponUI.sprite = weaponSprites[activeWeaponIndex];
+		// Activate the new weapon
+		weapons[activeWeaponIndex].SetActive(true);
+		weaponUI.sprite = weaponSprites[activeWeaponIndex];
+
+		if (activeWeaponIndex == 1 || activeWeaponIndex == 3)
+		{
+			ammoCounterText.text = magCounts[activeWeaponIndex].ToString() + "/" +
+				(dm.ammoBalance[activeWeaponIndex] - magCounts[activeWeaponIndex]).ToString();
+
+			reloadingSlider.maxValue = magSizes[activeWeaponIndex];
+			reloadingSlider.value = magCounts[activeWeaponIndex];
+		}
+		else
 			ammoCounterText.text = dm.ammoBalance[activeWeaponIndex].ToString();
+
+		// Update magsize UI
+		if (activeWeaponIndex == 1)
+        {
+			reloadingSlider.maxValue = magSizes[1];
+			reloadingSlider.value = magCounts[1];
+		}
+		else if (activeWeaponIndex == 3)
+        {
+			reloadingSlider.maxValue = magSizes[3];
+			reloadingSlider.value = magCounts[3];
 		}
 
 		if (activeWeaponIndex == 0) ammoCounterText.text = "";  // clean knife counter
+
+		// Close reloading image if we hold a knife
+		if (activeWeaponIndex == 0) reloadingImage.enabled = false;
+		else reloadingImage.enabled = true;
 	}
 
 	[PunRPC]

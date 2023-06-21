@@ -53,7 +53,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         if (nextFire > 0) nextFire -= Time.deltaTime;
 
         // fire if the time is up and button pressed
-        if (controller.Fire() && nextFire <= 0)
+        if (controller.CanFire() && nextFire <= 0)
         {
             // Set the timer
             nextFire = 1 / fireRate;
