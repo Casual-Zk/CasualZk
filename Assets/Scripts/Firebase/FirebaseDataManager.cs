@@ -182,7 +182,9 @@ public class FirebaseDataManager : MonoBehaviour
 
         // TEST - Give mags
         magSize[1] = 10;    // Glock default 10
+        magSize[2] = 1;    // Shoutgun
         magSize[3] = 20;    // M4 default 20
+        magSize[4] = 1;    // AWP
 
         connectingUI.enabled = false;
     }
