@@ -44,6 +44,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private float time;
     private Coroutine timerCoroutine;
     private bool isWaitingForPlayers;
+    private bool leftTheRoomNormally;
     private int currentPlayerCount;
     private int neededPlayerCount;
 
@@ -113,6 +114,54 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         // Unsubscribe from the OnMasterClientSwitched callback
         PhotonNetwork.RemoveCallbackTarget(this);
     }
+    
+    public override void OnLeftRoom()
+    {
+        base.OnLeftRoom();
+
+        // If we left the room in normal ways, then reset the var and don't execute code below
+        if (leftTheRoomNormally) { leftTheRoomNormally = false; return; }
+
+        Debug.LogError("Player left the room!!");
+
+        // Clear the data to be able to start a new game
+
+        // EndGame Funcitons with an edited version
+        if (timerCoroutine != null) StopCoroutine(timerCoroutine);
+        time = 0;
+        RefreshTimerUI();
+
+        isGameOver = true;
+        gameOverUI.SetActive(true);
+
+        // Save the balance to the database and get online player count
+        FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
+
+        // DisplayMainScore functions with an edited version
+        for (var i = miniScorePanel.transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(miniScorePanel.transform.GetChild(i).gameObject);
+        }
+
+        gameOverUI.SetActive(false);
+        inGameUI.SetActive(false);
+        map_0.SetActive(false);
+        endGameUI.SetActive(true);
+
+        // Stop game music
+        audioManager.Stop("Game_Music");
+        audioManager.Play("Fail_SFX");  // Play fail because we disconnected!
+
+        // Leave the room and lobby
+        PhotonNetwork.LeaveLobby();
+
+        FindObjectOfType<RoomManager>().UpdateCounter();
+
+
+        // Use EndGameButton directly
+        EndGameButton();
+    }
+    
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room CALLED");
@@ -212,6 +261,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
         // Leave the room and lobby
+        leftTheRoomNormally = true; // to avoid disconnected function
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.LeaveLobby();
 

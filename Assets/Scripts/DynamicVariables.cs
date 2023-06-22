@@ -15,8 +15,10 @@ public class DynamicVariables
     [FirestoreProperty] public int player_Health { get; set; }
     [FirestoreProperty] public float player_JumpForce { get; set; }
     [FirestoreProperty] public float player_RunSpeed { get; set; }
+    [FirestoreProperty] public float player_GravityScale { get; set; }
+    [FirestoreProperty] public float player_Mass { get; set; }
 
-    
+
     // Looping Text
     [FirestoreProperty] public string loopingText { get; set; }
     [FirestoreProperty] public float loopingTextSpeed { get; set; }

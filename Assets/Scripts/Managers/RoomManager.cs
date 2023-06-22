@@ -21,6 +21,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
     int roomCounter;
     int onlineCounter;
 
+    bool triedToReconnect;
+    bool waitingToTryAgain;
+
     MatchManager matchManager;
     FirebaseDataManager dataManager;
     MenuManager menuManager;
@@ -30,7 +33,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Instance = this;
     }
 
-    private void Start()
+    public void Start()
     {
         dataManager = FindObjectOfType<FirebaseDataManager>();
         matchManager = FindObjectOfType<MatchManager>();
@@ -45,18 +48,49 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public void FindMatch()
     {
+        if (waitingToTryAgain) return;
+
         if (!matchManager.GetComponent<PhotonView>().IsMine) return;
         if (PhotonNetwork.IsConnected)
             PhotonNetwork.JoinLobby();
         else
         {
+            // If we are not connected at the moment, try it once more
+            if (!triedToReconnect) 
+            { 
+                StartCoroutine(TryAgainToFindMatch());
+                FindObjectOfType<DisplayMessage>().Display("Not connected to server! Trying to re-connect in 3 seconds!", 3f);
+                menuManager.SetMenuCanvas(true);
+                return; 
+            }
+
+            // If we already tried it and failed, then fuck it.
             Debug.LogError("NOT CONNECTED TO MASTER SERVER !!!");
             FindObjectOfType<DisplayMessage>().Display("Not connected to server!", 3f);
+            menuManager.SetMenuCanvas(true);
             return;
         }
 
+        // Starting to join a game
+        menuManager.SetMenuCanvas(false);
         connectingUI.SetActive(true);
         roomNameText.enabled = false;        
+    }
+
+    private IEnumerator TryAgainToFindMatch()
+    {
+        waitingToTryAgain = true;
+
+        if (matchManager.GetComponent<PhotonView>().IsMine)
+        {
+            Debug.Log("Connecting to server...");
+            PhotonNetwork.ConnectUsingSettings();
+        }
+
+        yield return new WaitForSeconds(3f);
+
+        waitingToTryAgain = false;
+        FindMatch();
     }
 
     private void Update()

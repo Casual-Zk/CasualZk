@@ -321,9 +321,13 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         if (PlayerPrefs.HasKey("Nickname"))
         {
             roomManager.FindMatch();
-            MenuCanvas.SetActive(false);
         }
         else { messageUI.Display("Error: Set a username from profile!", 3f); }
+    }
+
+    public void SetMenuCanvas(bool isActive)
+    {
+        MenuCanvas.SetActive(isActive);
     }
 
     public void UpdateOnlineCounter(int count)

@@ -32,6 +32,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	[SerializeField] float runSpeed = 40f;
 	[SerializeField] GameObject body;
 	[SerializeField] Transform holdPoint;
+	Rigidbody2D rigidbody;
 
 	[Header("Move")]
 	[SerializeField] Transform followCamPosition;
@@ -124,6 +125,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		audioManager = FindObjectOfType<AudioManager>();
 		dm = FindObjectOfType<FirebaseDataManager>();
 		playerAnimator = GetComponent<Animator>();
+		rigidbody = GetComponent<Rigidbody2D>();
 
 		if (isOwner)
         {
@@ -162,7 +164,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				}
 			}
 
-			reloadingImage.enabled = false;	// Starting with knife, therefore close the reloading image
+			reloadingImage.enabled = false; // Starting with knife, therefore close the reloading image
+
+			// Set rigidbody values
+			rigidbody.mass = dm.dv.player_Mass;
+			rigidbody.gravityScale = dm.dv.player_GravityScale;
 		}
 		else
         {
