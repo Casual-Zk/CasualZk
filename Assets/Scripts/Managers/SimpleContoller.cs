@@ -48,6 +48,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	bool crouch = false;
 	public bool isOwner { get; set; }
 	CinemachineVirtualCamera player_v_cam;
+	CinemachineBasicMultiChannelPerlin shakeCam;
 
 	[Header("Weapons")]
 	[SerializeField] GameObject[] weapons;
@@ -144,6 +145,9 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// Set dynamic player variables
 			player_v_cam.m_Lens.OrthographicSize = dm.dv.player_CamOrthoSize;
 			player_v_cam.GetCinemachineComponent<CinemachineFramingTransposer>().m_XDamping = dm.dv.player_CamXdamping;
+			shakeCam = player_v_cam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+			shakeCam.m_FrequencyGain = dm.dv.hitCamShake_Frequency;
+
 			camDistance = dm.dv.player_FollowCamDistance;
 			GetComponent<Health>().SetHealth(dm.dv.player_Health);
 			m_JumpForce = dm.dv.player_JumpForce;
@@ -234,6 +238,19 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		//if (moveJoystick.Vertical < -jumpSensitivity) crouch = true; else crouch = false;
 
 		Aim();
+
+		// Shake Cam
+		if (shakeCam.m_AmplitudeGain != 0)
+        {
+			//Debug.Log("Current Alpha: " + shakeCam.m_AmplitudeGain);
+
+			// Decrease and Limit the amplitude between 0 and MaxValue
+			float newValue = Mathf.Clamp(shakeCam.m_AmplitudeGain - 
+				(dm.dv.hitCamShake_Speed * Time.deltaTime), 0, dm.dv.hitCamShake_Amplitude);
+
+			// Apply the new value
+			shakeCam.m_AmplitudeGain = newValue;
+		}
 	}
 
     private void FixedUpdate()
@@ -260,6 +277,12 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 					OnLandEvent.Invoke();
 			}
 		}
+	}
+
+	public void HitCamShake()
+    {
+		shakeCam.m_AmplitudeGain = dm.dv.hitCamShake_Amplitude;
+		shakeCam.m_FrequencyGain = dm.dv.hitCamShake_Frequency;
 	}
 
 	public void Move(float move, bool crouch, bool jump)

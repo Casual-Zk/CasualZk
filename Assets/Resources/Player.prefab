@@ -1251,7 +1251,7 @@ MonoBehaviour:
   m_CeilingCheck: {fileID: 3643863086098737240}
   m_CrouchDisableCollider: {fileID: 0}
   nameText: {fileID: 2899567255407460593}
-  runSpeed: 70
+  runSpeed: 50
   body: {fileID: 7021490610139178981}
   holdPoint: {fileID: 5329615789047360523}
   followCamPosition: {fileID: 5668464999035722829}
@@ -1419,10 +1419,7 @@ MonoBehaviour:
   slider: {fileID: 3233185476248903848}
   controller: {fileID: 247168243351703701}
   hitImage: {fileID: 7079640707704379949}
-  openSpeed: 0.1
-  closeSpeed: 1.5
-  hitEffectMaxValue: 1
-  giveEffect: 0
+  DEBUG_getHit: 0
 --- !u!58 &309671243153638191
 CircleCollider2D:
   m_ObjectHideFlags: 0

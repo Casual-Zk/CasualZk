@@ -37,14 +37,13 @@ public class Health : MonoBehaviourPunCallbacks
         // If we have an alpha other then 0, then decrease it
         if (hitImage.color.a != 0)
         {
-            Debug.Log("Current Alpha: " + hitImage.color.a);
+            //Debug.Log("Current Alpha: " + hitImage.color.a);
 
             // Decrease and Limit the alpha between 0 and MaxValue
             float newAlpha = Mathf.Clamp(hitImage.color.a - (closeSpeed * Time.deltaTime), 0, 1f);
 
             // Apply the new alpha value
             hitImage.color = new Color(1f, 1f, 1f, newAlpha);
-
         }
     }
 
@@ -69,7 +68,11 @@ public class Health : MonoBehaviourPunCallbacks
         health -= damage;
 
         // Show hit effect to the client
-        if (controller.isOwner) hitImage.color = new Color(1f, 1f, 1f, 1f);
+        if (controller.isOwner)
+        {
+            hitImage.color = new Color(1f, 1f, 1f, 1f);
+            if (health > 0) controller.HitCamShake();
+        }
 
         if (health <= 0)
         {
