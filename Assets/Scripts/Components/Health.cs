@@ -10,6 +10,9 @@ public class Health : MonoBehaviourPunCallbacks
     [SerializeField] int health;
     [SerializeField] Slider slider;
     [SerializeField] SimpleContoller controller;
+    [SerializeField] Image hitImage;
+    [SerializeField] bool DEBUG_getHit;
+    float closeSpeed;
 
     bool deadAlready;
 
@@ -20,6 +23,29 @@ public class Health : MonoBehaviourPunCallbacks
     {
         matchManager = FindObjectOfType<MatchManager>();
         audioManager = FindObjectOfType<AudioManager>();
+
+        closeSpeed = FindAnyObjectByType<FirebaseDataManager>().dv.hitEffectSpeed;
+    }
+
+    private void Update()
+    {
+        if (DEBUG_getHit) 
+        {
+            TakeDamage(5, "", "");
+            DEBUG_getHit = false;
+        }
+        // If we have an alpha other then 0, then decrease it
+        if (hitImage.color.a != 0)
+        {
+            Debug.Log("Current Alpha: " + hitImage.color.a);
+
+            // Decrease and Limit the alpha between 0 and MaxValue
+            float newAlpha = Mathf.Clamp(hitImage.color.a - (closeSpeed * Time.deltaTime), 0, 1f);
+
+            // Apply the new alpha value
+            hitImage.color = new Color(1f, 1f, 1f, newAlpha);
+
+        }
     }
 
     public void SetHealth(int health)
@@ -41,6 +67,9 @@ public class Health : MonoBehaviourPunCallbacks
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
 
         health -= damage;
+
+        // Show hit effect to the client
+        if (controller.isOwner) hitImage.color = new Color(1f, 1f, 1f, 1f);
 
         if (health <= 0)
         {

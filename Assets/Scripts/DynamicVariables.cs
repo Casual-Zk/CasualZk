@@ -7,6 +7,7 @@ public class DynamicVariables
 {
     [FirestoreProperty] public float matchTime { get; set; }
     [FirestoreProperty] public int topUsers { get; set; }
+    [FirestoreProperty] public float hitEffectSpeed { get; set; }
 
     // Player
     [FirestoreProperty] public float player_CamOrthoSize { get; set; }
