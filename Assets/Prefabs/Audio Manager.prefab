@@ -135,3 +135,15 @@ MonoBehaviour:
     pitch: 1
     loop: 0
     source: {fileID: 0}
+  - name: DoubleKill_SFX
+    clip: {fileID: 8300000, guid: 3bca57778feea9d4286de72fa5e5915e, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: TripleKill_SFX
+    clip: {fileID: 8300000, guid: 76802029641265146a56e1f62cbc69a2, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}

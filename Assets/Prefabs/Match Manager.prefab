@@ -1575,6 +1575,8 @@ MonoBehaviour:
   miniScorePrefab: {fileID: 3897085011298190245, guid: 7eb5fc272dffbff4fad5c9d3ac7de0b9, type: 3}
   miniScorePanel: {fileID: 5593602613846337613}
   eggImage: {fileID: 2052068603}
+  doubleKillPrefab: {fileID: 2214528145931562813, guid: ed48d520f1e647f41a82174a730d2143, type: 3}
+  tripleKillPrefab: {fileID: 5465200183659419354, guid: 7b7e6f601bffdeb408d3ff06486c64f8, type: 3}
   gameOverUI: {fileID: 2440256641009447173}
   inGameUI: {fileID: 5593602613328404032}
   endGameUI: {fileID: 5593602612962367309}
@@ -1874,6 +1876,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: PlayClickSound
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

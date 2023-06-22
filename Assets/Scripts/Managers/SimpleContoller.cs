@@ -279,9 +279,9 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 	}
 
-	public void HitCamShake()
+	public void HitCamShake(float multiplier)
     {
-		shakeCam.m_AmplitudeGain = dm.dv.hitCamShake_Amplitude;
+		shakeCam.m_AmplitudeGain = dm.dv.hitCamShake_Amplitude * multiplier;
 		shakeCam.m_FrequencyGain = dm.dv.hitCamShake_Frequency;
 	}
 

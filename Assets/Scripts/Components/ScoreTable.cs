@@ -16,17 +16,28 @@ public class ScoreTable : MonoBehaviour
     public int kill { get; set; }
     public int death { get; set; }
     public int suicide { get; set; }
+    public float counter { get; set; }
+    public bool doubleKillActive { get; set; }
 
     private void Start()
     {
         nameText.text = playerName;
     }
 
-    public void AddKill()
+    private void Update()
     {
-        kill++;
-        score++;
-        
+        if (counter > 0)
+        {
+            counter -= Time.deltaTime;
+        }
+        else doubleKillActive = false;  // reset double kill marker
+    }
+
+    public void AddKill(int killAmount)
+    {
+        kill += killAmount;
+        score += killAmount;
+
         scoreText.text = score.ToString();
     }
 

@@ -11,7 +11,8 @@ public class DynamicVariables
     [FirestoreProperty] public float hitCamShake_Amplitude { get; set; }
     [FirestoreProperty] public float hitCamShake_Frequency { get; set; }
     [FirestoreProperty] public float hitCamShake_Speed { get; set; }
-    
+    [FirestoreProperty] public float multipleKillTime { get; set; }
+
     // Player
     [FirestoreProperty] public float player_CamOrthoSize { get; set; }
     [FirestoreProperty] public float player_CamXdamping { get; set; }

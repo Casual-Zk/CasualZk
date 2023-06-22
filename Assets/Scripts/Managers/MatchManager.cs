@@ -34,6 +34,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] ScoreTable miniScorePrefab;
     [SerializeField] GameObject miniScorePanel;
     [SerializeField] GameObject eggImage;
+    [SerializeField] GameObject doubleKillPrefab;
+    [SerializeField] GameObject tripleKillPrefab;
 
     [Header("Other")]
     [SerializeField] GameObject gameOverUI;
@@ -427,13 +429,64 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             foreach (ScoreTable playerScore in scoreList)
             {
-                if (playerScore.playerName == killerName) playerScore.AddKill();
+                // Record the kill
+                if (playerScore.playerName == killerName)
+                {
+                    // Check if the counter of the player is running
+                    if (playerScore.counter > 0)
+                    {
+                        // if so, that mean we had a kill recently
+                        // Check if we aldready got a double kill?
+                        if (playerScore.doubleKillActive)
+                        {
+                            // If so, this is a third kill
+                            playerScore.counter = 0;    // Close the counter
+                            playerScore.doubleKillActive = false;
+                            playerScore.AddKill(3);
+
+                            if (playerScore.playerName == PlayerPrefs.GetString("Nickname"))
+                                MultiKillEffects(false);    // triple kill
+                        }
+                        else
+                        {
+                            // if not, this is the second kill
+                            playerScore.counter = dataManager.dv.multipleKillTime; // Reset the counter
+                            playerScore.doubleKillActive = true;
+                            playerScore.AddKill(2);
+
+                            if (playerScore.playerName == PlayerPrefs.GetString("Nickname"))
+                                MultiKillEffects(true);    // double kill
+                        }
+                    }
+                    else
+                    {
+                        // If not, we had no recent kill, start the counter
+                        playerScore.counter = dataManager.dv.multipleKillTime;
+                        playerScore.AddKill(1);
+                    }
+                }
+                
+                // Record the death
                 if (playerScore.playerName == deathPlayer) playerScore.AddDeath();
             }
         }
 
         //SortScore();
         RefreshPlayerScoreUI();
+    }
+
+    private void MultiKillEffects(bool isDouble)
+    {
+        if (isDouble)
+        {
+            audioManager.Play("DoubleKill_SFX");
+            Instantiate(doubleKillPrefab, inGameUI.transform);
+        }
+        else
+        {
+            audioManager.Play("TripleKill_SFX");
+            Instantiate(tripleKillPrefab, inGameUI.transform);
+        }
     }
 
     private void SortScore()

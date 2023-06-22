@@ -71,7 +71,11 @@ public class Health : MonoBehaviourPunCallbacks
         if (controller.isOwner)
         {
             hitImage.color = new Color(1f, 1f, 1f, 1f);
-            if (health > 0) controller.HitCamShake();
+            if (health > 0)
+            {
+                if (damage > 30) controller.HitCamShake(2);
+                else controller.HitCamShake(1);
+            }
         }
 
         if (health <= 0)
