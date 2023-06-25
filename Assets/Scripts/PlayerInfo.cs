@@ -28,6 +28,8 @@ public class PlayerInfo
     [FirestoreProperty] public int game_9mm { get; set; }
     [FirestoreProperty] public int game_5_56mm { get; set; }
     [FirestoreProperty] public int game_7_62mm { get; set; }
+    [FirestoreProperty] public int game_Armor { get; set; }
+    [FirestoreProperty] public int game_lastArmorHealth { get; set; }
     [FirestoreProperty] public int consumed_12_gauge { get; set; }
     [FirestoreProperty] public int consumed_9mm { get; set; }
     [FirestoreProperty] public int consumed_5_56mm { get; set; }

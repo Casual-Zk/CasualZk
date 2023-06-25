@@ -18,6 +18,8 @@ public class DynamicVariables
     [FirestoreProperty] public float player_CamXdamping { get; set; }
     [FirestoreProperty] public float player_FollowCamDistance { get; set; }
     [FirestoreProperty] public int player_Health { get; set; }
+    [FirestoreProperty] public int player_Armor { get; set; }
+    [FirestoreProperty] public float player_ArmorChance { get; set; }
     [FirestoreProperty] public float player_JumpForce { get; set; }
     [FirestoreProperty] public float player_RunSpeed { get; set; }
     [FirestoreProperty] public float player_GravityScale { get; set; }

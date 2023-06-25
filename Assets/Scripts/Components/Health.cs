@@ -3,28 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
-using TarodevController;
+using TMPro;
 
 public class Health : MonoBehaviourPunCallbacks
 {
     [SerializeField] int health;
+    [SerializeField] int armor;
     [SerializeField] Slider slider;
+    [SerializeField] Slider armorSlider;
+    [SerializeField] GameObject armorObject;
+    [SerializeField] TextMeshProUGUI armorAmountText;
     [SerializeField] SimpleContoller controller;
     [SerializeField] Image hitImage;
     [SerializeField] bool DEBUG_getHit;
+
     float closeSpeed;
+    float armorChance;
 
     bool deadAlready;
 
     MatchManager matchManager;
     AudioManager audioManager;
+    FirebaseDataManager dm;
 
     private void Start()
     {
         matchManager = FindObjectOfType<MatchManager>();
         audioManager = FindObjectOfType<AudioManager>();
+        dm = FindObjectOfType<FirebaseDataManager>();
 
-        closeSpeed = FindAnyObjectByType<FirebaseDataManager>().dv.hitEffectSpeed;
+        closeSpeed = dm.dv.hitEffectSpeed;
+        armorChance = dm.dv.player_ArmorChance;
     }
 
     private void Update()
@@ -57,6 +66,36 @@ public class Health : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
+    public void SetArmor()
+    {
+        // Display armor amount in the inventory
+        armorAmountText.text = dm.playerInfo.game_Armor.ToString();
+
+        if (dm.playerInfo.game_lastArmorHealth <= 0) return;
+
+        armorObject.SetActive(true);
+
+        this.armor = dm.playerInfo.game_lastArmorHealth;
+        armorSlider.value = dm.playerInfo.game_lastArmorHealth;
+        armorSlider.maxValue = dm.dv.player_Armor;
+    }
+
+    [PunRPC]
+    public void UseArmor()
+    {
+        armorObject.SetActive(true);    // Open slider
+
+        dm.playerInfo.game_Armor--; // Decrease the current armor supply
+        armorAmountText.text = dm.playerInfo.game_Armor.ToString(); // Update UI
+
+        // give max value to all variables
+        this.armor = dm.dv.player_Armor;
+        dm.playerInfo.game_lastArmorHealth = dm.dv.player_Armor;
+        armorSlider.value = dm.dv.player_Armor;
+        armorSlider.maxValue = dm.dv.player_Armor;
+    }
+
+    [PunRPC]
     public void TakeDamage(int damage, string shooterName, string targetName)
     {
         if (deadAlready) return;    // avoid multi death
@@ -65,7 +104,9 @@ public class Health : MonoBehaviourPunCallbacks
         if (matchManager == null) matchManager = FindObjectOfType<MatchManager>();
         if (matchManager.isGameOver) return; // Don't get hurt if the time is up
 
-        health -= damage;
+        // if we have armor and the shooter not a death wall, take the chance
+        if (armor > 0 && !shooterName.Contains("Death") && Random.Range(0f, 1f) < armorChance) armor -= damage;
+        else health -= damage;
 
         // Show hit effect to the client
         if (controller.isOwner)
@@ -95,7 +136,11 @@ public class Health : MonoBehaviourPunCallbacks
             }
             Destroy(gameObject);
         }
-        
+
+        if (armor <= 0) armorObject.SetActive(false);   // close the armor slider
+
         slider.value = health;
+        armorSlider.value = armor;
+        dm.playerInfo.game_lastArmorHealth = armor;
     }
 }

@@ -28,11 +28,11 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	// @Bora variables
 	[Header("Casual Edition")]
 	[SerializeField] TextMeshProUGUI nameText;
-	[SerializeField] PlayerInfo playerInfo;
 	[SerializeField] float runSpeed = 40f;
 	[SerializeField] GameObject body;
 	[SerializeField] Transform holdPoint;
 	Rigidbody2D rigidbody;
+	bool armorStarted;
 
 	[Header("Move")]
 	[SerializeField] Transform followCamPosition;
@@ -83,11 +83,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	Collider2D[] hitEnemies;	// Knife attacks
 	Animator playerAnimator;
 
-	// Save colors to enable/disable auto button
-	Color autoBackgrounEnabledColor;
-	Color autoBackgrounDisabledColor;
-	Color autoTextEnabledColor;
-	Color autoTextDisabledColor;
 	bool fireButtonDown = false;	// Fire button down event
 	Transform targetPos;	// closes target
 	List<SimpleContoller> enemyList = new List<SimpleContoller>();  // In range
@@ -132,15 +127,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
         {
 			player_v_cam.Follow = followCamPosition;    // Set cam to follow
 			healthFillImage.color = Color.cyan;			// Set health color to cyan to distinguish 
-
-			// Save enabled and disabled colors of auto button (images)
-			Color bColor = autoBackground.color;
-			autoBackgrounEnabledColor = bColor;
-			autoBackgrounDisabledColor = new Color(bColor.r, bColor.g, bColor.b, 0.6f);
-
-			Color tColor = autoText.color;
-			autoTextEnabledColor = tColor;
-			autoTextDisabledColor = new Color(tColor.r, tColor.g, tColor.b, 0.6f);
 
 			// Set dynamic player variables
 			player_v_cam.m_Lens.OrthographicSize = dm.dv.player_CamOrthoSize;
@@ -220,6 +206,9 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 		if (!isOwner) return;	// Below code is valid for just the owner
 
+		// If the game has started and not armor started, start it
+		if (!matchManager.isGameOver && !armorStarted) { armorStarted = true; StartArmor(); }
+
 		// @Bora Getting input
 		// Player Movement
 		if (Mathf.Abs(moveJoystick.Horizontal) > moveSensitivity)
@@ -277,6 +266,18 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 					OnLandEvent.Invoke();
 			}
 		}
+	}
+
+	public void StartArmor()
+    {
+		if (!isOwner) return;
+		GetComponent<PhotonView>().RPC("SetArmor", RpcTarget.All);
+	}
+
+	public void Btn_UseArmor()
+    {
+		if (dm.playerInfo.game_Armor > 0)
+			GetComponent<PhotonView>().RPC("UseArmor", RpcTarget.All);
 	}
 
 	public void HitCamShake(float multiplier)
