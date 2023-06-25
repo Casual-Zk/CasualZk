@@ -93,6 +93,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         waitingPlayersCanvas.SetActive(false);
         isGameOver = false;
 
+        dataManager.playerInfo.matchCount++;
+
         if (PhotonNetwork.IsMasterClient)
         {
             InitializeTimer();
@@ -206,8 +208,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         audioManager.Play("GameOver_SFX");
 
         // Save the balance to the database and get online player count
-        FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
-
+        dataManager.UpdateAmmoBalance();
         StartCoroutine(DisplayMainScore());
     }
 
@@ -249,7 +250,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             audioManager.Play("Win_SFX");
             eggImage.SetActive(true);
-            FindObjectOfType<FirebaseDataManager>().GiveEgg();
+            dataManager.GiveEgg();
         }
         else audioManager.Play("Fail_SFX");
 

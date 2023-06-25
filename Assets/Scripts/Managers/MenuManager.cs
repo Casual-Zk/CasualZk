@@ -39,6 +39,8 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     [SerializeField] TextMeshProUGUI[] eggBalanceTexts;
     [SerializeField] TextMeshProUGUI[] currentWeekTexts;
     [SerializeField] GameObject usernameBackButton;
+    [SerializeField] TextMeshProUGUI matchCountText;
+    [SerializeField] TextMeshProUGUI winRateText;
 
     [Header("Inventory UI")]
     [SerializeField] GameObject[] weapons;
@@ -286,6 +288,8 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         string walletAddress = dm.playerInfo.walletAddress;
         int currentWeek = dm.gameInfo.currentWeek;
         var eggCount = dm.playerInfo.eggs[currentWeek.ToString()];
+        float matches = dm.playerInfo.matchCount;
+        float wins = dm.playerInfo.winCount;
 
         if (nickname != null)
         {
@@ -306,6 +310,11 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
         foreach (TextMeshProUGUI text in currentWeekTexts) { text.text = currentWeek.ToString(); }
         foreach (TextMeshProUGUI text in eggBalanceTexts) { text.text = "x " + eggCount; }
+
+        if (matches <= 0) return;
+        float winRate = Mathf.Ceil(wins / matches * 100f);
+        matchCountText.text = matches.ToString();
+        winRateText.text = winRate.ToString() + "%";
     }
 
     public void FindMatchButton(){

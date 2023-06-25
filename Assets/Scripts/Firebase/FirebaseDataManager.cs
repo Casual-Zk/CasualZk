@@ -70,6 +70,9 @@ public class FirebaseDataManager : MonoBehaviour
             ammoBalance[2] = playerInfo.game_12_gauge;
             ammoBalance[3] = playerInfo.game_5_56mm;
             ammoBalance[4] = playerInfo.game_7_62mm;
+
+            // Save last login
+            playerInfo.lastLogin = Timestamp.FromDateTime(DateTime.Now);
         });
 
         gameReg = firestore.Document("gameInfo/basicInfo").Listen(snaphot =>
@@ -189,7 +192,7 @@ public class FirebaseDataManager : MonoBehaviour
         connectingUI.enabled = false;
     }
 
-    public void GiveEgg() { Debug.Log("Button pressed"); _ = IncrementEggForWeek(); }
+    public void GiveEgg() { _ = IncrementEggForWeek(); }
     
     private async Task IncrementEggForWeek()
     {
@@ -201,9 +204,10 @@ public class FirebaseDataManager : MonoBehaviour
         }
 
         playerInfo.eggs[crrWeek] = currentEggNmber + 1;
+        playerInfo.winCount++;
 
-        await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, SetOptions.MergeFields("eggs"));
-
+        await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, 
+            SetOptions.MergeFields("eggs", "winCount"));
     }
 
     public void SetNickname(string nickname)
@@ -222,7 +226,8 @@ public class FirebaseDataManager : MonoBehaviour
         playerInfo.game_7_62mm = ammoBalance[4];
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge"));
+            SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge",
+            "matchCount"));
     }
 
     // Queries
