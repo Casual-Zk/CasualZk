@@ -243,7 +243,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         if (Nickname_Input.text == null || Nickname_Input.text == "")
             messageUI.Display("Nickname can not be empty!", 2f);
         else
-            FindAnyObjectByType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
+            FindObjectOfType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
     }
     
     public void Btn_ShowBackButtonOnUsername()

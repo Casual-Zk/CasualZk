@@ -24,7 +24,7 @@ public class Health : MonoBehaviourPunCallbacks
         matchManager = FindObjectOfType<MatchManager>();
         audioManager = FindObjectOfType<AudioManager>();
 
-        closeSpeed = FindAnyObjectByType<FirebaseDataManager>().dv.hitEffectSpeed;
+        closeSpeed = FindObjectOfType<FirebaseDataManager>().dv.hitEffectSpeed;
     }
 
     private void Update()

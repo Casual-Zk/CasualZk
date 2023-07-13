@@ -1148,7 +1148,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Terster Login
+  m_text: Tester Login
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: db2f7289b1ff7f94883b7abc8cbd7cba, type: 2}
   m_sharedMaterial: {fileID: -8482652512234278313, guid: db2f7289b1ff7f94883b7abc8cbd7cba, type: 2}
@@ -18648,7 +18648,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Online: 0
+  m_text: 'Online: 1
 
 '
   m_isRightToLeft: 0

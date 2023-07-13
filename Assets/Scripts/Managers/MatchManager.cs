@@ -27,6 +27,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] public GameObject waitingPlayersCanvas;
     [SerializeField] TextMeshProUGUI playerCountText;
+    [SerializeField] GameObject leaveButton;
 
     [Header("Score")]
     [SerializeField] ScoreTable scorePrefab;
@@ -82,6 +83,10 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             if (currentPlayerCount >= neededPlayerCount)
             {
                 isWaitingForPlayers = false;
+
+                // Close the room for others if it's full
+                if (PhotonNetwork.IsMasterClient)   PhotonNetwork.CurrentRoom.IsVisible = false;
+
                 StartCoroutine(StartActualMatchOnDelay());
             }
         }
@@ -111,12 +116,31 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         map_0.SetActive(true);
         timeText.text = dataManager.dv.matchTime.ToString();
         isWaitingForPlayers = true; // start waiting screen
+
+        leaveButton.SetActive(false);   // first close the button
+        StartCoroutine(ShowLeaveButton());  // show leave button after some time
     }
 
     void OnDestroy()
     {
         // Unsubscribe from the OnMasterClientSwitched callback
         PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
+    private IEnumerator ShowLeaveButton()
+    {
+        yield return new WaitForSeconds(dataManager.dv.leaveWaitTime);
+
+        leaveButton.SetActive(true);  // first close the button
+    }
+
+    public void Btn_LeaveTheRoom()
+    {
+        isWaitingForPlayers = false;
+        waitingPlayersCanvas.SetActive(false);
+        try { PhotonNetwork.LeaveRoom(); } catch { Debug.LogError("Cancel MM, Can't leave the room!"); }
+
+        OnLeftRoom();
     }
     
     public override void OnLeftRoom()
@@ -142,10 +166,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         FindObjectOfType<FirebaseDataManager>().UpdateAmmoBalance();
 
         // DisplayMainScore functions with an edited version
-        for (var i = miniScorePanel.transform.childCount - 1; i >= 0; i--)
-        {
-            Destroy(miniScorePanel.transform.GetChild(i).gameObject);
-        }
+        ClearGame(false);
 
         gameOverUI.SetActive(false);
         inGameUI.SetActive(false);
@@ -178,7 +199,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (newMasterClient == PhotonNetwork.LocalPlayer)
         {
             Debug.Log("Local is the master");
-            if (timerCoroutine != null) timerCoroutine = StartCoroutine(Timer());
+            Debug.Log("Taking over the timer!");
+            timerCoroutine = StartCoroutine(Timer());
         }
     }
 
@@ -212,14 +234,35 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         StartCoroutine(DisplayMainScore());
     }
 
-    private IEnumerator DisplayMainScore()
+    public void ClearGame(bool skipTheList)
     {
-        yield return new WaitForSeconds(3f);
-
+        Debug.LogWarning("ClearGame Called!");
         for (var i = miniScorePanel.transform.childCount - 1; i >= 0; i--)
         {
             Destroy(miniScorePanel.transform.GetChild(i).gameObject);
         }
+
+        // Clear all player objects
+        SimpleContoller[] players = FindObjectsOfType<SimpleContoller>();
+        foreach (var p in players)
+        {
+            Destroy(p);
+        }
+
+        // Clean the players data
+        if (!skipTheList) scoreList.Clear();
+
+        for (var i = scorePanel.transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(scorePanel.transform.GetChild(i).gameObject);
+        }
+    }
+
+    private IEnumerator DisplayMainScore()
+    {
+        yield return new WaitForSeconds(3f);
+
+        ClearGame(true);
 
         gameOverUI.SetActive(false);
         inGameUI.SetActive(false);

@@ -17,11 +17,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
     [SerializeField] CinemachineVirtualCamera player_v_cam;
+    [SerializeField] GameObject cancelButton;
 
-    int roomCounter;
     int onlineCounter;
-
-    bool triedToReconnect;
     bool waitingToTryAgain;
 
     MatchManager matchManager;
@@ -48,49 +46,68 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public void FindMatch()
     {
+        Debug.Log("On FindMatch in RoomManager");
         if (waitingToTryAgain) return;
-
-        if (!matchManager.GetComponent<PhotonView>().IsMine) return;
+        
+        Debug.Log("Continue to check master connection");
         if (PhotonNetwork.IsConnected)
-            PhotonNetwork.JoinLobby();
+        {
+            Debug.Log("Connected to master! Clearing the game and joining random room!");
+            matchManager.ClearGame(false);
+            PhotonNetwork.JoinRandomRoom();
+        }
         else
         {
+            Debug.Log("No master connection! Trying to connect again!");
             // If we are not connected at the moment, try it once more
-            if (!triedToReconnect) 
-            { 
-                StartCoroutine(TryAgainToFindMatch());
-                FindObjectOfType<DisplayMessage>().Display("Not connected to server! Trying to re-connect in 3 seconds!", 3f);
-                menuManager.SetMenuCanvas(true);
-                return; 
-            }
-
-            // If we already tried it and failed, then fuck it.
-            Debug.LogError("NOT CONNECTED TO MASTER SERVER !!!");
-            FindObjectOfType<DisplayMessage>().Display("Not connected to server!", 3f);
+            StartCoroutine(TryAgainToFindMatch());
+            FindObjectOfType<DisplayMessage>().Display("Not connected to server! Trying to re-connect in 3 seconds!", 3f);
             menuManager.SetMenuCanvas(true);
             return;
         }
 
+        Debug.Log("Opening the Finding Match transition scene!");
+
         // Starting to join a game
         menuManager.SetMenuCanvas(false);
         connectingUI.SetActive(true);
+        cancelButton.SetActive(false);  // first close the button
+        StartCoroutine(ShowCancelButton()); // Open if after a while
         roomNameText.enabled = false;        
     }
 
     private IEnumerator TryAgainToFindMatch()
     {
+        Debug.LogWarning("Trying to reconnect and find match again!");
+
         waitingToTryAgain = true;
 
-        if (matchManager.GetComponent<PhotonView>().IsMine)
-        {
-            Debug.Log("Connecting to server...");
-            PhotonNetwork.ConnectUsingSettings();
-        }
+        Debug.Log("Connecting to server...");
+        PhotonNetwork.ConnectUsingSettings();
 
         yield return new WaitForSeconds(3f);
 
         waitingToTryAgain = false;
         FindMatch();
+    }
+
+    public void Btn_CancelMatchMaking()
+    {
+        menuManager.SetMenuCanvas(true);
+        connectingUI.SetActive(false);
+        roomNameText.enabled = false;
+
+        try { PhotonNetwork.LeaveRoom(); } catch { Debug.LogError("Cancel MM, Can't leave the room!"); }
+        try { PhotonNetwork.LeaveLobby(); } catch { Debug.LogError("Cancel MM, Can't leave the lobby!"); }
+        
+        Debug.Log("Connecting to server from cancel MM...");
+        PhotonNetwork.ConnectUsingSettings();
+    }
+    private IEnumerator ShowCancelButton()
+    {
+        yield return new WaitForSeconds(dataManager.dv.leaveWaitTime);
+
+        cancelButton.SetActive(true);  // first close the button
     }
 
     private void Update()
@@ -111,7 +128,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         onlineCounter = PhotonNetwork.CountOfPlayers;
         menuManager.UpdateOnlineCounter(onlineCounter);
     }
-
+    
     public override void OnConnectedToMaster()
     {
         base.OnConnectedToMaster();
@@ -119,6 +136,35 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
         onlineCounter = PhotonNetwork.CountOfPlayers;
         menuManager.UpdateOnlineCounter(onlineCounter);
+    }
+
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.LogError("Join Random Room Failed! No random room available, so we create one.\nCalling: PhotonNetwork.CreateRoom");
+
+        // Set the max player
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = (byte)dataManager.gameInfo.playerAmount;
+
+        // Set random room name
+        string roomName = "Room_" + Random.Range(0, 100000);
+
+        // Create the room
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        base.OnCreateRoomFailed(returnCode, message);
+
+        Debug.LogError("RETURN CODE: " + returnCode + " MESSAGE: " + message);
+
+        Debug.LogWarning("Trying to join a room AGAIN!");
+        
+        if (PhotonNetwork.IsConnected)
+            PhotonNetwork.JoinRandomRoom();
+        else
+            StartCoroutine(TryAgainToFindMatch());
     }
 
     public override void OnJoinedLobby()
@@ -129,12 +175,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        /*
         roomCounter = 0;
         int maxPlayerAmount = dataManager.gameInfo.playerAmount;
 
         foreach (RoomInfo room in roomList)
         {
-            Debug.Log("Room Found: " + room.Name);
+            Debug.LogWarning("Room Found: " + room.Name);
 
             if (room.Name.Contains("Room") && room.PlayerCount >= maxPlayerAmount) roomCounter++;
         }
@@ -142,11 +189,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = (byte)maxPlayerAmount;
         PhotonNetwork.JoinOrCreateRoom("Room_" + roomCounter, roomOptions, TypedLobby.Default);
+        */
     }
 
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
+        cancelButton.SetActive(false);
         roomNameText.enabled = true;
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
@@ -154,9 +203,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
         StartCoroutine(CloseConnectingUIOnDelay());
         SpawnPlayer();
 
-        FindAnyObjectByType<MatchManager>().StartMatch();
-        FindAnyObjectByType<MatchManager>().GetComponent<PhotonView>().RPC(
+        FindObjectOfType<MatchManager>().StartMatch();
+        FindObjectOfType<MatchManager>().GetComponent<PhotonView>().RPC(
             "AddPlayer", RpcTarget.All, PlayerPrefs.GetString("Nickname"));
+
+        Debug.LogWarning("CONNECTED REGION: " + PhotonNetwork.CloudRegion);
     }
 
     IEnumerator CloseConnectingUIOnDelay()
