@@ -17,7 +17,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] TextMeshProUGUI roomNameText;
     [SerializeField] float playerRespawnTime;
     [SerializeField] CinemachineVirtualCamera player_v_cam;
-    [SerializeField] GameObject cancelButton;
+    [SerializeField] GameObject cancelPanel;
 
     int onlineCounter;
     bool waitingToTryAgain;
@@ -71,8 +71,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         // Starting to join a game
         menuManager.SetMenuCanvas(false);
         connectingUI.SetActive(true);
-        cancelButton.SetActive(false);  // first close the button
-        StartCoroutine(ShowCancelButton()); // Open if after a while
+        cancelPanel.SetActive(false);  // first close the button
+        StartCoroutine(ShowcancelPanel()); // Open if after a while
         roomNameText.enabled = false;        
     }
 
@@ -103,11 +103,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log("Connecting to server from cancel MM...");
         PhotonNetwork.ConnectUsingSettings();
     }
-    private IEnumerator ShowCancelButton()
+    private IEnumerator ShowcancelPanel()
     {
-        yield return new WaitForSeconds(dataManager.dv.leaveWaitTime);
+        yield return new WaitForSeconds(dataManager.dv.leaveWaitTime * 1.5f);
 
-        cancelButton.SetActive(true);  // first close the button
+        cancelPanel.SetActive(true);  // first close the button
     }
 
     private void Update()
@@ -195,7 +195,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
-        cancelButton.SetActive(false);
+        cancelPanel.SetActive(false);
         roomNameText.enabled = true;
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 

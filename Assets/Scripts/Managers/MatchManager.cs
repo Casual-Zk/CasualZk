@@ -27,7 +27,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] public GameObject waitingPlayersCanvas;
     [SerializeField] TextMeshProUGUI playerCountText;
-    [SerializeField] GameObject leaveButton;
+    [SerializeField] GameObject leavePanel;
 
     [Header("Score")]
     [SerializeField] ScoreTable scorePrefab;
@@ -117,8 +117,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         timeText.text = dataManager.dv.matchTime.ToString();
         isWaitingForPlayers = true; // start waiting screen
 
-        leaveButton.SetActive(false);   // first close the button
-        StartCoroutine(ShowLeaveButton());  // show leave button after some time
+        leavePanel.SetActive(false);   // first close the button
+        StartCoroutine(ShowleavePanel());  // show leave button after some time
     }
 
     void OnDestroy()
@@ -127,11 +127,11 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
-    private IEnumerator ShowLeaveButton()
+    private IEnumerator ShowleavePanel()
     {
         yield return new WaitForSeconds(dataManager.dv.leaveWaitTime);
 
-        leaveButton.SetActive(true);  // first close the button
+        leavePanel.SetActive(true);  // first close the button
     }
 
     public void Btn_LeaveTheRoom()
