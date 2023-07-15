@@ -1194,6 +1194,7 @@ GameObject:
   - component: {fileID: 7579886797985926633}
   - component: {fileID: 6402071444290342228}
   - component: {fileID: -9081140728587231104}
+  - component: {fileID: -8838918199943040041}
   - component: {fileID: 2378634705686292995}
   - component: {fileID: 4060132138039746284}
   - component: {fileID: 309671243153638191}
@@ -1317,6 +1318,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 6402071444290342228}
   - {fileID: -9081140728587231104}
+  - {fileID: -8838918199943040041}
   - {fileID: 2378634705686292995}
   sceneViewId: 0
   InstantiationId: 0
@@ -1353,6 +1355,30 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 1
   m_TeleportIfDistanceGreaterThan: 3
+--- !u!114 &-8838918199943040041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3017248590167507448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 9
+    SynchronizeType: 0
+    Name: Knife_Attack
+  - Type: 4
+    SynchronizeType: 1
+    Name: Walking
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!114 &2378634705686292995
 MonoBehaviour:
   m_ObjectHideFlags: 0
