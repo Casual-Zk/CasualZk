@@ -253,6 +253,13 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		}
 	}
 
+    private void OnDestroy()
+    {
+		if (!photonView.IsMine) return;	// don't touch the cam if you are not the local client
+
+		shakeCam.m_AmplitudeGain = 0; // Stop cam to shake when you die
+	}
+
     private void FixedUpdate()
 	{
 		if (!isOwner) return;
@@ -360,7 +367,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// If target is not on the target list, then add it.
 			if (!enemyList.Contains(enemy)) enemyList.Add(enemy);
 
-			Debug.Log("Target in range!: " + collider.name); 
+			//Debug.Log("Target in range!: " + collider.name); 
 		}
     }
 
@@ -381,7 +388,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			// Turn off the target UI if the enemy is out of range
 			enemy.OnTarget(false);
 
-			Debug.Log("Target out of the range!: " + collider.name);
+			//Debug.Log("Target out of the range!: " + collider.name);
 		}
 	}
 

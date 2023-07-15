@@ -198,7 +198,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             Debug.Log("Local is the master");
             Debug.Log("Taking over the timer!");
-            timerCoroutine = StartCoroutine(Timer());
+            if (time != 0) timerCoroutine = StartCoroutine(Timer());
         }
     }
 
@@ -601,5 +601,31 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
 
+        //Debug.Log("Other player left: " + otherPlayer.NickName);
+
+        // If we are not waiting for others (game started or ended) don't remove the player
+        if (!isWaitingForPlayers) return;
+
+        for (int i = 0; i < scoreList.Count; i++)
+        {
+            //Debug.Log("Comparing: " + scoreList[i].playerName + " and " + otherPlayer.NickName);
+            if (scoreList[i].playerName == otherPlayer.NickName)
+            {
+                //Debug.Log("Found left player: " + scoreList[i].playerName);
+                scoreList.RemoveAt(i);
+
+                ScoreTable[] miniScores = miniScorePanel.GetComponentsInChildren<ScoreTable>();
+                foreach (ScoreTable score in miniScores)
+                {
+                    //Debug.Log("Got: " + score.playerName);
+                    if (score.playerName == otherPlayer.NickName)
+                        Destroy(score.gameObject);
+                }
+            }            
+        }
+    }
 }

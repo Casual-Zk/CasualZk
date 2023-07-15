@@ -1279,7 +1279,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   knifeHitCenter: {fileID: 2124260199610859243}
-  knifeHitRange: 0.3
+  knifeHitRange: 0.5
   controlUI: {fileID: 7024597989120046743}
   hitRangeUI: {fileID: 3698579230733635230}
   healthFillImage: {fileID: 570667467968049187}
