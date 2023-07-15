@@ -1374,7 +1374,7 @@ MonoBehaviour:
     SynchronizeType: 0
     Name: Knife_Attack
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Walking
   m_SynchronizeLayers:
   - SynchronizeType: 0

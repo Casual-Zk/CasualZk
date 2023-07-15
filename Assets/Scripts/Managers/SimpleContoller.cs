@@ -63,7 +63,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	// 4 - AWP
 	int[] magSizes = new int[5];
 	int[] magCounts = new int[5];
-	float[] reloadTime = new float[] { 0f, 3.2f, 1.5f, 4.8f, 3f};
+	float[] reloadTime = new float[] { 0f, 3f, 1.8f, 3.8f, 3f};
 	float reloadingCounter = -1;
     private Coroutine reloadCoroutine;
 	int activeWeaponIndex = 0;  // Always start with knife
