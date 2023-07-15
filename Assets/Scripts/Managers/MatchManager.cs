@@ -138,9 +138,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         isWaitingForPlayers = false;
         waitingPlayersCanvas.SetActive(false);
-        try { PhotonNetwork.LeaveRoom(); } catch { Debug.LogError("Cancel MM, Can't leave the room!"); }
-
-        OnLeftRoom();
+        try { PhotonNetwork.Disconnect(); } catch { Debug.LogError("Cancel MM, Can't disconnect!"); }
     }
     
     public override void OnLeftRoom()
@@ -178,7 +176,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         audioManager.Play("Fail_SFX");  // Play fail because we disconnected!
 
         // Leave the room and lobby
-        PhotonNetwork.LeaveLobby();
+        //PhotonNetwork.LeaveLobby();
 
         FindObjectOfType<RoomManager>().UpdateCounter();
 
@@ -308,8 +306,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         // Leave the room and lobby
         leftTheRoomNormally = true; // to avoid disconnected function
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.LeaveLobby();
+        PhotonNetwork.Disconnect();
 
         FindObjectOfType<RoomManager>().UpdateCounter();
     }
@@ -326,7 +323,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         eggImage.SetActive(false);
         endGameUI.SetActive(false);
-        FindObjectOfType<MenuManager>().StartMenu();
+        FindObjectOfType<MenuManager>().StartMenu(true);
 
         audioManager.Play("Game_Music");
     }

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 using Newtonsoft.Json;
+using Photon.Pun;
 
 public class MenuManager : MonoBehaviour, IPointerDownHandler
 {
@@ -18,6 +19,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     [SerializeField] DisplayMessage messageUI;
     [SerializeField] GameObject MenuCanvas;
     [SerializeField] GameObject ProfileCanvas;
+    [SerializeField] GameObject MainMenuLoadingCanvas;
     [SerializeField] Canvas loopingCanvas;
     [SerializeField] public GameObject findMatchButton;
     [SerializeField] TextMeshProUGUI loopingText;
@@ -78,9 +80,13 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
     private void Start()
     {
+        matchManager = FindObjectOfType<MatchManager>();
+        roomManager = FindObjectOfType<RoomManager>();
+        dm = FindObjectOfType<FirebaseDataManager>();
+
         versionText.text = "v" + Application.version;
 
-        StartMenu();
+        StartMenu(false);
         weekCounterInput.text = weekCounter.ToString();
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -207,12 +213,11 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         audioManager.Play("Click_SFX");
     }
 
-    public void StartMenu()
+    public void StartMenu(bool checkConnection)
     {
+        if (checkConnection) StartCoroutine(CheckNetworkConnectionOnDelay());
+
         MenuCanvas.SetActive(true);
-        matchManager = FindObjectOfType<MatchManager>();
-        roomManager = FindObjectOfType<RoomManager>();
-        dm = FindObjectOfType<FirebaseDataManager>();
 
         // if a new version is available, Display update UI
         if (dm.gameInfo != null && UpdateNeeded(dm.gameInfo.appVersion))
@@ -221,6 +226,21 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         // if the game is in maintanence, Display maintenance UI
         if (dm.gameInfo != null && dm.gameInfo.appPaused)
             FindObjectOfType<FirebaseAuthManager>().DisplayAppUpdateOrPauseUI(false);
+    }
+
+    IEnumerator CheckNetworkConnectionOnDelay()
+    {
+        Debug.Log("Checking network connection...");
+        MainMenuLoadingCanvas.SetActive(true);
+
+        yield return new WaitForSeconds(3f);
+        MainMenuLoadingCanvas.SetActive(false);
+
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.Log("Re-Connecting to server...");
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 
     private bool UpdateNeeded(string databaseVersion)
@@ -335,8 +355,10 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         else { messageUI.Display("Error: Set a username from profile!", 3f); }
     }
 
-    public void SetMenuCanvas(bool isActive)
+    public void SetMenuCanvas(bool isActive, bool checkConnection)
     {
+        if (checkConnection) StartCoroutine(CheckNetworkConnectionOnDelay());
+
         MenuCanvas.SetActive(isActive);
     }
 

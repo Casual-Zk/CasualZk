@@ -62,14 +62,14 @@ public class RoomManager : MonoBehaviourPunCallbacks
             // If we are not connected at the moment, try it once more
             StartCoroutine(TryAgainToFindMatch());
             FindObjectOfType<DisplayMessage>().Display("Not connected to server! Trying to re-connect in 3 seconds!", 3f);
-            menuManager.SetMenuCanvas(true);
+            menuManager.SetMenuCanvas(true, false);
             return;
         }
 
         Debug.Log("Opening the Finding Match transition scene!");
 
         // Starting to join a game
-        menuManager.SetMenuCanvas(false);
+        menuManager.SetMenuCanvas(false, false);
         connectingUI.SetActive(true);
         cancelPanel.SetActive(false);  // first close the button
         StartCoroutine(ShowcancelPanel()); // Open if after a while
@@ -93,15 +93,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public void Btn_CancelMatchMaking()
     {
-        menuManager.SetMenuCanvas(true);
+        try { PhotonNetwork.Disconnect(); } catch { Debug.LogError("Cancel MM, Can't disconnect!"); }
+
+        menuManager.SetMenuCanvas(true, true);
         connectingUI.SetActive(false);
         roomNameText.enabled = false;
-
-        try { PhotonNetwork.LeaveRoom(); } catch { Debug.LogError("Cancel MM, Can't leave the room!"); }
-        try { PhotonNetwork.LeaveLobby(); } catch { Debug.LogError("Cancel MM, Can't leave the lobby!"); }
-        
-        Debug.Log("Connecting to server from cancel MM...");
-        PhotonNetwork.ConnectUsingSettings();
     }
     private IEnumerator ShowcancelPanel()
     {
