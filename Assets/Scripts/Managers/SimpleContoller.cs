@@ -625,7 +625,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 				// If we go beyond the range, reset the index
 				if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0; 
 			}
-			while (dm.weaponBalance[activeWeaponIndex] <= 0);
+			while (dm.weaponBalance[activeWeaponIndex] <= 0 || !dm.isWeaponActive[activeWeaponIndex]);
 		}
 
 		// If a reloading couroutine was there

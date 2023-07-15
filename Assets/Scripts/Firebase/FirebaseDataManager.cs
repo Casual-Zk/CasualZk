@@ -31,6 +31,7 @@ public class FirebaseDataManager : MonoBehaviour
     public int[] weaponBalance = new int[5];    // On-Chain
     public int[] magSize = new int[5];          // On-Chain
     public int[] ammoBalance = new int[5];      // Off-chain, on DB
+    public bool[] isWeaponActive = new bool[5];   // Off-chain, on DB
 
     Dictionary<string, object>[] allTopUsers;
 
@@ -153,6 +154,13 @@ public class FirebaseDataManager : MonoBehaviour
         dvReg = firestore.Document("gameInfo/dynamicVariables").Listen(snaphot =>
         {
             dv = snaphot.ConvertTo<DynamicVariables>();
+
+            // Save active weapons
+            isWeaponActive[0] = dv.weaponActive_Knife;
+            isWeaponActive[1] = dv.weaponActive_Glock;
+            isWeaponActive[2] = dv.weaponActive_Shotgun;
+            isWeaponActive[3] = dv.weaponActive_M4;
+            isWeaponActive[4] = dv.weaponActive_AWP;
         });
     }
 
