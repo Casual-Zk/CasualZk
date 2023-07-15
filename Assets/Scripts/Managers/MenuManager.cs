@@ -41,6 +41,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     [SerializeField] GameObject usernameBackButton;
     [SerializeField] TextMeshProUGUI matchCountText;
     [SerializeField] TextMeshProUGUI winRateText;
+    [SerializeField] TextMeshProUGUI versionText;
 
     [Header("Inventory UI")]
     [SerializeField] GameObject[] weapons;
@@ -75,10 +76,10 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     AudioManager audioManager;
 
 
-
-
     private void Start()
     {
+        versionText.text = "v" + Application.version;
+
         StartMenu();
         weekCounterInput.text = weekCounter.ToString();
 

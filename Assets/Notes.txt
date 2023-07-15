@@ -1,0 +1,8 @@
+Default Game Objects
+
+Menu Manager: Menu canvas and Looping text canvas ON, others close
+
+Profile Canvas:
+ON: Background ?mage, profile photo, UI background, Info UI, Buttons, Menu button, Set Nickname UI
+OFF: Inventory UI, Lottery UI, Mascot
+
