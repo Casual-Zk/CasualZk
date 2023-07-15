@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine.Audio;
 using UnityEngine;
 
@@ -61,6 +62,44 @@ public class AudioManager : MonoBehaviour
         }
 
         s.source.Play();
+    }
+
+    public void PlayWithPosition(string name, Vector3 soundPos)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+
+        if (s == null)
+        {
+            Debug.LogError("Sound " + name + " was not found !!");
+            return;
+        }
+
+        // Create the sound object wih position
+        GameObject soundObject = new GameObject(name);
+        soundObject.transform.position = soundPos;
+
+        // Add auodio to it
+        AudioSource source = soundObject.AddComponent<AudioSource>();
+        source.clip = s.clip;
+        source.volume = s.volume;
+        source.pitch = s.pitch;
+        source.loop = s.loop;
+
+        // Set 3D attributes
+        source.minDistance = 0.1f;
+        source.maxDistance = 30f;
+        source.spatialBlend = 1f;
+        source.rolloffMode = AudioRolloffMode.Linear;
+        source.dopplerLevel = 0f;
+        source.Play();
+
+        StartCoroutine(DestroyOnDelay(soundObject));
+    }
+
+    IEnumerator DestroyOnDelay(GameObject obj)
+    {
+        yield return new WaitForSeconds(2f);
+        Destroy(obj);
     }
 
     public void Stop(string name)

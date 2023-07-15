@@ -68,7 +68,7 @@ public class Weapon : MonoBehaviourPunCallbacks
             controller.photonView.RPC("TriggerKnife", RpcTarget.All, dm.dv.weaponDamage_Knife, PhotonNetwork.NickName);
 
             // Play SFX
-            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Knife_Attack_SFX");
+            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Knife_Attack_SFX", transform.position);
         }
         else if (isShotgun)
         {
@@ -82,7 +82,7 @@ public class Weapon : MonoBehaviourPunCallbacks
             }
 
             // Play SFX
-            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Shotgun_SFX");
+            controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Shotgun_SFX", transform.position);
         }
         else
         {
@@ -98,8 +98,8 @@ public class Weapon : MonoBehaviourPunCallbacks
             else if (isAWP)
                 newBullet.GetComponent<Bullet>().damage = dm.dv.weaponDamage_AWP;
 
-            if (isAWP) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX");
-            else controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Short_Fire");
+            if (isAWP) controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Sniper_SFX", transform.position);
+            else controller.GetComponent<PhotonView>().RPC("PlayFireSFX", RpcTarget.All, "Short_Fire", transform.position);
         }
 
 

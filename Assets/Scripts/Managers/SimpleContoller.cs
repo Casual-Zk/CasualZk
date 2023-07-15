@@ -659,7 +659,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 		// if we have a empty mag but ammo in hand when we switch to this new weapon, then reload
 		if (magCounts[activeWeaponIndex] <= 0 && dm.ammoBalance[activeWeaponIndex] > 0)
 		{
-			reloadCoroutine = StartCoroutine(Reloading(activeWeaponIndex));
+			if (photonView.IsMine) reloadCoroutine = StartCoroutine(Reloading(activeWeaponIndex));
 		}
 
 		if (activeWeaponIndex == 0) ammoCounterText.text = "";  // clean knife counter
@@ -695,7 +695,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			enemyCollider.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 
 				damage, ownerName, enemyCollider.GetComponent<PhotonView>().Controller.NickName);
 
-			photonView.RPC("PlayFireSFX", RpcTarget.All, "Knife_Damage_SFX");
+			photonView.RPC("PlayFireSFX", RpcTarget.All, "Knife_Damage_SFX", transform.position);
 		}
 	}
 	private void OnDrawGizmos()
@@ -710,7 +710,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	}
 
 	[PunRPC]
-	public void PlayFireSFX(string soundName) { audioManager.Play(soundName); }
+	public void PlayFireSFX(string soundName, Vector3 soundPos) { audioManager.PlayWithPosition(soundName, soundPos); }
 	
 	[PunRPC]
 	public void StopFireSFX(string soundName) { audioManager.Stop(soundName); }

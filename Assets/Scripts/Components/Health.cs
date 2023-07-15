@@ -81,7 +81,7 @@ public class Health : MonoBehaviourPunCallbacks
         if (health <= 0)
         {
             deadAlready = true;
-            audioManager.Play("Chicken_Death");
+            audioManager.PlayWithPosition("Chicken_Death", transform.position);
 
             //Debug.Log("Killer: " + shooterName);
 
