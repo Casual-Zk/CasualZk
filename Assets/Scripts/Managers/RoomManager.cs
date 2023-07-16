@@ -114,15 +114,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
         // If connected and online counter has changed, update it
         if (PhotonNetwork.IsConnected && onlineCounter != PhotonNetwork.CountOfPlayers)
         {
-            onlineCounter = PhotonNetwork.CountOfPlayers;
-            menuManager.UpdateOnlineCounter(onlineCounter);
+            menuManager.UpdateOnlineCounter(PhotonNetwork.CountOfPlayers);
         }
     }
 
     public void UpdateCounter()
     {
-        onlineCounter = PhotonNetwork.CountOfPlayers;
-        menuManager.UpdateOnlineCounter(onlineCounter);
+        menuManager.UpdateOnlineCounter(PhotonNetwork.CountOfPlayers);
     }
     
     public override void OnConnectedToMaster()
@@ -130,8 +128,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         base.OnConnectedToMaster();
         Debug.Log("Connected to server");
 
-        onlineCounter = PhotonNetwork.CountOfPlayers;
-        menuManager.UpdateOnlineCounter(onlineCounter);
+        menuManager.UpdateOnlineCounter(PhotonNetwork.CountOfPlayers);
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)

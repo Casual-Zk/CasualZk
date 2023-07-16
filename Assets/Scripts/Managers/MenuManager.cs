@@ -364,6 +364,8 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
     public void UpdateOnlineCounter(int count)
     {
+        if (dm.gameInfo == null) return;
+
         //Debug.LogWarning("dm Seed: " + dm.gameInfo.onlineSeed);
         count = (int)(dm.gameInfo.onlineSeed * count);
         onlinePlayerCounter.text = "Online: " + count;

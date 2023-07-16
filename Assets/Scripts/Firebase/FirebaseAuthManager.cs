@@ -112,7 +112,13 @@ public class FirebaseAuthManager : MonoBehaviour
             bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
             if (!signedIn && user != null)
             {
+                messageUI.Display("Logged out! Please login again...", 3f);
                 Debug.Log("Signed out " + user.UserId);
+                MenuCanvas.SetActive(false);
+                authCanvas.SetActive(true);
+                loginUI.SetActive(true);
+                registerUI.SetActive(false);
+                connectingUI.SetActive(false);
             }
             user = auth.CurrentUser;
             if (signedIn)
@@ -510,8 +516,7 @@ public class FirebaseAuthManager : MonoBehaviour
         else
         {
             Debug.Log("Sent email verification!");
-            messageUI.Display("A verification email has been sent! Please log in again after verifying your email!", 8f);
-            StartCoroutine(LogoutOnDelay());
+            messageUI.Display("A verification email has been sent! Please log in again after verifying your email!", 10f);
         }
     }
     IEnumerator ResetPassword()
@@ -545,14 +550,6 @@ public class FirebaseAuthManager : MonoBehaviour
         }
     }
 
-    // For force-logout user if the verification is not complete
-    IEnumerator LogoutOnDelay()
-    {
-        yield return new WaitForSeconds(10);
-        auth.SignOut();
-        loginUI.SetActive(true);
-        loginWarningUI.SetActive(false);
-    }
     IEnumerator QuitAppOnDelay()
     {
         yield return new WaitForSeconds(10);

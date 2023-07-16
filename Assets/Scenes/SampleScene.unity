@@ -921,6 +921,7 @@ MonoBehaviour:
   weaponBalance: 0000000000000000000000000000000000000000
   magSize: 0000000000000000000000000000000000000000
   ammoBalance: 0000000000000000000000000000000000000000
+  isWeaponActive: 0000000000
 --- !u!114 &467067623 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5593602613581109513, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
@@ -970,7 +971,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -240}
-  m_SizeDelta: {x: 1350, y: 100}
+  m_SizeDelta: {x: 1350, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &472884536
 MonoBehaviour:
@@ -25888,7 +25889,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: If you stuck with in this screen, quit the game and go to <#FF0000>Photon
+  m_text: If it takes too long, <#FF0000>please try again. <#FFFFFF>If you stuck
+    with in this screen over and over again, quit the game and go to <#FF0000>Phone
     Settings > Apps > zkChickens > Storage<#FFFFFF> then clear the cache and app
     data. Try again.
   m_isRightToLeft: 0
