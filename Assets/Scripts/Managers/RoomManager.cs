@@ -18,6 +18,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] float playerRespawnTime;
     [SerializeField] CinemachineVirtualCamera player_v_cam;
     [SerializeField] GameObject cancelPanel;
+    [SerializeField] LayerMask playerLayer;
+    [SerializeField] float spXarea;
+    [SerializeField] float spYarea;
 
     int onlineCounter;
     bool waitingToTryAgain;
@@ -223,11 +226,45 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     private void SpawnPlayer()
     {
-        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        Collider2D[] enemies = null;
+        Transform sp = null;
+        float distance = 0f;
+
+        // Get random spawn point until you find somewhere empty
+        do
+        {
+            sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            //Debug.Log("SP:" + sp.gameObject.name);
+            enemies = Physics2D.OverlapBoxAll(sp.position, new Vector3(spXarea, spYarea, 0f), 0f, playerLayer);
+            if (enemies.Length > 0) 
+            {
+                // get the first one's distance
+                distance = Vector3.Distance(enemies[0].transform.position, sp.position);
+
+                // compare it others and find the nearst
+                foreach (Collider2D col in enemies)
+                {
+                    float curDist = Vector3.Distance(col.transform.position, sp.position);
+                    if (curDist < distance) { distance = curDist; }
+                }
+                //Debug.Log("Distance of the nearest enemy: " + distance);
+            }            
+        }
+        // if an enemy collider detected and their nearst one is in the sp, when pick another one
+        while (enemies.Length > 0 && distance < spXarea / 2);   
+
         GameObject _player = PhotonNetwork.Instantiate(player.name, sp.position, Quaternion.identity);
         _player.GetComponent<SimpleContoller>().isOwner = true;
         //_player.GetComponent<PlayerCamera>().enabled = true;
         player_v_cam.Follow = _player.transform;
         _player.GetComponent<PhotonView>().Controller.NickName = PlayerPrefs.GetString("Nickname");
+    }
+
+    private void OnDrawGizmos()
+    {
+        foreach (Transform sp in spawnPoints)
+        {
+            Gizmos.DrawWireCube(sp.position, new Vector3(spXarea, spYarea, 0f));
+        }
     }
 }

@@ -233,7 +233,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         Debug.Log("Checking network connection...");
         MainMenuLoadingCanvas.SetActive(true);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(4f);
         MainMenuLoadingCanvas.SetActive(false);
 
         if (!PhotonNetwork.IsConnected)
