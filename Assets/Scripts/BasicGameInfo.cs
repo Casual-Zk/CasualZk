@@ -10,6 +10,7 @@ public class BasicGameInfo
     [FirestoreProperty] public float onlineSeed { get; set; }
     [FirestoreProperty] public string appVersion { get; set; }
     [FirestoreProperty] public bool appPaused { get; set; }
+    [FirestoreProperty] public bool openFPS { get; set; }
     [FirestoreProperty] public int topUserRecordAmount { get; set; }
     [FirestoreProperty] public int recordUpdateTime { get; set; }
     [FirestoreProperty] public int snapDocLimit { get; set; }

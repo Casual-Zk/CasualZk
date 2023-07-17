@@ -84,6 +84,7 @@ public class FirebaseDataManager : MonoBehaviour
             //Debug.Log("Needed player amount : " + gameInfo.playerAmount);
 
             FindObjectOfType<RoomManager>().UpdateCounter();// Update counter at start
+            menuManager.OnGameInfoReceived();
 
             // Set all top users array because we now have current week value
             allTopUsers = new Dictionary<string, object>[gameInfo.topUserRecordAmount];
@@ -105,8 +106,7 @@ public class FirebaseDataManager : MonoBehaviour
                     //Debug.Log(user);
                     //Debug.Log(user["userID"]);
                     allTopUsers[gameInfo.topUserRecordAmount - 1] = document.ToDictionary();
-                    FindObjectOfType<MenuManager>().
-                    OnCurrentWeekTopUserUpdate(allTopUsers[gameInfo.topUserRecordAmount - 1]);
+                    menuManager.OnCurrentWeekTopUserUpdate(allTopUsers[gameInfo.topUserRecordAmount - 1]);
                     //Debug.Log("Got current week");
                     topUserRecordCounter++;
                 }

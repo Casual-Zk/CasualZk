@@ -67,6 +67,10 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     [SerializeField] float moveSpeed;
     [SerializeField] Slider musicVolSlider;
     [SerializeField] Slider SFXVolSlider;
+    [SerializeField] Toggle fpsToggle;
+    [SerializeField] GameObject fpsSettingContainer;
+    [SerializeField] GameObject fpsUI;
+    [SerializeField] TextMeshProUGUI fpsText;
     bool openStart;
     bool closeStart;
     bool settingsOpen;
@@ -76,6 +80,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     Vector3 localPos;       // same but for localPos as a whole
 
     AudioManager audioManager;
+    Coroutine fpsCoroutine = null;
 
 
     private void Start()
@@ -98,7 +103,6 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         {
             musicVolSlider.value = PlayerPrefs.GetFloat("MusicVol");
             SFXVolSlider.value = PlayerPrefs.GetFloat("SFXVol");
-
             audioManager.ApplyVolumeSettings();
         }
 
@@ -294,6 +298,17 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         // Records settings to the player prefs
         PlayerPrefs.SetFloat("MusicVol", musicVolSlider.value);
         PlayerPrefs.SetFloat("SFXVol", SFXVolSlider.value);
+        
+        if (fpsToggle.isOn)
+        {
+            PlayerPrefs.SetInt("OpenFPS", 1);
+            ApplyFPSSettings(true);
+        }
+        else
+        {
+            PlayerPrefs.SetInt("OpenFPS", 0);
+            ApplyFPSSettings(false);
+        }
 
         // Apply settings to the audio manager
         audioManager.ApplyVolumeSettings();
@@ -301,6 +316,38 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         // Close settings UI
         openStart = false;
         closeStart = true;
+    }
+
+    private void ApplyFPSSettings(bool isActive)
+    {
+        if (dm.gameInfo == null) return;
+
+        // If we allow the FPS settings, apply the preferences
+        if (dm.gameInfo.openFPS)
+        {
+            fpsUI.SetActive(isActive);
+            if (isActive) fpsCoroutine = StartCoroutine(FpsCoroutine());
+            else { StopCoroutine(fpsCoroutine); fpsCoroutine = null; }
+        }
+        
+        // If we turn off it, no matter what preferences is, close the FPS UI
+        else
+        {
+            fpsUI.SetActive(false);
+            
+            // Stop if there is coroutine
+            if (fpsCoroutine != null) { StopCoroutine(fpsCoroutine); fpsCoroutine = null; }
+        }
+    }
+
+    IEnumerator FpsCoroutine()
+    {
+        int fps = (int)(1f / Time.deltaTime);
+        fpsText.text = fps.ToString();
+        //Debug.Log("FPS: " + fps);
+
+        yield return new WaitForSeconds(1f);
+        fpsCoroutine = StartCoroutine(FpsCoroutine());
     }
 
     public void DisplayInfo()
@@ -369,6 +416,36 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         //Debug.LogWarning("dm Seed: " + dm.gameInfo.onlineSeed);
         count = (int)(dm.gameInfo.onlineSeed * count);
         onlinePlayerCounter.text = "Online: " + count;
+    }
+
+    public void OnGameInfoReceived()
+    {
+        // Show/Hide it from settings
+        fpsSettingContainer.SetActive(dm.gameInfo.openFPS);
+
+        // Show/Hide UI
+        fpsUI.SetActive(dm.gameInfo.openFPS);
+
+        if (dm.gameInfo.openFPS)
+        {
+            if (!PlayerPrefs.HasKey("OpenFPS")) return;
+
+            if (PlayerPrefs.GetInt("OpenFPS") == 1)
+            {
+                fpsToggle.isOn = true;
+                ApplyFPSSettings(true);
+            }
+            else
+            {
+                fpsToggle.isOn = false;
+                ApplyFPSSettings(false);
+            }
+        }
+        else
+        {
+            // Stop if there is coroutine
+            if (fpsCoroutine != null) { StopCoroutine(fpsCoroutine); fpsCoroutine = null; }            
+        }
     }
 
     // ------ PROFILE FUNCTIONS ------ //
