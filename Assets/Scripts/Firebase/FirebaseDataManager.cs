@@ -31,9 +31,10 @@ public class FirebaseDataManager : MonoBehaviour
     public int[] weaponBalance = new int[5];    // On-Chain
     public int[] magSize = new int[5];          // On-Chain
     public int[] ammoBalance = new int[5];      // Off-chain, on DB
-    public bool[] isWeaponActive = new bool[5];   // Off-chain, on DB
+    public bool[] isWeaponActive = new bool[5]; // Off-chain, on DB
 
     Dictionary<string, object>[] allTopUsers;
+    Dictionary<string, object>[] snapContainers;
 
     int topUserRecordCounter = 0;
     int weekRecordDiff = 0;
@@ -215,7 +216,7 @@ public class FirebaseDataManager : MonoBehaviour
         playerInfo.winCount++;
 
         await firestore.Document("users/" + auth.CurrentUser.UserId).SetAsync(playerInfo, 
-            SetOptions.MergeFields("eggs", "winCount"));
+            SetOptions.MergeFields("eggs", "winCount", "lastLogin"));
     }
 
     public void SetNickname(string nickname)
@@ -223,7 +224,7 @@ public class FirebaseDataManager : MonoBehaviour
         PlayerInfo playerInfo = new PlayerInfo { nickname = nickname };
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(playerInfo, SetOptions.MergeFields("nickname"));
+            SetAsync(playerInfo, SetOptions.MergeFields("nickname", "lastLogin"));
     }
 
     public void UpdateAmmoBalance()
@@ -235,7 +236,7 @@ public class FirebaseDataManager : MonoBehaviour
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge",
-            "matchCount"));
+            "matchCount", "lastLogin"));
     }
 
     // Queries
@@ -247,7 +248,7 @@ public class FirebaseDataManager : MonoBehaviour
         //Debug.Log("Updating this weeks topUsers - Week: " + eggsOfTheWeek);
 
         var updateQuerySnapshot = await updateQuery.GetSnapshotAsync();
-        PlayerInfo updatePlayer = new PlayerInfo();
+        PlayerInfo updatePlayer = new PlayerInfo(); // The player who made the recent update
 
         // If there is any time record for this weeks update, then check the time
         if (updateQuerySnapshot.Count > 0)
@@ -282,19 +283,56 @@ public class FirebaseDataManager : MonoBehaviour
         //Debug.Log("Total users of this week: " + usersQuerySnapshot.Count);
 
         int sumOfEggs = 0;
-        int index = 1;
+        int playerCounter = 0;
+        int snapDocIndex = 0;
         Dictionary<string, object> topUsers = new Dictionary<string, object>();
+
+        // Get the info of this user about how many snap this dude took
+        int crrSnaps = 0;
+        string crrWeek = gameInfo.currentWeek.ToString();
+
+        // If the user don't have the mapping in the first place, give it to him
+        if (playerInfo.snaps == null)
+        {
+            playerInfo.snaps = new Dictionary<string, object>(); 
+        }
+
+        // If the current week has snap count in it, get it.
+        if (playerInfo.snaps.ContainsKey(crrWeek))
+        {
+            int.TryParse(playerInfo.snaps[crrWeek].ToString(), out crrSnaps);
+        }
+        Debug.Log("Updater has taken this amount of snapshot for this week: " + crrSnaps);
+        
+        snapContainers = new Dictionary<string, object>[10000]; // Clear and create the containers
 
         // Iteraite through all of them and calculate total eggs and create a map of current values
         foreach (DocumentSnapshot userSnap in usersQuerySnapshot.Documents)
         {
             PlayerInfo weeklyPlayer = userSnap.ConvertTo<PlayerInfo>();
+            playerCounter++;
 
             sumOfEggs += int.Parse(JsonConvert.SerializeObject
                 (weeklyPlayer.eggs[gameInfo.currentWeek.ToString()]));
 
+            // ** Divide players info 2000 documents. Each doc contains 2000 players
+            // ** Each doc should contain the time of creation
+            snapDocIndex = Mathf.CeilToInt((float)playerCounter / gameInfo.snapDocLimit);
+            //Debug.Log("Player Counter: " + playerCounter);
+            //Debug.LogWarning("DocIndex:" + snapDocIndex);
+
+            // If the container empty, then put a doc in it and add the creation time along with it
+            if (snapContainers[snapDocIndex] == null)
+            {
+                snapContainers[snapDocIndex] = new Dictionary<string, object>();
+                snapContainers[snapDocIndex].Add("0creationTime", Timestamp.FromDateTime(DateTime.Now));
+            }
+
+            // Add the user to the doc
+            snapContainers[snapDocIndex].Add(userSnap.Id, weeklyPlayer);
+
             // Don't create topUser entry after desired amount, just continue to count eggs
-            if (index > dv.topUsers) { continue; }
+            if (playerCounter > dv.topUsers) { continue; }
 
             // Create top user map
             Dictionary<string, object> _user = new Dictionary<string, object>();
@@ -304,8 +342,7 @@ public class FirebaseDataManager : MonoBehaviour
             _user["walletAddress"] = weeklyPlayer.walletAddress;
             _user["userID"] = userSnap.Id;
 
-            topUsers.Add(index.ToString(), _user);   // Add users in order 1, 2, 3...
-            index++;
+            topUsers.Add(playerCounter.ToString(), _user);   // Add users in order 1, 2, 3...
         }
         //Debug.Log("Total Eggs of this week: " + sumOfEggs);
 
@@ -340,11 +377,31 @@ public class FirebaseDataManager : MonoBehaviour
         await firestore.Document(topUsersDocPath).SetAsync(topUsers);
         Debug.LogWarning("Updated top users on DB");
 
-        // Save the update time so that nobody can request update shortly
-        updatePlayer.weekInfoUpdateTime = Timestamp.FromDateTime(DateTime.Now);
+        int createdSnapCounter = 0;
 
-        // update only the week info update time field
+        // Add the snaps to DB
+        foreach (Dictionary<string, object> doc in snapContainers)
+        {
+            if (doc == null) continue; // skip the empty ones
+
+            createdSnapCounter++;
+
+            string docPath = "snapWeek_" + gameInfo.currentWeek.ToString() // Collection path
+            + "/" + auth.CurrentUser.UserId + "_" + (crrSnaps + createdSnapCounter);  // Add doc ID: userID_SnapCount
+            
+            await firestore.Document(docPath).SetAsync(doc);
+            Debug.LogWarning("Snap doc uploaded to the DB");
+        }
+
+        playerInfo.snaps[crrWeek] = crrSnaps + createdSnapCounter;   // Save the snap counts
+
+        // Save the update time so that nobody can request update shortly
+        playerInfo.weekInfoUpdateTime = Timestamp.FromDateTime(DateTime.Now);
+
+        // update snapshots count and the week info update time field
         await firestore.Document("users/" + auth.CurrentUser.UserId).
-            SetAsync(updatePlayer, SetOptions.MergeFields("weekInfoUpdateTime"));
+            SetAsync(playerInfo, SetOptions.MergeFields("weekInfoUpdateTime", "snaps", "lastLogin"));
+
+        snapContainers = null; // clear the containers
     }
 }

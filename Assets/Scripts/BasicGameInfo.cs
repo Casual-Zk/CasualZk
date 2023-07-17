@@ -12,4 +12,5 @@ public class BasicGameInfo
     [FirestoreProperty] public bool appPaused { get; set; }
     [FirestoreProperty] public int topUserRecordAmount { get; set; }
     [FirestoreProperty] public int recordUpdateTime { get; set; }
+    [FirestoreProperty] public int snapDocLimit { get; set; }
 }

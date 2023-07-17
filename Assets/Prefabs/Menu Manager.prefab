@@ -11478,7 +11478,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 38
-  m_CharacterLimit: 16
+  m_CharacterLimit: 15
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -16963,6 +16963,7 @@ MonoBehaviour:
   messageUI: {fileID: 0}
   MenuCanvas: {fileID: 3601124968633431086}
   ProfileCanvas: {fileID: 800796011}
+  MainMenuLoadingCanvas: {fileID: 0}
   loopingCanvas: {fileID: 2026890676}
   findMatchButton: {fileID: 3601124967704149943}
   loopingText: {fileID: 1977230120}
