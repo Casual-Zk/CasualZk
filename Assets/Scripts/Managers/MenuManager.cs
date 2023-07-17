@@ -89,6 +89,9 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         roomManager = FindObjectOfType<RoomManager>();
         dm = FindObjectOfType<FirebaseDataManager>();
 
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+
         versionText.text = "v" + Application.version;
 
         StartMenu(false);
@@ -327,7 +330,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         {
             fpsUI.SetActive(isActive);
             if (isActive) fpsCoroutine = StartCoroutine(FpsCoroutine());
-            else { StopCoroutine(fpsCoroutine); fpsCoroutine = null; }
+            else if (fpsCoroutine != null) { StopCoroutine(fpsCoroutine); fpsCoroutine = null; }
         }
         
         // If we turn off it, no matter what preferences is, close the FPS UI

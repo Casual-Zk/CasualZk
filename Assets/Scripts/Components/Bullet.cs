@@ -24,18 +24,18 @@ public class Bullet : MonoBehaviourPunCallbacks
         transform.position += transform.right * Time.deltaTime * speed;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
         // Avoid bullets hitting each other
-        if (collision.GetComponent<Bullet>()) return;
+        if (collider.GetComponent<Bullet>()) return;
         // don't hit player's target collider
-        if (collision.GetComponent<SimpleContoller>() && collision.isTrigger) return;
+        if (collider.GetComponent<SimpleContoller>() && collider.isTrigger) return;
 
         // Prevent double hit
         if (hit) return;
         hit = true;
 
-        GameObject obj = collision.gameObject;
+        GameObject obj = collider.gameObject;
 
         // If we are the owner and the hit object has a health component but not a owner(myself), hit that ass
         if (isOwner && obj.GetComponent<Health>())
@@ -43,10 +43,10 @@ public class Bullet : MonoBehaviourPunCallbacks
             string targetName = obj.GetComponent<PhotonView>().Controller.NickName;
             // Don't hit yourself
             if (!obj.GetComponent<SimpleContoller>().isOwner)
-                collision.gameObject.GetComponent<PhotonView>().RPC(
+                collider.gameObject.GetComponent<PhotonView>().RPC(
                     "TakeDamage", RpcTarget.All, damage, ownerName, targetName);
         }
-        
+
         Destroy(gameObject);
     }
 
