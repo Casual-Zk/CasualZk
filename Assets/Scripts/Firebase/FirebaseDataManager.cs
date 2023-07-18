@@ -221,10 +221,51 @@ public class FirebaseDataManager : MonoBehaviour
 
     public void SetNickname(string nickname)
     {
-        PlayerInfo playerInfo = new PlayerInfo { nickname = nickname };
+        playerInfo.nickname = nickname;
 
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("nickname", "lastLogin"));
+    }
+
+    public void SetRefCode(string refCode)
+    {
+        refCode = refCode.ToUpper();    // Make all chars upper case
+
+        ////// Check if the ref code is valid
+        if (gameInfo.refList.Contains(refCode))
+        {
+            WriteRefCode(refCode);
+        }
+
+        // If it is not in the general list, check the one-time list
+        else if (gameInfo.refListOne.Contains(refCode))
+        {
+            if (gameInfo.refListUsed.Contains(refCode))
+                messageUI.Display("This reference code has already been activated!", 3f);
+            else
+            {
+                // Then the player has one-time ref code and it is not used!
+                WriteRefCode(refCode);
+
+                // Then write it among the used ones
+                gameInfo.refListUsed.Add(refCode);
+
+                firestore.Document("gameInfo/basicInfo").
+                    SetAsync(gameInfo, SetOptions.MergeFields("refListUsed"));
+            }
+        }
+
+        // If it is not in any list, show error message
+        else
+            messageUI.Display("Invalid reference code! Check your code please...", 3f);
+    }
+
+    private void WriteRefCode(string refCode)
+    {
+        playerInfo.refCode = refCode;
+
+        firestore.Document("users/" + auth.CurrentUser.UserId).
+            SetAsync(playerInfo, SetOptions.MergeFields("refCode", "lastLogin"));
     }
 
     public void UpdateAmmoBalance()
@@ -337,7 +378,7 @@ public class FirebaseDataManager : MonoBehaviour
             // Create top user map
             Dictionary<string, object> _user = new Dictionary<string, object>();
             _user["eggs"] = weeklyPlayer.eggs[gameInfo.currentWeek.ToString()];
-            //user["matches"] = player.matches;
+            _user["matchCount"] = weeklyPlayer.matchCount;
             _user["nickname"] = weeklyPlayer.nickname;
             _user["walletAddress"] = weeklyPlayer.walletAddress;
             _user["userID"] = userSnap.Id;

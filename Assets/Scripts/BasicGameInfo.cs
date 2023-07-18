@@ -14,4 +14,9 @@ public class BasicGameInfo
     [FirestoreProperty] public int topUserRecordAmount { get; set; }
     [FirestoreProperty] public int recordUpdateTime { get; set; }
     [FirestoreProperty] public int snapDocLimit { get; set; }
+
+    // Ref lists
+    [FirestoreProperty] public List<string> refList { get; set; }
+    [FirestoreProperty] public List<string> refListOne { get; set; }
+    [FirestoreProperty] public List<string> refListUsed { get; set; }
 }

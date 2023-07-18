@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using Newtonsoft.Json;
 using Photon.Pun;
+using System.Text.RegularExpressions;
 
 public class MenuManager : MonoBehaviour, IPointerDownHandler
 {
@@ -31,16 +32,20 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     float scrollPos;
 
     [Header("Nickname")]
-    [SerializeField] TMP_InputField Nickname_Input;
-    [SerializeField] GameObject[] setNicknameUIs;
+    [SerializeField] TMP_InputField nicknameInput;
+    [SerializeField] TMP_InputField refCodeInput;
+    [SerializeField] GameObject setNicknameUI;
+    [SerializeField] GameObject setRefCodeUI;
     [SerializeField] TextMeshProUGUI[] nicknameTexts;
 
     [Header("Info UI")]
     [SerializeField] TextMeshProUGUI walletAdddressText;
+    [SerializeField] TextMeshProUGUI refCodeText;
     [SerializeField] TextMeshProUGUI tokenBalanceText;
     [SerializeField] TextMeshProUGUI[] eggBalanceTexts;
     [SerializeField] TextMeshProUGUI[] currentWeekTexts;
     [SerializeField] GameObject usernameBackButton;
+    [SerializeField] GameObject refCodeBackButton;
     [SerializeField] TextMeshProUGUI matchCountText;
     [SerializeField] TextMeshProUGUI winRateText;
     [SerializeField] TextMeshProUGUI versionText;
@@ -239,15 +244,29 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     {
         Debug.Log("Checking network connection...");
         MainMenuLoadingCanvas.SetActive(true);
+        
+        // First wait for disconection to avoid double CCU
+        while (PhotonNetwork.IsConnected) 
+        { 
+            Debug.Log("Waiting to disconnect!");
+            yield return new WaitForSeconds(1f);
+        }
 
-        yield return new WaitForSeconds(4f);
-        MainMenuLoadingCanvas.SetActive(false);
-
-        if (!PhotonNetwork.IsConnected)
+        // Then connect again
+        while (!PhotonNetwork.IsConnectedAndReady)
         {
+            if (!PhotonNetwork.IsConnected) Debug.LogWarning("Player is not connected!");
+            else Debug.LogWarning("Player is connected BUT NOT READY!");
+
             Debug.Log("Re-Connecting to server...");
             PhotonNetwork.ConnectUsingSettings();
+
+            yield return new WaitForSeconds(2f);
         }
+
+        // If player is connected and ready, then open the menu
+        Debug.Log("Now player is connected AND ready!");
+        MainMenuLoadingCanvas.SetActive(false);
     }
 
     private bool UpdateNeeded(string databaseVersion)
@@ -268,18 +287,46 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
     public void Btn_SetNickname()
     {
-        if (Nickname_Input.text == null || Nickname_Input.text == "")
-            messageUI.Display("Nickname can not be empty!", 2f);
+        string input = nicknameInput.text;
+        bool isEnglish = Regex.IsMatch(input, "^[a-zA-Z0-9. -_?]*$");
+
+        if (input == null || input == "")
+            messageUI.Display("Nickname can not be empty!", 3f);
+        else if (!isEnglish)
+            messageUI.Display("You can use only English characters and numbers!", 3f);
         else
-            FindObjectOfType<FirebaseDataManager>().SetNickname(Nickname_Input.text);
+            FindObjectOfType<FirebaseDataManager>().SetNickname(input);
     }
-    
+
+    public void Btn_SetRefCode()
+    {
+        string input = refCodeInput.text;
+        bool isEnglish = Regex.IsMatch(input, "^[a-zA-Z0-9. -_?]*$");
+
+        if (input == null || input == "")
+            messageUI.Display("Reference Code can not be empty!", 3f);
+        else if (!isEnglish)
+            messageUI.Display("Wrong Reference Code!", 3f);
+        else
+        {
+            FindObjectOfType<FirebaseDataManager>().SetRefCode(input);
+        }
+    }
+
     public void Btn_ShowBackButtonOnUsername()
     {
         if (PlayerPrefs.HasKey("Nickname"))
             usernameBackButton.SetActive(true);
         else 
             usernameBackButton.SetActive(false);
+    }
+
+    public void Btn_ShowBackButtonOnRefCode()
+    {
+        if (PlayerPrefs.HasKey("RefCode"))
+            refCodeBackButton.SetActive(true);
+        else
+            refCodeBackButton.SetActive(false);
     }
 
     public void Btn_Quit() { Application.Quit(); }
@@ -356,36 +403,64 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     public void DisplayInfo()
     {
         string nickname = dm.playerInfo.nickname;
+        string refCode = dm.playerInfo.refCode;
         string walletAddress = dm.playerInfo.walletAddress;
         int currentWeek = dm.gameInfo.currentWeek;
         var eggCount = dm.playerInfo.eggs[currentWeek.ToString()];
         float matches = dm.playerInfo.matchCount;
         float wins = dm.playerInfo.winCount;
 
-        if (nickname != null)
-        {
-            foreach (GameObject ui in setNicknameUIs) ui.SetActive(false);
-            foreach (TextMeshProUGUI text in nicknameTexts) text.text = nickname;
-            PlayerPrefs.SetString("Nickname", nickname);
-        }
-        else
-        {
-            foreach (GameObject ui in setNicknameUIs) ui.SetActive(true);
-            foreach (TextMeshProUGUI text in nicknameTexts) text.text = "";
-            MenuCanvas.SetActive(false);
-            ProfileCanvas.SetActive(true);
-            PlayerPrefs.DeleteKey("Nickname");
-        }
-
         walletAdddressText.text = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);
 
         foreach (TextMeshProUGUI text in currentWeekTexts) { text.text = currentWeek.ToString(); }
         foreach (TextMeshProUGUI text in eggBalanceTexts) { text.text = "x " + eggCount; }
 
-        if (matches <= 0) return;
-        float winRate = Mathf.Ceil(wins / matches * 100f);
-        matchCountText.text = matches.ToString();
-        winRateText.text = winRate.ToString() + "%";
+        if (matches > 0)
+        {
+            float winRate = Mathf.Ceil(wins / matches * 100f);
+            matchCountText.text = matches.ToString();
+            winRateText.text = winRate.ToString() + "%";
+        }
+
+        // First check the ref code first
+        if (refCode != null)
+        {
+            // Set the ref code on UI and save it to the PlayerPrefs
+            setRefCodeUI.SetActive(false);
+            refCodeText.text = refCode;
+            PlayerPrefs.SetString("RefCode", refCode);
+
+            // And now check if the nickname is available?
+            if (nickname != null)
+            {
+                // If it is available, then close the set UI write it on the UI and to the PlayerPrefs
+                setNicknameUI.SetActive(false);
+                foreach (TextMeshProUGUI text in nicknameTexts) text.text = nickname;
+                PlayerPrefs.SetString("Nickname", nickname);
+            }
+            // If it is not available, then open the set nickname UI
+            else
+            {
+                MenuCanvas.SetActive(false);
+                ProfileCanvas.SetActive(true);
+                setNicknameUI.SetActive(true);
+                foreach (TextMeshProUGUI text in nicknameTexts) text.text = "";
+                PlayerPrefs.DeleteKey("Nickname");
+            }
+        }
+        // If there is no ref code, then open the set UI
+        else
+        {
+            MenuCanvas.SetActive(false);
+            ProfileCanvas.SetActive(true);
+            setRefCodeUI.SetActive(true);
+            refCodeText.text = "";
+            PlayerPrefs.DeleteKey("RefCode");
+        }
+
+        // Show/Hide Back buttons
+        Btn_ShowBackButtonOnUsername();
+        Btn_ShowBackButtonOnRefCode();
     }
 
     public void FindMatchButton(){
@@ -557,6 +632,11 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
             string nickname = JsonConvert.SerializeObject(user["nickname"]).Trim('"');
             string eggs = JsonConvert.SerializeObject(user["eggs"]);
+
+            // Old records doesn't have match count
+            string matchCount = "-";
+            try { matchCount = JsonConvert.SerializeObject(user["matchCount"]); } catch { }
+
             string walletAddress = JsonConvert.SerializeObject(user["walletAddress"]).Trim('"');
             walletAddress = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);    // Shorten
 
@@ -564,7 +644,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
             //Debug.Log("eggs: " + eggs);
 
             TopUser newUser = Instantiate(topUserPrefab, topUsersPanel.transform);
-            newUser.AssignValues(i, walletAddress, nickname, "-", eggs);
+            newUser.AssignValues(i, walletAddress, nickname, matchCount, eggs);
             //newUser.AssignValues(pair.Key, user["walletAddress"], user["nickname"], user["matches"], user["eggs"]);
         }
         // adjust the week input to the current week

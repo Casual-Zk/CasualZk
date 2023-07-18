@@ -419,7 +419,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [PunRPC]
     public void AddPlayer(string playerNickname)
     {
-        Debug.LogError("New player: " + playerNickname);
+        Debug.Log("New player: " + playerNickname);
 
         ScoreTable newPlayer = Instantiate(miniScorePrefab, miniScorePanel.transform);
         newPlayer.playerName = playerNickname;
