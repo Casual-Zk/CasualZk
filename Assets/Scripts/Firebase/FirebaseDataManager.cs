@@ -9,6 +9,7 @@ using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Random = UnityEngine.Random;
 
 public class FirebaseDataManager : MonoBehaviour
 {
@@ -163,6 +164,25 @@ public class FirebaseDataManager : MonoBehaviour
             isWeaponActive[3] = dv.weaponActive_M4;
             isWeaponActive[4] = dv.weaponActive_AWP;
         });
+
+        #region Generating one-time ref codes OFF
+        /*
+        string allRef = "";
+        string newRef = "";
+        for (int i = 0; i < 100; i++)
+        {
+            newRef = "UMUT-" + Random.Range(1000, 10000);
+            gameInfo.refListOne.Add(newRef);
+
+            allRef += newRef + ";";
+        }
+
+        firestore.Document("gameInfo/basicInfo").
+            SetAsync(gameInfo, SetOptions.MergeFields("refListOne"));
+
+        Debug.Log("All Ref codes: " + allRef);
+        */
+        #endregion
     }
 
     private void OnDestroy()
@@ -240,20 +260,20 @@ public class FirebaseDataManager : MonoBehaviour
         // If it is not in the general list, check the one-time list
         else if (gameInfo.refListOne.Contains(refCode))
         {
-            if (gameInfo.refListUsed.Contains(refCode))
-                messageUI.Display("This reference code has already been activated!", 3f);
-            else
-            {
-                // Then the player has one-time ref code and it is not used!
-                WriteRefCode(refCode);
+            // Then the player has one-time ref code and it is not used!
+            WriteRefCode(refCode);
 
-                // Then write it among the used ones
-                gameInfo.refListUsed.Add(refCode);
+            // Move that ref code from the One list to Used list
+            gameInfo.refListOne.Remove(refCode);
+            gameInfo.refListUsed.Add(refCode);
 
-                firestore.Document("gameInfo/basicInfo").
-                    SetAsync(gameInfo, SetOptions.MergeFields("refListUsed"));
-            }
+            firestore.Document("gameInfo/basicInfo").
+                SetAsync(gameInfo, SetOptions.MergeFields("refListOne", "refListUsed"));
         }
+
+        // Check if it's used? If so, inform the player
+        else if (gameInfo.refListUsed.Contains(refCode))
+            messageUI.Display("This reference code has already been activated!", 3f);
 
         // If it is not in any list, show error message
         else
