@@ -67,6 +67,15 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     int weekRecordDiff = 0;
     Dictionary<string, object>[] allTopUsers;
 
+    [Header("Community UI")]
+    [SerializeField] TMP_InputField comWeekCounterInput;
+    [SerializeField] TextMeshProUGUI comPlayerCountText;
+    [SerializeField] TextMeshProUGUI comEggCountText;
+    [SerializeField] TextMeshProUGUI comPlayerEggText;
+    [SerializeField] GameObject comListPanel;
+    [SerializeField] ComPrefab comPrefab;
+    Dictionary<string, object>[] topComs;
+
     [Header("Settings UI")]
     [SerializeField] GameObject settingsUI;
     [SerializeField] float moveSpeed;
@@ -101,6 +110,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
         StartMenu(false);
         weekCounterInput.text = weekCounter.ToString();
+        comWeekCounterInput.text = weekCounter.ToString();
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
@@ -288,7 +298,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
     public void Btn_SetNickname()
     {
         string input = nicknameInput.text;
-        bool isEnglish = Regex.IsMatch(input, "^[a-zA-Z0-9. -_?]*$");
+        bool isEnglish = Regex.IsMatch(input, "^[a-zA-Z0-9. -_?=#(~)\\]]*$");
 
         if (input == null || input == "")
             messageUI.Display("Nickname can not be empty!", 3f);
@@ -306,11 +316,15 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         if (input == null || input == "")
             messageUI.Display("Reference Code can not be empty!", 3f);
         else if (!isEnglish)
-            messageUI.Display("Wrong Reference Code!", 3f);
+            messageUI.Display("Only English characters!", 3f);
         else
         {
             FindObjectOfType<FirebaseDataManager>().SetRefCode(input);
         }
+    }
+    public void Btn_SetBurnerGroup()
+    {
+        FindObjectOfType<FirebaseDataManager>().SetRefCode("Burner Group");
     }
 
     public void Btn_ShowBackButtonOnUsername()
@@ -327,6 +341,12 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
             refCodeBackButton.SetActive(true);
         else
             refCodeBackButton.SetActive(false);
+    }
+
+    public void Btn_RefreshNftBalance()
+    {
+        if (dm.playerInfo.walletAddress != null)
+            StartCoroutine(FindObjectOfType<ChainManager>().GetWeaponBalances(dm.playerInfo.walletAddress));
     }
 
     public void Btn_Quit() { Application.Quit(); }
@@ -560,6 +580,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
             weekCounter++;
             DisplayTopUsers(allTopUsers[weekCounter - weekRecordDiff], weekCounter);
+            DisplayComList(topComs[weekCounter - weekRecordDiff], weekCounter);
         }
         else
         {
@@ -567,6 +588,7 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
             weekCounter--;
             DisplayTopUsers(allTopUsers[weekCounter - weekRecordDiff], weekCounter);
+            DisplayComList(topComs[weekCounter - weekRecordDiff], weekCounter);
         }
     }
 
@@ -577,11 +599,14 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         this.allTopUsers = allTopUsers;
         /*
         Debug.Log("All top count: " + allTopUsers.Length);
-        for (int i = 0; i <= allTopUsers.Length; i++)
+        try
         {
-            Dictionary<string, object> _user = (Dictionary<string, object>)allTopUsers[i]["1"];
-            Debug.Log(_user["eggs"]);
-        }
+            for (int i = 0; i <= allTopUsers.Length; i++)
+            {
+                Dictionary<string, object> _user = (Dictionary<string, object>)allTopUsers[i]["1"];
+                Debug.Log(_user["eggs"]);
+            }
+        } catch { }
         */
     }
 
@@ -637,18 +662,81 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
             string matchCount = "-";
             try { matchCount = JsonConvert.SerializeObject(user["matchCount"]); } catch { }
 
-            string walletAddress = JsonConvert.SerializeObject(user["walletAddress"]).Trim('"');
-            walletAddress = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);    // Shorten
+            // Get community code if is available
+            string comCode = "-";
+            try { comCode = JsonConvert.SerializeObject(user["refCode"]).Trim('"'); } catch { }
+            
+            // OLD - string walletAddress = JsonConvert.SerializeObject(user["walletAddress"]).Trim('"');
+            // OLD - walletAddress = walletAddress.Substring(0, 6) + "...." + walletAddress.Substring(37, 4);    // Shorten
 
             //Debug.Log("nickname: " + nickname);
             //Debug.Log("eggs: " + eggs);
 
             TopUser newUser = Instantiate(topUserPrefab, topUsersPanel.transform);
-            newUser.AssignValues(i, walletAddress, nickname, matchCount, eggs);
+            newUser.AssignValues(i, comCode, nickname, matchCount, eggs);
             //newUser.AssignValues(pair.Key, user["walletAddress"], user["nickname"], user["matches"], user["eggs"]);
         }
         // adjust the week input to the current week
         weekCounter = weekNumber;
         weekCounterInput.text = weekNumber.ToString();
+    }
+
+    public void OnReturnAllTopComs(Dictionary<string, object>[] topComs)
+    {
+        this.topComs = new Dictionary<string, object>[topComs.Length];
+        this.topComs = topComs;
+    }
+
+    public void OnCurrentWeekTopComUpdate(Dictionary<string, object> comList)
+    {
+        if (topComs == null) topComs = new Dictionary<string, object>[dm.gameInfo.topUserRecordAmount];
+
+        topComs[dm.gameInfo.topUserRecordAmount - 1] = comList;
+        DisplayComList(comList, dm.gameInfo.currentWeek);
+
+        weekRecordDiff = (dm.gameInfo.currentWeek - dm.gameInfo.topUserRecordAmount) + 1;
+    }
+
+    private void DisplayComList(Dictionary<string, object> topComs, int weekNumber)
+    {
+        // Clear the panel first
+        ComPrefab[] currentTopList = comListPanel.GetComponentsInChildren<ComPrefab>();
+        foreach (ComPrefab listCom in currentTopList) { Destroy(listCom.gameObject); }
+
+        // Instantiate top users
+        for (int i = 0; i < topComs.Count; i++)
+        {
+            Dictionary<string, object> com = (Dictionary<string, object>)topComs[i.ToString()];
+
+            if (i == 0) // Which is the week's soft info (egg and player count)
+            {
+                try
+                {
+                    var eggCount = dm.playerInfo.eggs[weekNumber.ToString()];
+                    comPlayerEggText.text = "Your Eggs: " + eggCount;
+                }
+                catch { comPlayerEggText.text = "Your Eggs: 0"; }
+
+                comPlayerCountText.text = "Total Player Count: " + JsonConvert.SerializeObject(com["playerCount"]);
+                comEggCountText.text = "Total Egg Count: " + JsonConvert.SerializeObject(com["eggCount"]);
+
+                continue;
+            }
+
+            // Get community code if is available
+            string comCode = "-";
+            try { comCode = JsonConvert.SerializeObject(com["comCode"]).Trim('"'); } catch { }
+
+            // Get Score
+            string score = "-";
+            try { score = JsonConvert.SerializeObject(com["comScore"]); } catch { }
+
+            ComPrefab newCom = Instantiate(comPrefab, comListPanel.transform);
+            newCom.DisplayValues(i, comCode, score);
+        }
+
+        // adjust the week input to the current week
+        weekCounter = weekNumber;
+        comWeekCounterInput.text = weekNumber.ToString();
     }
 }

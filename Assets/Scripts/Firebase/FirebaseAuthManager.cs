@@ -23,6 +23,8 @@ public class FirebaseAuthManager : MonoBehaviour
     [SerializeField] GameObject appUpdateUI;
     [SerializeField] GameObject appPauseUI;
     [SerializeField] GameObject messageObject;
+    [SerializeField] GameObject testerLoginButton;
+    [SerializeField] GameObject onlineCounterObject;
     [SerializeField] TextMeshProUGUI messageText;
     [SerializeField] Button sendVerificationButton;
 
@@ -153,6 +155,10 @@ public class FirebaseAuthManager : MonoBehaviour
             gameInfo = snapshot.ConvertTo<BasicGameInfo>();
         }
         else { SnapFail(snapshot, SnapFailStatus.NotExist); return; }
+
+        // Show/Hide online counter and testerlogin
+        onlineCounterObject.SetActive(gameInfo.openOnlineCounter);
+        testerLoginButton.SetActive(gameInfo.openTesterLogin);
 
         Debug.Log("Current Week: " + gameInfo.currentWeek);
         FindObjectOfType<FirebaseDataManager>().gameInfo = gameInfo;    // Send game info to the dm

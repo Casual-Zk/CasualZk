@@ -1024,6 +1024,8 @@ MonoBehaviour:
   appUpdateUI: {fileID: 1434005005}
   appPauseUI: {fileID: 1500987511}
   messageObject: {fileID: 704324266}
+  testerLoginButton: {fileID: 3601124968589618957}
+  onlineCounterObject: {fileID: 3601124968589618956}
   messageText: {fileID: 268292213}
   sendVerificationButton: {fileID: 3601124968589618955}
   loginEmailInput: {fileID: 921912733}
@@ -1047,6 +1049,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   connectingUI: {fileID: 1413519619}
   messageUI: {fileID: 1663189199}
+  testerLoginButton: {fileID: 3601124968589618957}
+  onlineCounterObject: {fileID: 3601124968589618956}
   weaponBalance: 0000000000000000000000000000000000000000
   magSize: 0000000000000000000000000000000000000000
   ammoBalance: 0000000000000000000000000000000000000000
@@ -31286,6 +31290,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 451565028}
+    - target: {fileID: 1454149029219056667, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 451565029}
     - target: {fileID: 2016173256765324259, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -31459,6 +31467,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3601124968589618956 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8811888354262717519, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+  m_PrefabInstance: {fileID: 3601124968589618954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3601124968589618957 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1702295185, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+  m_PrefabInstance: {fileID: 3601124968589618954}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5593602613630825298
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31478,10 +31496,6 @@ PrefabInstance:
       propertyPath: leavePanel
       value: 
       objectReference: {fileID: 915897735}
-    - target: {fileID: 5593602613581109513, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
-      propertyPath: leaveButton
-      value: 
-      objectReference: {fileID: 1928426689}
     - target: {fileID: 5593602613581109513, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
       propertyPath: playerCountText
       value: 

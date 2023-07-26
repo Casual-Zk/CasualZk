@@ -35,6 +35,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] ScoreTable miniScorePrefab;
     [SerializeField] GameObject miniScorePanel;
     [SerializeField] GameObject eggImage;
+    [SerializeField] GameObject hazeImage;
     [SerializeField] GameObject doubleKillPrefab;
     [SerializeField] GameObject tripleKillPrefab;
 
@@ -291,6 +292,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             audioManager.Play("Win_SFX");
             eggImage.SetActive(true);
+            hazeImage.SetActive(true);
             dataManager.GiveEgg();
         }
         else audioManager.Play("Fail_SFX");
@@ -322,6 +324,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
         eggImage.SetActive(false);
+        hazeImage.SetActive(false);
         endGameUI.SetActive(false);
         FindObjectOfType<MenuManager>().StartMenu(true);
 

@@ -10,11 +10,14 @@ using Firebase.Extensions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Random = UnityEngine.Random;
+using System.Linq;
 
 public class FirebaseDataManager : MonoBehaviour
 {
     [SerializeField] Canvas connectingUI;
     [SerializeField] DisplayMessage messageUI;
+    [SerializeField] GameObject testerLoginButton;
+    [SerializeField] GameObject onlineCounterObject;
 
     public PlayerInfo playerInfo { get; set; }
     public BasicGameInfo gameInfo { get; set; }
@@ -35,11 +38,13 @@ public class FirebaseDataManager : MonoBehaviour
     public bool[] isWeaponActive = new bool[5]; // Off-chain, on DB
 
     Dictionary<string, object>[] allTopUsers;
+    Dictionary<string, object>[] topComs;
     Dictionary<string, object>[] snapContainers;
 
     int topUserRecordCounter = 0;
     int weekRecordDiff = 0;
     bool firstOfThisWeek = false;
+    List<string> comCodesUpper = new List<string>();
 
     private void Awake()
     {
@@ -87,70 +92,14 @@ public class FirebaseDataManager : MonoBehaviour
             FindObjectOfType<RoomManager>().UpdateCounter();// Update counter at start
             menuManager.OnGameInfoReceived();
 
-            // Set all top users array because we now have current week value
-            allTopUsers = new Dictionary<string, object>[gameInfo.topUserRecordAmount];
+            // Show/Hide online counter and testerlogin
+            onlineCounterObject.SetActive(gameInfo.openOnlineCounter);
+            testerLoginButton.SetActive(gameInfo.openTesterLogin);
 
-            // Set the difference to adjust indexing right
-            weekRecordDiff = (gameInfo.currentWeek - gameInfo.topUserRecordAmount) + 1;
+            // Create a full uppercase version of community codes to compare
+            foreach (string comCode in gameInfo.refList) { comCodesUpper.Add(comCode.ToUpper()); }
 
-            // Get top users
-            string topUsersDocPath = "gameInfo/topUsers_" + gameInfo.currentWeek;
-
-            // Get top user documents
-            firestore.Document(topUsersDocPath).GetSnapshotAsync().ContinueWithOnMainThread(task =>
-            {
-                DocumentSnapshot document = task.Result;
-
-                if (document.Exists)
-                {
-                    //Dictionary<string, object> user = (Dictionary<string, object>)topUsers["1"];
-                    //Debug.Log(user);
-                    //Debug.Log(user["userID"]);
-                    allTopUsers[gameInfo.topUserRecordAmount - 1] = document.ToDictionary();
-                    menuManager.OnCurrentWeekTopUserUpdate(allTopUsers[gameInfo.topUserRecordAmount - 1]);
-                    //Debug.Log("Got current week");
-                    topUserRecordCounter++;
-                }
-                else
-                {
-                    firstOfThisWeek = true;
-                    UpdateTopUsers();  // If there is no topUsers doc, then create one
-                }
-                
-                // Then get previous weeks' top users as well
-                for (int i = gameInfo.currentWeek - 1; i > gameInfo.currentWeek - gameInfo.topUserRecordAmount; i--)
-                {
-                    //Debug.Log("Path: " + "gameInfo/topUsers_" + i.ToString());
-
-                    firestore.Document("gameInfo/topUsers_" + i.ToString()).GetSnapshotAsync().ContinueWithOnMainThread(task =>
-                    {
-                        DocumentSnapshot document = task.Result;
-
-                        // We get the index from the document, not from the for loop
-                        // because while we are waiting to data to come, for loop completes and i goes far below
-                        string docID = document.Id.ToString();
-                        char last = docID[docID.Length - 1];
-                        int index = int.Parse(last.ToString());
-
-                        if (document.Exists)
-                        {
-                            Debug.Log("***** " + index + " *****");
-                            Dictionary<string, object> prevTopUsers = document.ToDictionary();
-
-                            // index (week number) - diff gives the accurate index in the array
-                            allTopUsers[index - weekRecordDiff] = prevTopUsers; 
-                            topUserRecordCounter++;
-
-                            if (topUserRecordCounter == gameInfo.topUserRecordAmount)
-                            {
-                                menuManager.OnReturnAllTopUsers(allTopUsers);
-                            }
-                        }
-                        else
-                            Debug.LogError("Top user info for week " + i + " doesn not exist!!");
-                    });
-                }                
-            });
+            GetTopUsers();
         });
 
         dvReg = firestore.Document("gameInfo/dynamicVariables").Listen(snaphot =>
@@ -164,25 +113,6 @@ public class FirebaseDataManager : MonoBehaviour
             isWeaponActive[3] = dv.weaponActive_M4;
             isWeaponActive[4] = dv.weaponActive_AWP;
         });
-
-        #region Generating one-time ref codes OFF
-        /*
-        string allRef = "";
-        string newRef = "";
-        for (int i = 0; i < 100; i++)
-        {
-            newRef = "UMUT-" + Random.Range(1000, 10000);
-            gameInfo.refListOne.Add(newRef);
-
-            allRef += newRef + ";";
-        }
-
-        firestore.Document("gameInfo/basicInfo").
-            SetAsync(gameInfo, SetOptions.MergeFields("refListOne"));
-
-        Debug.Log("All Ref codes: " + allRef);
-        */
-        #endregion
     }
 
     private void OnDestroy()
@@ -219,6 +149,7 @@ public class FirebaseDataManager : MonoBehaviour
         magSize[4] = 1;    // AWP
 
         connectingUI.enabled = false;
+        menuManager.DisplayInventory();
     }
 
     public void GiveEgg() { _ = IncrementEggForWeek(); }
@@ -249,32 +180,15 @@ public class FirebaseDataManager : MonoBehaviour
 
     public void SetRefCode(string refCode)
     {
-        refCode = refCode.ToUpper();    // Make all chars upper case
+        refCode = refCode.ToUpper();    // Make all chars upper case to compare
 
         ////// Check if the ref code is valid
-        if (gameInfo.refList.Contains(refCode))
+        if (comCodesUpper.Contains(refCode))
         {
-            WriteRefCode(refCode);
+            // Get the index of matched come code
+            // Get the original come code from gameInfo in that index and write it to DB
+            WriteRefCode(gameInfo.refList[comCodesUpper.IndexOf(refCode)]);
         }
-
-        // If it is not in the general list, check the one-time list
-        else if (gameInfo.refListOne.Contains(refCode))
-        {
-            // Then the player has one-time ref code and it is not used!
-            WriteRefCode(refCode);
-
-            // Move that ref code from the One list to Used list
-            gameInfo.refListOne.Remove(refCode);
-            gameInfo.refListUsed.Add(refCode);
-
-            firestore.Document("gameInfo/basicInfo").
-                SetAsync(gameInfo, SetOptions.MergeFields("refListOne", "refListUsed"));
-        }
-
-        // Check if it's used? If so, inform the player
-        else if (gameInfo.refListUsed.Contains(refCode))
-            messageUI.Display("This reference code has already been activated!", 3f);
-
         // If it is not in any list, show error message
         else
             messageUI.Display("Invalid reference code! Check your code please...", 3f);
@@ -303,7 +217,9 @@ public class FirebaseDataManager : MonoBehaviour
     // Queries
     public async void UpdateTopUsers()
     {
-        // Get the most recent update from users
+        //####                                         ####\\
+        //####  Get the most recent update from users  ####\\
+        //####                                         ####\\
         Query updateQuery = firestore.Collection("users").OrderByDescending("weekInfoUpdateTime").Limit(1);
 
         //Debug.Log("Updating this weeks topUsers - Week: " + eggsOfTheWeek);
@@ -330,7 +246,9 @@ public class FirebaseDataManager : MonoBehaviour
             }
         }
 
-        ///// If not updated, then get all the users of this week to update    /////
+        //####                                                                 ####\\
+        //####  If not updated, then get all the users of this week to update  ####\\
+        //####                                                                 ####\\
 
         // Get current week's users
         string eggsOfTheWeek = "eggs." + gameInfo.currentWeek;
@@ -343,10 +261,24 @@ public class FirebaseDataManager : MonoBehaviour
         var usersQuerySnapshot = await usersQuery.GetSnapshotAsync();
         //Debug.Log("Total users of this week: " + usersQuerySnapshot.Count);
 
+        //####                                                                 ####\\
+        //####  Now we got all users of this week! Create variable to fill DB  ####\\
+        //####                                                                 ####\\
+
         int sumOfEggs = 0;
+        int tempEgg = 0;
         int playerCounter = 0;
         int snapDocIndex = 0;
+        // List of top users
         Dictionary<string, object> topUsers = new Dictionary<string, object>();
+
+        // List of all communities
+        List<Community> coms = new List<Community>();
+        // Fill all the communities in our records
+        foreach (string comCode in gameInfo.refList) { 
+            coms.Add(new Community() { ComCode = comCode, ComScore = 0 }); 
+        }
+        
 
         // Get the info of this user about how many snap this dude took
         int crrSnaps = 0;
@@ -367,14 +299,37 @@ public class FirebaseDataManager : MonoBehaviour
         
         snapContainers = new Dictionary<string, object>[10000]; // Clear and create the containers
 
+        //####                                                        ####\\
+        //####  Now go through all users count eggs, top users, etc.  ####\\
+        //####                                                        ####\\
+
         // Iteraite through all of them and calculate total eggs and create a map of current values
         foreach (DocumentSnapshot userSnap in usersQuerySnapshot.Documents)
         {
             PlayerInfo weeklyPlayer = userSnap.ConvertTo<PlayerInfo>();
             playerCounter++;
 
-            sumOfEggs += int.Parse(JsonConvert.SerializeObject
+            //###  Count Total Eggs  ###\\
+
+            tempEgg = int.Parse(JsonConvert.SerializeObject
                 (weeklyPlayer.eggs[gameInfo.currentWeek.ToString()]));
+
+            sumOfEggs += tempEgg;   // add to total
+
+
+            //###  Add eggs to community as score  ###\\
+            if (gameInfo.refList.Contains(weeklyPlayer.refCode))
+            {
+                // Get the community from the list
+                Community communityToUpdate = 
+                    coms.FirstOrDefault(com => com.ComCode == weeklyPlayer.refCode);
+
+                // Increase the score as much as the egg number of the member
+                communityToUpdate.ComScore += tempEgg;
+            }
+
+
+            //###  Get snapshot of all players  ###\\
 
             // ** Divide players info 2000 documents. Each doc contains 2000 players
             // ** Each doc should contain the time of creation
@@ -392,7 +347,12 @@ public class FirebaseDataManager : MonoBehaviour
             // Add the user to the doc
             snapContainers[snapDocIndex].Add(userSnap.Id, weeklyPlayer);
 
+
+
+            //###  Get Top Users  ###\\
+
             // Don't create topUser entry after desired amount, just continue to count eggs
+            // Since we got users starting with the most eggs, we can easily get the top from here
             if (playerCounter > dv.topUsers) { continue; }
 
             // Create top user map
@@ -401,6 +361,7 @@ public class FirebaseDataManager : MonoBehaviour
             _user["matchCount"] = weeklyPlayer.matchCount;
             _user["nickname"] = weeklyPlayer.nickname;
             _user["walletAddress"] = weeklyPlayer.walletAddress;
+            _user["refCode"] = weeklyPlayer.refCode;
             _user["userID"] = userSnap.Id;
 
             topUsers.Add(playerCounter.ToString(), _user);   // Add users in order 1, 2, 3...
@@ -409,6 +370,7 @@ public class FirebaseDataManager : MonoBehaviour
 
         // Add week info to the map
         Dictionary<string, object> softWeekInfo = new Dictionary<string, object>(){
+            { "0creationTime", Timestamp.FromDateTime(DateTime.Now) },
             { "eggCount", sumOfEggs },
             { "playerCount", usersQuerySnapshot.Count }
         };
@@ -419,24 +381,60 @@ public class FirebaseDataManager : MonoBehaviour
         // Display updated info
         menuManager.OnCurrentWeekTopUserUpdate(topUsers);
 
+        // Turn the coms list to an db dictionary
+        Dictionary<string, object> comScoreList = new Dictionary<string, object>(); // Create the dict.
+        coms.Sort();    // Sort the list first
+        int orderIndex = 1;
+        for (int i = coms.Count - 1; i >= 0; i--)   // It was sorted reverse!
+        {
+            // Create com sub dict
+            Dictionary<string, object> newCom = new Dictionary<string, object>();
+            newCom["comCode"] = coms[i].ComCode;
+            newCom["comScore"] = coms[i].ComScore;
+
+            // Add all of them to the dictionary
+            comScoreList.Add(orderIndex.ToString(), newCom);
+
+            orderIndex++;
+        }
+        comScoreList.Add("0", softWeekInfo);    // Add the info about the list to top
+
+        // Display updated info
+        menuManager.OnCurrentWeekTopComUpdate(comScoreList);
+
         if (firstOfThisWeek)
         {
             allTopUsers[gameInfo.topUserRecordAmount - 1] = topUsers;
-            FindObjectOfType<MenuManager>().OnCurrentWeekTopUserUpdate(topUsers);
-            topUserRecordCounter++;
-            
-            Debug.Log("First of this week (update) executed");
+            topComs[gameInfo.topUserRecordAmount - 1] = comScoreList;
 
-            if (topUserRecordCounter == gameInfo.topUserRecordAmount)
-            {
-                menuManager.OnReturnAllTopUsers(allTopUsers);
-            }
+            menuManager.OnReturnAllTopUsers(allTopUsers);
+            menuManager.OnReturnAllTopComs(topComs);
         }
 
-        // Add the map with all updated values as document into DB as topUsers of the week
-        string topUsersDocPath = "gameInfo/topUsers_" + gameInfo.currentWeek.ToString();
+        //####                                ####\\
+        //####  Now write all of these to DB  ####\\
+        //####                                ####\\
+
+        //###  Write Communities ###\\
+
+        string comListPath = "comListWeek_" + crrWeek
+            + "/" + auth.CurrentUser.UserId + "_" + crrSnaps;
+
+        await firestore.Document(comListPath).SetAsync(comScoreList);
+        Debug.LogWarning("Updated communities on DB");
+
+
+        //###  Write Top Users ###\\
+
+        // Add the map with all updated values as document into DB under top week / User ID
+        string topUsersDocPath = "topWeek_" + crrWeek 
+            + "/" + auth.CurrentUser.UserId + "_" + crrSnaps;
+
         await firestore.Document(topUsersDocPath).SetAsync(topUsers);
         Debug.LogWarning("Updated top users on DB");
+
+
+        //###  Write Snaps ###\\
 
         int createdSnapCounter = 0;
 
@@ -456,6 +454,9 @@ public class FirebaseDataManager : MonoBehaviour
 
         playerInfo.snaps[crrWeek] = crrSnaps + createdSnapCounter;   // Save the snap counts
 
+
+        //###  Save Updater Data ###\\
+
         // Save the update time so that nobody can request update shortly
         playerInfo.weekInfoUpdateTime = Timestamp.FromDateTime(DateTime.Now);
 
@@ -464,5 +465,78 @@ public class FirebaseDataManager : MonoBehaviour
             SetAsync(playerInfo, SetOptions.MergeFields("weekInfoUpdateTime", "snaps", "lastLogin"));
 
         snapContainers = null; // clear the containers
+    }
+
+    private async void GetTopUsers()
+    {
+        // Set all top users array because we now have current week value
+        allTopUsers = new Dictionary<string, object>[gameInfo.topUserRecordAmount];
+        topComs = new Dictionary<string, object>[gameInfo.topUserRecordAmount];
+
+        // Get top users
+        int topRecordCount = 0;
+        do
+        {
+            // Path
+            string path = "topWeek_" + (gameInfo.currentWeek - topRecordCount);
+
+            // Get the most recent update
+            Query updateQuery = firestore.Collection(path).OrderByDescending("0.0creationTime").Limit(1);
+
+            var updateQuerySnapshot = await updateQuery.GetSnapshotAsync();
+
+            // If there is no such collection, then we don't have this week's data. Update and write it
+            if (updateQuerySnapshot.Count == 0)
+            {
+                Debug.Log("NO DATA !! Updating top users for this week");
+                firstOfThisWeek = true;
+                UpdateTopUsers();  // If there is no topUsers doc, then create one
+            }
+            else // Which means we have the data, write it down to the week's spot
+            {
+                DocumentSnapshot doc = updateQuerySnapshot[0];
+                int index = gameInfo.topUserRecordAmount - (topRecordCount + 1);
+                allTopUsers[index] = doc.ToDictionary();
+
+                // Sent the all top users to menu manager
+                menuManager.OnReturnAllTopUsers(allTopUsers);
+
+                // If this one is the current week, send it to the current week update to display
+                if (topRecordCount == 0) menuManager.OnCurrentWeekTopUserUpdate(doc.ToDictionary());
+            }
+
+            topRecordCount++;
+        }
+        while (topRecordCount < gameInfo.topUserRecordAmount);
+
+        // Get top Communities as well, same process
+        topRecordCount = 0;
+        do
+        {
+            // Path
+            string path = "comListWeek_" + (gameInfo.currentWeek - topRecordCount);
+
+            // Get the most recent update
+            Query updateQuery = firestore.Collection(path).OrderByDescending("0.0creationTime").Limit(1);
+
+            var updateQuerySnapshot = await updateQuery.GetSnapshotAsync();
+
+            // If there is no such collection, then we don't have this week's data. Update and write it
+            if (updateQuerySnapshot.Count > 0)
+            {
+                DocumentSnapshot doc = updateQuerySnapshot[0];
+                int index = gameInfo.topUserRecordAmount - (topRecordCount + 1);
+                topComs[index] = doc.ToDictionary();
+
+                // Sent the all top users to menu manager
+                menuManager.OnReturnAllTopComs(topComs);
+
+                // If this one is the current week, send it to the current week update to display
+                if (topRecordCount == 0) menuManager.OnCurrentWeekTopComUpdate(doc.ToDictionary());
+            }
+
+            topRecordCount++;
+        }
+        while (topRecordCount < gameInfo.topUserRecordAmount);
     }
 }
