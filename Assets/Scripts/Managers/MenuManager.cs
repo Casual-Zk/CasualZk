@@ -69,9 +69,11 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
 
     [Header("Community UI")]
     [SerializeField] TMP_InputField comWeekCounterInput;
-    [SerializeField] TextMeshProUGUI comPlayerCountText;
-    [SerializeField] TextMeshProUGUI comEggCountText;
-    [SerializeField] TextMeshProUGUI comPlayerEggText;
+    [SerializeField] TextMeshProUGUI playerComText;
+    [SerializeField] TextMeshProUGUI playerComScoreText;
+    [SerializeField] TextMeshProUGUI totalComsText;
+    [SerializeField] TextMeshProUGUI totalComScoreText;
+    [SerializeField] TextMeshProUGUI comShareText;
     [SerializeField] GameObject comListPanel;
     [SerializeField] ComPrefab comPrefab;
     Dictionary<string, object>[] topComs;
@@ -703,36 +705,59 @@ public class MenuManager : MonoBehaviour, IPointerDownHandler
         ComPrefab[] currentTopList = comListPanel.GetComponentsInChildren<ComPrefab>();
         foreach (ComPrefab listCom in currentTopList) { Destroy(listCom.gameObject); }
 
+        float totalComScore = 0;
+        float playerComScore = 0;
+
         // Instantiate top users
         for (int i = 0; i < topComs.Count; i++)
         {
             Dictionary<string, object> com = (Dictionary<string, object>)topComs[i.ToString()];
+            
+            bool playerComIndex = false;    // To obtain the score for player's community
 
-            if (i == 0) // Which is the week's soft info (egg and player count)
+            if (i == 0) // Which is the week's soft info we
             {
-                try
-                {
-                    var eggCount = dm.playerInfo.eggs[weekNumber.ToString()];
-                    comPlayerEggText.text = "Your Eggs: " + eggCount;
-                }
-                catch { comPlayerEggText.text = "Your Eggs: 0"; }
+                string totalScore = JsonConvert.SerializeObject(com["eggCount"]);
 
-                comPlayerCountText.text = "Total Player Count: " + JsonConvert.SerializeObject(com["playerCount"]);
-                comEggCountText.text = "Total Egg Count: " + JsonConvert.SerializeObject(com["eggCount"]);
+                float.TryParse(totalScore, out totalComScore);    // Convert and keep it as int
+                totalComScoreText.text = "Total Score: " + totalScore;
 
-                continue;
+                continue;   // skip the codes below for index 0
             }
 
-            // Get community code if is available
+            // Create coms for listing
             string comCode = "-";
-            try { comCode = JsonConvert.SerializeObject(com["comCode"]).Trim('"'); } catch { }
+            try 
+            { 
+                comCode = JsonConvert.SerializeObject(com["comCode"]).Trim('"'); 
+
+                if (comCode.Contains(dm.playerInfo.refCode)) { playerComIndex = true; }
+            } catch { }
 
             // Get Score
             string score = "-";
             try { score = JsonConvert.SerializeObject(com["comScore"]); } catch { }
 
+            if (playerComIndex) 
+            {
+                float.TryParse(score, out playerComScore);// Convert and keep it as int
+                playerComScoreText.text = "Score: " + score; 
+            }
+
             ComPrefab newCom = Instantiate(comPrefab, comListPanel.transform);
             newCom.DisplayValues(i, comCode, score);
+        }
+
+        playerComText.text = "Community: " + dm.playerInfo.refCode.Trim('"');
+        totalComsText.text = "Total Communities: " + (topComs.Count - 1);
+
+        Debug.Log("Player com score: " + playerComScore);
+        Debug.Log("Total com score: " + totalComScore);
+
+        if (totalComScore > 0)
+        {
+            float share = playerComScore / totalComScore * 100f;
+            comShareText.text = "Your Share: " + share.ToString("F2") + "%";
         }
 
         // adjust the week input to the current week

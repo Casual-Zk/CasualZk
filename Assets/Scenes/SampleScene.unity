@@ -31302,6 +31302,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2151390590662972448, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
+      propertyPath: m_CharacterLimit
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 3199451898518653218, guid: 38aca1e3c6da6b9438314795fc8277da, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -31484,6 +31488,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2052068604, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -36
+      objectReference: {fileID: 0}
+    - target: {fileID: 3965333388798871231, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5593602612962367309, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5593602613581109512, guid: 87b77f2507da87e42b6b3b80dd694354, type: 3}
       propertyPath: m_Name
       value: Match Manager
