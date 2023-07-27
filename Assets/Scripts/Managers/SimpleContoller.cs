@@ -510,7 +510,7 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 
 	public void Btn_SwitchWeapon()
 	{
-		photonView.RPC("SwitchWeapon", RpcTarget.All, true);
+		photonView.RPC("SwitchWeapon", RpcTarget.All, dm.weaponBalance);
 	}
 	public void Btn_Jump() { jump = true; }
 	private void StopReloadSound(int index)
@@ -608,25 +608,30 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 	}
 
 	[PunRPC]
-	public void SwitchWeapon(bool switchRight)
+	public void SwitchWeapon(int[] weaponBalances)
     {
 		int previousIndex = activeWeaponIndex;	// save for stop reload sound
 
-		if (switchRight)
+		// OLD -- if (switchRight) { }
+
+		// Inactivate the current one
+		weapons[activeWeaponIndex].SetActive(false);
+
+		// Increase the index until find a owned weapon (Goes to right by default)
+		do
 		{
-			// Inactivate the current one
-			weapons[activeWeaponIndex].SetActive(false);
+			activeWeaponIndex++;
 
-			// Increase the index until find a owned weapon
-			do 
-			{ 
-				activeWeaponIndex++;
-
-				// If we go beyond the range, reset the index
-				if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0; 
-			}
-			while (dm.weaponBalance[activeWeaponIndex] <= 0 || !dm.isWeaponActive[activeWeaponIndex]);
+			// If we go beyond the range, reset the index
+			if (activeWeaponIndex >= weapons.Length) activeWeaponIndex = 0;
 		}
+		while (weaponBalances[activeWeaponIndex] <= 0 || !dm.isWeaponActive[activeWeaponIndex]);
+
+		// Activate the new weapon sprite
+		weapons[activeWeaponIndex].SetActive(true);
+		weaponUI.sprite = weaponSprites[activeWeaponIndex];
+
+		if (!isOwner) return;	// Don't execute below if not owner
 
 		// If a reloading couroutine was there
 		if (reloadCoroutine != null)
@@ -635,10 +640,6 @@ public class SimpleContoller : MonoBehaviourPunCallbacks
 			StopCoroutine(reloadCoroutine);
 			StopReloadSound(previousIndex);
 		}
-
-		// Activate the new weapon sprite
-		weapons[activeWeaponIndex].SetActive(true);
-		weaponUI.sprite = weaponSprites[activeWeaponIndex];
 
 		// Ammo text
 		ammoCounterText.text = magCounts[activeWeaponIndex].ToString() + "/" +

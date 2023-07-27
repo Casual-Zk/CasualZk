@@ -209,9 +209,11 @@ public class FirebaseDataManager : MonoBehaviour
         playerInfo.game_5_56mm = ammoBalance[3];
         playerInfo.game_7_62mm = ammoBalance[4];
 
+        playerInfo.email = auth.CurrentUser.Email;
+
         firestore.Document("users/" + auth.CurrentUser.UserId).
             SetAsync(playerInfo, SetOptions.MergeFields("game_5_56mm", "game_7_62mm", "game_9mm", "game_12_gauge",
-            "matchCount", "lastLogin"));
+            "matchCount", "lastLogin", "email"));
     }
 
     // Queries

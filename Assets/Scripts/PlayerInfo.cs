@@ -10,7 +10,8 @@ public class PlayerInfo
     // Size (bytes) -- Doc title size: users/6YcqslYgTFX3lZlvHG0sj1LGw347 -> 34 bytes
     /* 9+16 */        [FirestoreProperty] public string nickname { get; set; }
     /* 14+43 */        [FirestoreProperty] public string walletAddress { get; set; }
-    /* 8+16 */        [FirestoreProperty] public string refCode { get; set; }
+    /* 14+43 */        [FirestoreProperty] public string email { get; set; }
+    /* 8+16 */          [FirestoreProperty] public string refCode { get; set; }
     /* 9+1  */        [FirestoreProperty] public bool isTester { get; set; }
     /* 19+8  */        [FirestoreProperty] public Timestamp weekInfoUpdateTime { get; set; }
     /* 10+8  */        [FirestoreProperty] public Timestamp lastLogin { get; set; }
