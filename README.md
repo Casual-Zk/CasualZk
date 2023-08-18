@@ -34,6 +34,27 @@ Zk Chickens is an exciting game with lots of other exciting features like **Comm
 
 Here you can follow [this tutorial video](https://www.youtube.com/watch?v=MR9lq-YVOF8) to start playing!
 
+## Key Features
+- **Multiplayer** PvP Random Matches!
+- **Blockchain-based** game!
+- Fast pace **casual** shooter!
+- ERC1155 **NFTs** as in-game items!
+- Available on **Google Play Store!**
+
+## Challenges and Implementation
+✅ Making a **multiplayer** game is a hard task! I have done it by using Photon Network.
+
+✅ **Smart Contracts and Tokenomics:** Sustainable tokenomics is a real challenge. I have designed a tokenomics that will not collapse due to high inflation! A Treasury contract to provide and distribute game rewards!
+
+✅ **Lottery System:** I've developed a lottery system to distribute the game rewards among players. This system motivates all players to play and provides a fair system and weekly excitement for gamers!
+
+✅ **Community/Clan System:** Current community system incentivizes the community leaders to bring their folks to the game and play together and earn together. Like Bitcoin mining pools! This system boosts growth incredibly!
+
+✅ **Dynamic admin settings:** I can change most of the game settings via the Database instantly. Player counts per match, player speed, health, damage, etc.
+
+✅ User **authentication** and **Database** with Firebase.
+
+<br></br>
 <p align="center">
 <img src="https://github.com/Casual-Zk/.github/blob/main/profile/Images/Zk_Chickens.gif" alt="Zk Chickens Egg" width="450"/>
 </p>
